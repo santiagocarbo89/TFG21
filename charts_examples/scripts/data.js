@@ -1,5 +1,23 @@
 var ctx;
-data = [16,68,20,30,54];
+var data = [16,68,20,30,54];
+
+function getCSVData() {
+    const myForm = document.getElementById("myForm");
+    const csvFile = document.getElementById("csvFile");
+
+    myForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const input = csvFile.files[0];
+        console.log("Form submitted");
+
+        const reader = new FileReader();
+        reader.onload = function(evenet) {
+            document.write(evenet.target.result);
+        }
+
+        reader.readAsText(input);
+    });
+}
 
 function draw() {
     const canvas = document.getElementById('charts');
