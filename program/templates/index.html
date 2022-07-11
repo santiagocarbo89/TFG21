@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Data visualization of the Sustainable Development Goals</title>
+        <script src="../scripts/index-functions.js"></script>
+        <link rel="stylesheet" href="../styles/index-styles.css">
+    </head>
+    <body onload="draw_bar_chart();">
+        <div class="insert-csv">
+            <h2>Insert .csv here</h2>
+            <form id="obtainCSVForm" onchange="getCSVData();">
+                <input type="file" id="csvFile" accept=".csv"/>
+                <input type="submit" value="ENVIAR"/>
+            </form>
+        </div>
+        <canvas id="bar_chart"></canvas>
+    </body>
+</html>
