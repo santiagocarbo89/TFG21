@@ -7,3 +7,31 @@ body {
     text-align: center;
     padding: 2.5%;
 }
+
+#WebGL-output {
+	display:none;
+}
+
+#show-charts-buttom {
+    box-shadow:inset 0px 34px 0px -15px #b54b3a;
+	background-color:#a73f2d;
+	border:1px solid #241d13;
+	display:none;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:9px 23px;
+	text-decoration:none;
+	text-shadow:0px -1px 0px #7a2a1d;
+}
+
+.charts {
+
+}
+
+ #bar_chart {
+    width: 100%;
+    height: 100%;
+ }
