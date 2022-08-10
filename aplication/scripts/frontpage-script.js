@@ -31,6 +31,8 @@ function draw_logo(){
 }
 
 // Bar Chart | Gráfico de barras
+
+
 function draw_bar_chart() {
     canvas = document.getElementById('bar-chart');
 
@@ -46,4 +48,16 @@ function draw_bar_chart() {
 }
 
 // Pie Chart | Gráfico de barras
+
+// Funciones auxiliares
+function draw_axes(){
+  if (canvas.getContext) {
+    ctx = canvas.getContext('2d');
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(175, 25);
+    ctx.lineTo(75, 125);
+    ctx.stroke();
+  }
+}
 
