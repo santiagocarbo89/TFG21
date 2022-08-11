@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Data Visualization of the Sustainable Development Goals</title>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="frontpage.css">
+        <script src="frontpage-script.js"></script>
+    </head>
+    <body onload="draw();">
+        <header><canvas id="logo"></canvas> Data Visualization of the Sustainable Development Goals</header>
+        <nav>
+            <ul>
+                <li onclick="showHome();">Home</li>
+                <li onclick="showData();">Data</li>
+                <li onclick="showContact();">Contact</li>
+                <li onclick="showAbout();">About</li>
+            </ul>
+        </nav>
+        <div class="main">
+            <div id="home">
+                <div class="graph">
+                    <h3>Bar chart</h3>
+                    <img src="imgs/bar-chart.png">
+                    <canvas id="bar-chart"></canvas>
+                </div>
+                <div class="graph">
+                    <h3>Line chart</h3>
+                    <img src="imgs/line-chart.jpg">
+                    <canvas id="bar-chart"></canvas>
+                </div>
+                <div class="graph">
+                    <h3>Pie chart</h3>
+                    <img src="imgs/pie-chart.png">
+                    <canvas id="bar-chart"></canvas>
+                </div>
+            </div>
+            <div id="data">
+                <div class="drop-insert-file" ondrop="dropManager(event)" ondragover="dragoverManager(event)">
+                    <h3>Drop or insert a file</h3>
+                    <input type="file" id="insert-file" accept=".csv" onchange="insertManager(this.files)"><br></br>
+                </div>
+                <div id="content"></div>
+            </div>
+            <div id="contact">
+
+            </div>
+            <div id="about">
+
+            </div>
+            <aside>
+                <h3>Bibliografía relacionada</h3>
+                <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">Canvas API - MDN Web Docs - Mozilla</a></p>
+                
+            </aside>
+        </div>
+    </body>
+</html>
