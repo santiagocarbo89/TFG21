@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="frontpage.css">
         <script src="frontpage-script.js"></script>
     </head>
-    <body onload="draw();">
+    <body onload="draw_logo();">
         <header><canvas id="logo"></canvas> Data Visualization of the Sustainable Development Goals</header>
         <nav>
             <ul>
@@ -18,21 +18,30 @@
         </nav>
         <div class="main">
             <div id="home">
-                <div class="graph">
+                <div class="graph" onclick="showBarCharts();">
                     <h3>Bar chart</h3>
                     <img src="imgs/bar-chart.png">
-                    <canvas id="bar-chart"></canvas>
                 </div>
-                <div class="graph">
+                <div class="graph" onclick="showLineCharts();">
                     <h3>Line chart</h3>
                     <img src="imgs/line-chart.jpg">
-                    <canvas id="bar-chart"></canvas>
                 </div>
-                <div class="graph">
+                <div class="graph" onclick="showPieCharts();">
                     <h3>Pie chart</h3>
                     <img src="imgs/pie-chart.png">
-                    <canvas id="bar-chart"></canvas>
                 </div>
+            </div>
+            <div id="bar-charts">
+                <div class="back" onclick="showHome();">
+                    <strong>&larr; Back</strong>
+                </div>
+                <div id="bar-charts-content"></div>
+            </div>
+            <div id="line-charts">
+                
+            </div>
+            <div id="pie-charts">
+                
             </div>
             <div id="data">
                 <div class="drop-insert-file" ondrop="dropManager(event)" ondragover="dragoverManager(event)">

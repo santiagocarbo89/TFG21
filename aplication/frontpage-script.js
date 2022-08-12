@@ -1,12 +1,29 @@
 var canvas;
 var ctx;
 var fileReader = new FileReader();
+var sectionColor;
+var previousSectionColor;
+var bar_chart_width = "750";
+var bar_chart_width_integer = 750;
+var bar_chart_height = "750";
+var cealing = 370;
+
+function getSectionColor(){
+  do{
+    sectionColor = Math.floor(Math.random()*16777215).toString(16);
+  }while(previousSectionColor == sectionColor);
+  previousSectionColor = sectionColor;
+
+  return ('#' + sectionColor);
+}
+
 
 class ChartData{
   constructor() {
     this.unstructured_data = '';
     this.structured_data_tags = [];
     this.structured_data_values = [];
+    this.variable_tags = [];
     this.variable_values = [];
     this.number_of_variables = 0;
     this.title = '';
@@ -16,8 +33,24 @@ class ChartData{
     return this.unstructured_data;
   }
 
+  getStructuredDataTags(){
+    return this.structured_data_tags;
+  }
+
+  getStructuredDataValues(){
+    return this.structured_data_values;
+  }
+
   getNumberOfVariables(){
     return this.number_of_variables;
+  }
+
+  getVariableTags(){
+    return this.variable_tags;
+  }
+
+  getVariableValues(){
+    return this.variable_values;
   }
 
   getTitle(){
@@ -36,8 +69,12 @@ class ChartData{
     this.structured_data_values[i] = s_dat_values;
   }
 
-  setVariableValues(i, var_val){
-    this.variable_values[i] = var_val;
+  setVariableTags(var_tag){
+    this.variable_tags.push(var_tag);
+  }
+
+  setVariableValues(var_val){
+    this.variable_values.push(var_val);
   }
 
   setNumberOfVariables(num_of_var){
@@ -54,6 +91,9 @@ var charts_data = [];
 // Funciones para visibilizar y ocultar
 function showHome(){
   document.getElementById("home").style.display = "block";
+  document.getElementById("bar-charts").style.display = "none";
+  document.getElementById("line-charts").style.display = "none";
+  document.getElementById("pie-charts").style.display = "none";
   document.getElementById("data").style.display = "none";
   document.getElementById("contact").style.display = "none";
   document.getElementById("about").style.display = "none";
@@ -61,6 +101,9 @@ function showHome(){
 
 function showData(){
   document.getElementById("home").style.display = "none";
+  document.getElementById("bar-charts").style.display = "none";
+  document.getElementById("line-charts").style.display = "none";
+  document.getElementById("pie-charts").style.display = "none";
   document.getElementById("data").style.display = "block";
   document.getElementById("contact").style.display = "none";
   document.getElementById("about").style.display = "none";
@@ -68,6 +111,9 @@ function showData(){
 
 function showContact(){
   document.getElementById("home").style.display = "none";
+  document.getElementById("bar-charts").style.display = "none";
+  document.getElementById("line-charts").style.display = "none";
+  document.getElementById("pie-charts").style.display = "none";
   document.getElementById("data").style.display = "none";
   document.getElementById("contact").style.display = "block";
   document.getElementById("about").style.display = "none";
@@ -75,15 +121,17 @@ function showContact(){
 
 function showAbout(){
   document.getElementById("home").style.display = "none";
+  document.getElementById("bar-charts").style.display = "none";
+  document.getElementById("line-charts").style.display = "none";
+  document.getElementById("pie-charts").style.display = "none";
   document.getElementById("data").style.display = "none";
   document.getElementById("contact").style.display = "none";
   document.getElementById("about").style.display = "block";
 }
 
-//
-function draw(){
-    draw_logo();
-    //draw_bar_chart();
+function showBarCharts(){
+  document.getElementById("home").style.display = "none";
+  document.getElementById("bar-charts").style.display = "block";
 }
 
 // Logo
@@ -110,36 +158,42 @@ function draw_logo(){
     ctx.stroke();
 }
 
-// Bar Chart | Gráfico de barras
+// Bar Charts | Gráficos de barras
+function draw_bar_charts() {
+    for(var i = 0; i < charts_data.length; i++){
+      var chart_id = "bar-chart-" + (i+1);
+      canvas = document.getElementById(chart_id);
 
+      if (canvas.getContext) {
+        ctx = canvas.getContext('2d');
+      }
 
-function draw_bar_chart() {
-    canvas = document.getElementById('bar-chart');
+      var current_chart = charts_data[i];
 
-    if (canvas.getContext) {
-      ctx = canvas.getContext('2d');
+      //Draw axis lines
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      ctx.moveTo(0,10);
+      ctx.lineTo(0,cealing);
+      ctx.lineTo(bar_chart_width_integer,cealing);
+      ctx.stroke(); 
+
+      for(var j = 0; j < current_chart.getStructuredDataValues().length; j++){
+        ctx.fillStyle = getSectionColor();
+        var value = current_chart.getStructuredDataValues()[j];
+        ctx.fillRect(5 + j*40,cealing-value*15, 35, value*15);
+      }
+
+      ctx.fillStyle = "black";
+
+      for(var j = 0; j < current_chart.getStructuredDataTags().length; j++){
+        ctx.fillText(current_chart.getStructuredDataTags()[j], 10 + j*40, cealing + 10);
+      } 
     }
-
-    ctx.fillStyle = 'rgb(200, 0, 0)';
-    ctx.fillRect(10, 10, 50, 50);
-
-    ctx.fillStyle = 'rgba(0, 0, 200, 0.5)';
-    ctx.fillRect(30, 30, 50, 50);
 }
 
 // Pie Chart | Gráfico de barras
-
-// Funciones auxiliares
-function draw_axes(){
-  if (canvas.getContext) {
-    ctx = canvas.getContext('2d');
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(175, 25);
-    ctx.lineTo(75, 125);
-    ctx.stroke();
-  }
-}
 
 // Funciones para insertar archivos
 function insertManager(file){
@@ -182,21 +236,29 @@ function structure_data(uns_dat, tit){
   var unstructured_data_by_endline = chart_data.getUnstructuredData().split("\n");
   unstructured_data_by_endline.shift();
   chart_data.setNumberOfVariables(unstructured_data_by_endline[0].split(";").length/2 - 1);
-  var unstructured_data_split_by_semicolon = [];
+  var unstructured_data_split_by_semicolon;
 
-  for(var i = 0; i < unstructured_data_by_endline.length; i++){
+  for(var i = 0; i < unstructured_data_by_endline[0].split(";").length-2; i ++){
+    if(i % 2 == 0)
+      chart_data.setVariableTags(unstructured_data_by_endline[0].split(";")[i]);
+    else
+      chart_data.setVariableValues(unstructured_data_by_endline[0].split(";")[i]);
+  }
+
+  var aux_value;
+
+  for(var i = 0; i < unstructured_data_by_endline.length-1; i++){
     unstructured_data_split_by_semicolon = unstructured_data_by_endline[i].split(";");
 
-    if(i == 0){
-      for(var j = 0; j < chart_data.length-2; j += 2)
-        chart_data.setVariableValues(j, unstructured_data_split_by_semicolon[j+1]);
-    }
-          
     chart_data.setStructuredDataTags(i, unstructured_data_split_by_semicolon[unstructured_data_split_by_semicolon.length-2]);
-    chart_data.setStructuredDataValues(i, unstructured_data_split_by_semicolon[unstructured_data_split_by_semicolon.length-1]);
+
+    aux_value = unstructured_data_split_by_semicolon[unstructured_data_split_by_semicolon.length-1].replace(',','.');
+
+    chart_data.setStructuredDataValues(i, aux_value);
   }
 
   charts_data.push(chart_data);
+  createBarChart();
   addDataToHTML();
 }
 
@@ -207,5 +269,24 @@ function addDataToHTML(){
   "    <p>Title: " + charts_data[charts_data.length-1].getTitle() + "</p>" +
   "    <p>Number of variables: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</p>" +
   "</div>";
+}
+
+function createBarChart(){
+  var new_content = 
+  "<div id=\"bar-chart\">" +
+  "    <h3>Title: " + charts_data[charts_data.length-1].getTitle() + "</h3>" +
+  "    <strong>Number of variables: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</strong><br></br>";
+
+  for(var i = 0; i < charts_data[charts_data.length-1].getNumberOfVariables(); i++){
+    new_content += "<strong>Variable " + (i+1) + " (" + charts_data[charts_data.length-1].getVariableTags()[i] + "): " + charts_data[charts_data.length-1].getVariableValues()[i] + "</strong><br></br>";
+  }
+
+  new_content += "<canvas id=\"bar-chart-" + charts_data.length + "\"></canvas>";
+  new_content += "</div>";
+
+  document.getElementById("bar-charts-content").innerHTML += new_content;
+  document.getElementById("bar-chart-" + charts_data.length).width = bar_chart_width;
+  document.getElementById("bar-chart-" + charts_data.length).height = bar_chart_height;
+  draw_bar_charts();
 }
 
