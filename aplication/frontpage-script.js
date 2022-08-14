@@ -7,6 +7,8 @@ var bar_chart_width = "750";
 var bar_chart_width_integer = 750;
 var bar_chart_height = "750";
 var cealing = 370;
+var factor_cealing = 0.75;
+var number_of_vertical_lines = 10;
 
 function getSectionColor(){
   do{
@@ -160,40 +162,55 @@ function draw_logo(){
 
 // Bar Charts | Gráficos de barras
 function draw_bar_charts() {
-    for(var i = 0; i < charts_data.length; i++){
-      var chart_id = "bar-chart-" + (i+1);
-      canvas = document.getElementById(chart_id);
-
-      if (canvas.getContext) {
-        ctx = canvas.getContext('2d');
-      }
-
-      var current_chart = charts_data[i];
-
-      //Draw axis lines
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 1.0;
-      ctx.beginPath();
-      ctx.moveTo(0,10);
-      ctx.lineTo(0,cealing);
-      ctx.lineTo(bar_chart_width_integer,cealing);
-      ctx.stroke(); 
-
-      for(var j = 0; j < current_chart.getStructuredDataValues().length; j++){
-        ctx.fillStyle = getSectionColor();
-        var value = current_chart.getStructuredDataValues()[j];
-        ctx.fillRect(5 + j*40,cealing-value*15, 35, value*15);
-      }
-
-      ctx.fillStyle = "black";
-
-      for(var j = 0; j < current_chart.getStructuredDataTags().length; j++){
-        ctx.fillText(current_chart.getStructuredDataTags()[j], 10 + j*40, cealing + 10);
-      } 
+  for(var i = 0; i < charts_data.length; i++){
+    var chart_id = "bar-chart-" + (i+1);
+    canvas = document.getElementById(chart_id);
+  
+    if (canvas.getContext) {
+      ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 1.0;
+    ctx.beginPath();
+    ctx.moveTo(50,10);
+    ctx.lineTo(50,cealing);
+    ctx.lineTo(bar_chart_width_integer,cealing);
+    ctx.stroke();
+
+    var factor_y = (cealing*factor_cealing)/getMaxSerieValue(i);
+
+    for(var j = 0; j < number_of_vertical_lines; j++){
+      ctx.fillText("1000000", 0, ((cealing+28)/number_of_vertical_lines)*j + 11);
+      ctx.beginPath();
+      ctx.moveTo(45,((cealing+28)/number_of_vertical_lines)*j + 11);
+      ctx.lineTo(50,((cealing+28)/number_of_vertical_lines)*j + 11);
+      ctx.stroke();
+    }
+
+    var current_chart = charts_data[i];
+
+    for(var j = 0; j < current_chart.getStructuredDataValues().length; j++){
+      ctx.fillStyle = getSectionColor();
+      var value = current_chart.getStructuredDataValues()[j];
+      ctx.fillRect(55 + j*40,cealing-value*factor_y-1, 35, value*factor_y);
+    }
+
+    ctx.fillStyle = "black";
+
+    for(var j = 0; j < current_chart.getStructuredDataTags().length; j++){
+      ctx.fillText(current_chart.getStructuredDataTags()[j], 60 + j*40, cealing + 10);
+    }
+  }
 }
 
 // Pie Chart | Gráfico de barras
+
+// Funciones auxiliares para gráficas
+function getMaxSerieValue(i) {
+  return Math.max.apply(null, charts_data[i].getStructuredDataValues());
+}
 
 // Funciones para insertar archivos
 function insertManager(file){
@@ -256,7 +273,7 @@ function structure_data(uns_dat, tit){
 
     chart_data.setStructuredDataValues(i, aux_value);
   }
-
+  
   charts_data.push(chart_data);
   createBarChart();
   addDataToHTML();
@@ -273,7 +290,7 @@ function addDataToHTML(){
 
 function createBarChart(){
   var new_content = 
-  "<div id=\"bar-chart\">" +
+  "<div class=\"bar-chart\">" +
   "    <h3>Title: " + charts_data[charts_data.length-1].getTitle() + "</h3>" +
   "    <strong>Number of variables: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</strong><br></br>";
 

@@ -138,7 +138,7 @@ body{
     background-color: beige;
 }
 
-#bar-chart{
+.bar-chart{
     float: left;
     font-family: sans-serif;
     margin: 1%;
