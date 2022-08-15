@@ -180,9 +180,11 @@ function draw_bar_charts() {
     ctx.stroke();
 
     var factor_y = (cealing*factor_cealing)/getMaxSerieValue(i);
+    var number_tag;
 
     for(var j = 0; j < number_of_vertical_lines; j++){
-      ctx.fillText("1000000", 0, ((cealing+28)/number_of_vertical_lines)*j + 11);
+      number_tag = (cealing+28)/factor_y*((number_of_vertical_lines-j-1)/number_of_vertical_lines);
+      ctx.fillText(number_tag.toFixed(2) + "", 0, ((cealing+28)/number_of_vertical_lines)*j + 11);
       ctx.beginPath();
       ctx.moveTo(45,((cealing+28)/number_of_vertical_lines)*j + 11);
       ctx.lineTo(50,((cealing+28)/number_of_vertical_lines)*j + 11);
@@ -200,6 +202,7 @@ function draw_bar_charts() {
     ctx.fillStyle = "black";
 
     for(var j = 0; j < current_chart.getStructuredDataTags().length; j++){
+      ctx.fillText(current_chart.getStructuredDataValues()[j], 60 + j*40, cealing - current_chart.getStructuredDataValues()[j]*factor_y - 5);
       ctx.fillText(current_chart.getStructuredDataTags()[j], 60 + j*40, cealing + 10);
     }
   }
