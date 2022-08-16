@@ -136,6 +136,16 @@ function showBarCharts(){
   document.getElementById("bar-charts").style.display = "block";
 }
 
+function showLineCharts(){
+  document.getElementById("home").style.display = "none";
+  document.getElementById("line-charts").style.display = "block";
+}
+
+function showPieCharts(){
+  document.getElementById("home").style.display = "none";
+  document.getElementById("pie-charts").style.display = "block";
+}
+
 // Logo
 function draw_logo(){
     canvas = document.getElementById('logo');
@@ -208,7 +218,59 @@ function draw_bar_charts() {
   }
 }
 
-// Pie Chart | Gráfico de barras
+// Line Chart | Gráfico de barras
+function draw_line_charts() {
+  for(var i = 0; i < charts_data.length; i++){
+    var chart_id = "line-chart-" + (i+1);
+    canvas = document.getElementById(chart_id);
+  
+    if (canvas.getContext) {
+      ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 1.0;
+    ctx.beginPath();
+    ctx.moveTo(50,10);
+    ctx.lineTo(50,cealing);
+    ctx.lineTo(bar_chart_width_integer,cealing);
+    ctx.stroke();
+
+    var factor_y = (cealing*factor_cealing)/getMaxSerieValue(i);
+    var number_tag;
+
+    for(var j = 0; j < number_of_vertical_lines; j++){
+      number_tag = (cealing+28)/factor_y*((number_of_vertical_lines-j-1)/number_of_vertical_lines);
+      ctx.fillText(number_tag.toFixed(2) + "", 0, ((cealing+28)/number_of_vertical_lines)*j + 11);
+      ctx.beginPath();
+      ctx.moveTo(45,((cealing+28)/number_of_vertical_lines)*j + 11);
+      ctx.lineTo(50,((cealing+28)/number_of_vertical_lines)*j + 11);
+      ctx.stroke();
+    }
+
+    var current_chart = charts_data[i];
+    ctx.strokeStyle = getSectionColor();
+    ctx.lineWidth = 3.0;
+    ctx.beginPath();
+    ctx.moveTo(55,cealing-current_chart.getStructuredDataValues()[0]*factor_y-1);
+
+    for(var j = 1; j < current_chart.getStructuredDataValues().length; j++){
+      var value = current_chart.getStructuredDataValues()[j];
+      //ctx.fillRect(55 + j*40,cealing-value*factor_y-1, 35, value*factor_y);
+      ctx.lineTo(55 + j*40,cealing-value*factor_y-1);
+    }
+
+    ctx.stroke();
+
+    ctx.fillStyle = "black";
+
+    for(var j = 0; j < current_chart.getStructuredDataTags().length; j++){
+      ctx.fillText(current_chart.getStructuredDataValues()[j], 60 + j*40, cealing - current_chart.getStructuredDataValues()[j]*factor_y - 5);
+      ctx.fillText(current_chart.getStructuredDataTags()[j], 60 + j*40, cealing + 10);
+    }
+  }
+}
 
 // Funciones auxiliares para gráficas
 function getMaxSerieValue(i) {
@@ -279,6 +341,7 @@ function structure_data(uns_dat, tit){
   
   charts_data.push(chart_data);
   createBarChart();
+  createLineChart();
   addDataToHTML();
 }
 
@@ -308,5 +371,24 @@ function createBarChart(){
   document.getElementById("bar-chart-" + charts_data.length).width = bar_chart_width;
   document.getElementById("bar-chart-" + charts_data.length).height = bar_chart_height;
   draw_bar_charts();
+}
+
+function createLineChart(){
+  var new_content = 
+  "<div class=\"line-chart\">" +
+  "    <h3>Title: " + charts_data[charts_data.length-1].getTitle() + "</h3>" +
+  "    <strong>Number of variables: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</strong><br></br>";
+
+  for(var i = 0; i < charts_data[charts_data.length-1].getNumberOfVariables(); i++){
+    new_content += "<strong>Variable " + (i+1) + " (" + charts_data[charts_data.length-1].getVariableTags()[i] + "): " + charts_data[charts_data.length-1].getVariableValues()[i] + "</strong><br></br>";
+  }
+
+  new_content += "<canvas id=\"line-chart-" + charts_data.length + "\"></canvas>";
+  new_content += "</div>";
+
+  document.getElementById("line-charts-content").innerHTML += new_content;
+  document.getElementById("line-chart-" + charts_data.length).width = bar_chart_width;
+  document.getElementById("line-chart-" + charts_data.length).height = bar_chart_height;
+  draw_line_charts();
 }
 
