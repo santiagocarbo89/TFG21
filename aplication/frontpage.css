@@ -180,6 +180,18 @@ body{
     background-color: beige;
 }
 
+.pie-chart{
+    float: left;
+    font-family: sans-serif;
+    margin: 1%;
+    padding: 0.005%;
+    padding-left: 1%;
+    width: 97%;
+    height: 50%;
+    border-radius: 25px;
+    background-color:#f0ffff;
+}
+
 aside{
     margin-left: 5%;
     margin-top: 1%;

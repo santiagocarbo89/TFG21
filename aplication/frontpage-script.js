@@ -218,7 +218,7 @@ function draw_bar_charts() {
   }
 }
 
-// Line Chart | Gráfico de barras
+// Line Chart | Gráfico de líneas
 function draw_line_charts() {
   for(var i = 0; i < charts_data.length; i++){
     var chart_id = "line-chart-" + (i+1);
@@ -253,12 +253,11 @@ function draw_line_charts() {
     ctx.strokeStyle = getSectionColor();
     ctx.lineWidth = 3.0;
     ctx.beginPath();
-    ctx.moveTo(55,cealing-current_chart.getStructuredDataValues()[0]*factor_y-1);
+    ctx.moveTo(65,cealing-current_chart.getStructuredDataValues()[0]*factor_y-1);
 
     for(var j = 1; j < current_chart.getStructuredDataValues().length; j++){
       var value = current_chart.getStructuredDataValues()[j];
-      //ctx.fillRect(55 + j*40,cealing-value*factor_y-1, 35, value*factor_y);
-      ctx.lineTo(55 + j*40,cealing-value*factor_y-1);
+      ctx.lineTo(65 + j*40,cealing-value*factor_y-1);
     }
 
     ctx.stroke();
@@ -269,6 +268,46 @@ function draw_line_charts() {
       ctx.fillText(current_chart.getStructuredDataValues()[j], 60 + j*40, cealing - current_chart.getStructuredDataValues()[j]*factor_y - 5);
       ctx.fillText(current_chart.getStructuredDataTags()[j], 60 + j*40, cealing + 10);
     }
+  }
+}
+
+// Pie Chart | Gráfico circular
+function draw_pie_charts() {
+  for(var i = 0; i < charts_data.length; i++){
+    var chart_id = "pie-chart-" + (i+1);
+    canvas = document.getElementById(chart_id);
+  
+    if (canvas.getContext) {
+      ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    var current_chart = charts_data[i];
+    var totalValues = 0;
+
+    for(var j = 0; j < current_chart.getStructuredDataValues().length; j++){
+      totalValues += parseFloat(current_chart.getStructuredDataValues()[j]);
+    }
+
+    var lastAngle = 0; 
+      
+    for(var j = 0; j < current_chart.getStructuredDataValues().length; j++){
+      var dataPart = parseFloat(current_chart.getStructuredDataValues()[j])/totalValues;
+      var currentAngle = lastAngle + 2*Math.PI*dataPart;
+      ctx.fillStyle = getSectionColor();
+      
+      ctx.beginPath();
+      ctx.moveTo(300,300);
+      ctx.arc(300,300, 200, lastAngle, currentAngle, false);
+      ctx.lineTo(300,300);
+      //ctx.fill();
+      ctx.fillStyle = "black";
+      ctx.fillText(current_chart.getStructuredDataTags()[j], (240*Math.sin(currentAngle-0.05) + 300), (240*Math.cos(currentAngle-0.05)+300));
+      ctx.fillText(current_chart.getStructuredDataValues()[j], (150*Math.sin(currentAngle-0.05) + 300), (150*Math.cos(currentAngle-0.05)+300));
+      ctx.strokeStyle = "black";
+      ctx.stroke();
+      lastAngle = currentAngle;
+    } 
   }
 }
 
@@ -342,6 +381,7 @@ function structure_data(uns_dat, tit){
   charts_data.push(chart_data);
   createBarChart();
   createLineChart();
+  createPieChart();
   addDataToHTML();
 }
 
@@ -391,4 +431,23 @@ function createLineChart(){
   document.getElementById("line-chart-" + charts_data.length).height = bar_chart_height;
   draw_line_charts();
 }
+
+function createPieChart(){
+  var new_content = 
+  "<div class=\"pie-chart\">" +
+  "    <h3>Title: " + charts_data[charts_data.length-1].getTitle() + "</h3>" +
+  "    <strong>Number of variables: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</strong><br></br>";
+
+  for(var i = 0; i < charts_data[charts_data.length-1].getNumberOfVariables(); i++){
+    new_content += "<strong>Variable " + (i+1) + " (" + charts_data[charts_data.length-1].getVariableTags()[i] + "): " + charts_data[charts_data.length-1].getVariableValues()[i] + "</strong><br></br>";
+  }
+
+  new_content += "<canvas id=\"pie-chart-" + charts_data.length + "\"></canvas>";
+  new_content += "</div>";
+
+  document.getElementById("pie-charts-content").innerHTML += new_content;
+  document.getElementById("pie-chart-" + charts_data.length).width = bar_chart_width;
+  document.getElementById("pie-chart-" + charts_data.length).height = bar_chart_height;
+  draw_pie_charts();
+} 
 
