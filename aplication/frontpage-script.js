@@ -12,13 +12,12 @@ var number_of_vertical_lines = 10;
 
 function getSectionColor(){
   do{
-    sectionColor = Math.floor(Math.random()*16777215).toString(16);
+    sectionColor = 360*Math.random();
   }while(previousSectionColor == sectionColor);
   previousSectionColor = sectionColor;
 
-  return ('#' + sectionColor);
+  return "hsl(" + sectionColor + ", 100%, 90%)";
 }
-
 
 class ChartData{
   constructor() {
@@ -155,18 +154,22 @@ function draw_logo(){
     }
 
     ctx.fillStyle = 'green';
+
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(175, 25);
     ctx.lineTo(75, 125);
     ctx.fill();
+    ctx.strokeStyle = "black";
     ctx.stroke();
+
     ctx.fillStyle = 'blue';
     ctx.beginPath();
     ctx.moveTo(175, 25);
     ctx.lineTo(75, 125);
     ctx.lineTo(225, 150);
     ctx.fill();
+    ctx.strokeStyle = "black";
     ctx.stroke();
 }
 
@@ -181,39 +184,46 @@ function draw_bar_charts() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
+    // Eje de abcisas y de ordenadas
     ctx.strokeStyle = "black";
-    ctx.lineWidth = 1.0;
+    ctx.lineWidth = 2.0;
     ctx.beginPath();
     ctx.moveTo(50,10);
-    ctx.lineTo(50,cealing);
+    ctx.lineTo(50, cealing);
     ctx.lineTo(bar_chart_width_integer,cealing);
     ctx.stroke();
 
-    var factor_y = (cealing*factor_cealing)/getMaxSerieValue(i);
+    var factor_y = (cealing*factor_cealing)/getMaxSerieValue(i); // Factor para que el gráfico tenga siempre cierto tamaño
     var number_tag;
+    ctx.font = '10pt Times New Roman'; // Fuente del texto
 
     for(var j = 0; j < number_of_vertical_lines; j++){
-      number_tag = (cealing+28)/factor_y*((number_of_vertical_lines-j-1)/number_of_vertical_lines);
-      ctx.fillText(number_tag.toFixed(2) + "", 0, ((cealing+28)/number_of_vertical_lines)*j + 11);
       ctx.beginPath();
       ctx.moveTo(45,((cealing+28)/number_of_vertical_lines)*j + 11);
       ctx.lineTo(50,((cealing+28)/number_of_vertical_lines)*j + 11);
-      ctx.stroke();
+      ctx.stroke(); // Líneas verticales que indican los números de referencia
+
+      number_tag = (cealing+28)/factor_y*((number_of_vertical_lines-j-1)/number_of_vertical_lines);
+      ctx.fillText(number_tag.toFixed(2) + "", 0, ((cealing+28)/number_of_vertical_lines)*j + 11); // Números referencias
     }
 
     var current_chart = charts_data[i];
+    ctx.strokeStyle = "black";
 
     for(var j = 0; j < current_chart.getStructuredDataValues().length; j++){
-      ctx.fillStyle = getSectionColor();
       var value = current_chart.getStructuredDataValues()[j];
-      ctx.fillRect(55 + j*40,cealing-value*factor_y-1, 35, value*factor_y);
+
+      ctx.fillStyle = getSectionColor();
+      ctx.fillRect(55 + j*40,cealing-value*factor_y-1, 35, value*factor_y); //Rellenar los rectángulos de la gráfica
+      ctx.strokeRect(55 + j*40,cealing-value*factor_y-1, 35, value*factor_y); // El contorno de los rectángulos
     }
 
     ctx.fillStyle = "black";
 
+    // Etiquetas verticales y valores de la serie horizonatales
     for(var j = 0; j < current_chart.getStructuredDataTags().length; j++){
-      ctx.fillText(current_chart.getStructuredDataValues()[j], 60 + j*40, cealing - current_chart.getStructuredDataValues()[j]*factor_y - 5);
-      ctx.fillText(current_chart.getStructuredDataTags()[j], 60 + j*40, cealing + 10);
+      ctx.fillText(current_chart.getStructuredDataValues()[j], 60 + j*40, cealing - current_chart.getStructuredDataValues()[j]*factor_y - 10);
+      ctx.fillText(current_chart.getStructuredDataTags()[j], 60 + j*40, cealing + 15);
     }
   }
 }
@@ -229,44 +239,48 @@ function draw_line_charts() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 1.0;
-    ctx.beginPath();
-    ctx.moveTo(50,10);
-    ctx.lineTo(50,cealing);
-    ctx.lineTo(bar_chart_width_integer,cealing);
-    ctx.stroke();
+     // Eje de abcisas y de ordenadas
+     ctx.strokeStyle = "black";
+     ctx.lineWidth = 2.0;
+     ctx.beginPath();
+     ctx.moveTo(50,10);
+     ctx.lineTo(50, cealing);
+     ctx.lineTo(bar_chart_width_integer,cealing);
+     ctx.stroke();
+ 
+     var factor_y = (cealing*factor_cealing)/getMaxSerieValue(i); // Factor para que el gráfico tenga siempre cierto tamaño
+     var number_tag;
+     ctx.font = '10pt Times New Roman'; // Fuente del texto
 
-    var factor_y = (cealing*factor_cealing)/getMaxSerieValue(i);
-    var number_tag;
-
-    for(var j = 0; j < number_of_vertical_lines; j++){
-      number_tag = (cealing+28)/factor_y*((number_of_vertical_lines-j-1)/number_of_vertical_lines);
-      ctx.fillText(number_tag.toFixed(2) + "", 0, ((cealing+28)/number_of_vertical_lines)*j + 11);
+     for(var j = 0; j < number_of_vertical_lines; j++){
       ctx.beginPath();
       ctx.moveTo(45,((cealing+28)/number_of_vertical_lines)*j + 11);
       ctx.lineTo(50,((cealing+28)/number_of_vertical_lines)*j + 11);
-      ctx.stroke();
+      ctx.stroke(); // Líneas verticales que indican los números de referencia
+
+      number_tag = (cealing+28)/factor_y*((number_of_vertical_lines-j-1)/number_of_vertical_lines);
+      ctx.fillText(number_tag.toFixed(2) + "", 0, ((cealing+28)/number_of_vertical_lines)*j + 10); // Números referencias
     }
 
     var current_chart = charts_data[i];
-    ctx.strokeStyle = getSectionColor();
+    ctx.strokeStyle = "hsl(7, 0%, 30%)";
     ctx.lineWidth = 3.0;
     ctx.beginPath();
-    ctx.moveTo(65,cealing-current_chart.getStructuredDataValues()[0]*factor_y-1);
+    ctx.moveTo(65,cealing-current_chart.getStructuredDataValues()[0]*factor_y-1); // Inicio del gráfico de líneas
 
     for(var j = 1; j < current_chart.getStructuredDataValues().length; j++){
       var value = current_chart.getStructuredDataValues()[j];
-      ctx.lineTo(65 + j*40,cealing-value*factor_y-1);
+      ctx.lineTo(65 + j*40,cealing-value*factor_y-1); // Cada línea del gráfico de líneas
     }
 
-    ctx.stroke();
+    ctx.stroke(); // Dibujamos todo el gráfico de líneas
 
     ctx.fillStyle = "black";
 
+    // Etiquetas verticales y valores de la serie horizonatales
     for(var j = 0; j < current_chart.getStructuredDataTags().length; j++){
-      ctx.fillText(current_chart.getStructuredDataValues()[j], 60 + j*40, cealing - current_chart.getStructuredDataValues()[j]*factor_y - 5);
-      ctx.fillText(current_chart.getStructuredDataTags()[j], 60 + j*40, cealing + 10);
+      ctx.fillText(current_chart.getStructuredDataValues()[j], 60 + j*40, cealing - current_chart.getStructuredDataValues()[j]*factor_y - 10);
+      ctx.fillText(current_chart.getStructuredDataTags()[j], 60 + j*40, cealing + 15);
     }
   }
 }
@@ -284,30 +298,48 @@ function draw_pie_charts() {
 
     var current_chart = charts_data[i];
     var totalValues = 0;
+    ctx.lineWidth = 2.0;
+    ctx.font = '10pt Times New Roman'; // Fuente del texto
 
+    /* Calculamos la suma de todos los valores para poder dividir 
+    el gráfico circular en secciones */
     for(var j = 0; j < current_chart.getStructuredDataValues().length; j++){
       totalValues += parseFloat(current_chart.getStructuredDataValues()[j]);
     }
 
-    var lastAngle = 0; 
+    var lastAngle = 0; // El ángulo inicial es 0
+    ctx.strokeStyle = "black";
       
     for(var j = 0; j < current_chart.getStructuredDataValues().length; j++){
       var dataPart = parseFloat(current_chart.getStructuredDataValues()[j])/totalValues;
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
-      ctx.fillStyle = getSectionColor();
       
       ctx.beginPath();
       ctx.moveTo(300,300);
+      
+      /* Crea arcos de una circunferencia de centro (300, 300) y de radio 200
+      en el sentido de las agujas del reloj, creando un ángulo de (currentAngle-lastAngle) radianes */
       ctx.arc(300,300, 200, lastAngle, currentAngle, false);
       ctx.lineTo(300,300);
-      //ctx.fill();
-      ctx.fillStyle = "black";
+      ctx.fillStyle = getSectionColor();
+      ctx.fill();
+      ctx.stroke();
+      
+      lastAngle = currentAngle;
+    }
+    
+    ctx.fillStyle = "black";
+    lastAngle = 0; // Volvemos a establecer como ángulo inicial 0
+
+    // Los valores y las etiquetas, creados de la misma forma que el anterior bucle
+    for(var j = 0; j < current_chart.getStructuredDataValues().length; j++){
+      var dataPart = parseFloat(current_chart.getStructuredDataValues()[j])/totalValues;
+      var currentAngle = lastAngle + 2*Math.PI*dataPart;
+
       ctx.fillText(current_chart.getStructuredDataTags()[j], (240*Math.sin(currentAngle-0.05) + 300), (240*Math.cos(currentAngle-0.05)+300));
       ctx.fillText(current_chart.getStructuredDataValues()[j], (150*Math.sin(currentAngle-0.05) + 300), (150*Math.cos(currentAngle-0.05)+300));
-      ctx.strokeStyle = "black";
-      ctx.stroke();
       lastAngle = currentAngle;
-    } 
+    }
   }
 }
 
