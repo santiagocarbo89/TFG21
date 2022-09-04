@@ -9,6 +9,10 @@ var bar_chart_height = "750";
 var cealing = 370;
 var factor_cealing = 0.75;
 var number_of_vertical_lines = 10;
+var piechart_x_center = 300;
+var piechart_y_center = 300;
+var piechart_big_radio = 250;
+var piechart_small_radio = 150;
 
 function getSectionColor(){
   do{
@@ -336,8 +340,8 @@ function draw_pie_charts() {
       var dataPart = parseFloat(current_chart.getStructuredDataValues()[j])/totalValues;
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
 
-      ctx.fillText(current_chart.getStructuredDataTags()[j], (240*Math.sin(currentAngle-0.05) + 300), (240*Math.cos(currentAngle-0.05)+300));
-      ctx.fillText(current_chart.getStructuredDataValues()[j], (150*Math.sin(currentAngle-0.05) + 300), (150*Math.cos(currentAngle-0.05)+300));
+      ctx.fillText(current_chart.getStructuredDataTags()[j], piechart_big_radio*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + piechart_x_center, piechart_big_radio*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + piechart_y_center);
+      ctx.fillText(current_chart.getStructuredDataValues()[j], piechart_small_radio*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + piechart_x_center, piechart_small_radio*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + piechart_y_center);
       lastAngle = currentAngle;
     }
   }
