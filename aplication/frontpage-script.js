@@ -1,28 +1,43 @@
+// Variables Canvas API
 var canvas;
 var ctx;
+
+// Variables para lectura de archivos
 var fileReader = new FileReader();
+
+// Variables para colores
 var sectionColor;
 var previousSectionColor;
-var bar_chart_width = "750";
-var bar_chart_width_integer = 750;
-var bar_chart_height = "750";
-var cealing = 370;
-var factor_cealing = 0.75;
-var number_of_vertical_lines = 10;
-var piechart_x_center = 300;
-var piechart_y_center = 300;
-var piechart_big_radio = 250;
-var piechart_small_radio = 150;
 
+// Constantes que indican el ancho y el alto del canvas de las gráficas
+const charts_width = 750;
+const charts_height = 750;
+
+// Constantes utilizadas para las gráficas de barras y líneas
+const cealing = 370;
+const factor_cealing = 0.75;
+const number_of_vertical_lines = 10;
+
+// Constantes utilizadas para las gráficas circulares
+const piechart_x_center = 300;
+const piechart_y_center = 300;
+const piechart_big_radio = 250;
+const piechart_radio = 200;
+const piechart_small_radio = 150;
+
+// Función para obtener un color pastel aleatorio que no sea igual al anterior
 function getSectionColor(){
   do{
     sectionColor = 360*Math.random();
   }while(previousSectionColor == sectionColor);
   previousSectionColor = sectionColor;
 
+  /* Establecemos 'lightness' en un 90% para 
+  que aparezcan colores pastel*/
   return "hsl(" + sectionColor + ", 100%, 90%)";
 }
 
+// Clase 'ChartData' que encapsula los datos procesados del .csv
 class ChartData{
   constructor() {
     this.unstructured_data = '';
@@ -91,7 +106,7 @@ class ChartData{
   }
 }
 
-var charts_data = [];
+var charts_data = []; // Vector de gráficas
 
 // Funciones para visibilizar y ocultar
 function showHome(){
@@ -194,7 +209,7 @@ function draw_bar_charts() {
     ctx.beginPath();
     ctx.moveTo(50,10);
     ctx.lineTo(50, cealing);
-    ctx.lineTo(bar_chart_width_integer,cealing);
+    ctx.lineTo(charts_width,cealing);
     ctx.stroke();
 
     var factor_y = (cealing*factor_cealing)/getMaxSerieValue(i); // Factor para que el gráfico tenga siempre cierto tamaño
@@ -249,7 +264,7 @@ function draw_line_charts() {
      ctx.beginPath();
      ctx.moveTo(50,10);
      ctx.lineTo(50, cealing);
-     ctx.lineTo(bar_chart_width_integer,cealing);
+     ctx.lineTo(charts_width,cealing);
      ctx.stroke();
  
      var factor_y = (cealing*factor_cealing)/getMaxSerieValue(i); // Factor para que el gráfico tenga siempre cierto tamaño
@@ -319,12 +334,12 @@ function draw_pie_charts() {
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
       
       ctx.beginPath();
-      ctx.moveTo(300,300);
+      ctx.moveTo(piechart_x_center,piechart_y_center);
       
       /* Crea arcos de una circunferencia de centro (300, 300) y de radio 200
       en el sentido de las agujas del reloj, creando un ángulo de (currentAngle-lastAngle) radianes */
-      ctx.arc(300,300, 200, lastAngle, currentAngle, false);
-      ctx.lineTo(300,300);
+      ctx.arc(piechart_x_center,piechart_y_center, piechart_radio, lastAngle, currentAngle, false);
+      ctx.lineTo(piechart_x_center,piechart_y_center);
       ctx.fillStyle = getSectionColor();
       ctx.fill();
       ctx.stroke();
@@ -342,6 +357,7 @@ function draw_pie_charts() {
 
       ctx.fillText(current_chart.getStructuredDataTags()[j], piechart_big_radio*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + piechart_x_center, piechart_big_radio*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + piechart_y_center);
       ctx.fillText(current_chart.getStructuredDataValues()[j], piechart_small_radio*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + piechart_x_center, piechart_small_radio*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + piechart_y_center);
+      
       lastAngle = currentAngle;
     }
   }
@@ -444,8 +460,8 @@ function createBarChart(){
   new_content += "</div>";
 
   document.getElementById("bar-charts-content").innerHTML += new_content;
-  document.getElementById("bar-chart-" + charts_data.length).width = bar_chart_width;
-  document.getElementById("bar-chart-" + charts_data.length).height = bar_chart_height;
+  document.getElementById("bar-chart-" + charts_data.length).width = charts_width.toString();
+  document.getElementById("bar-chart-" + charts_data.length).height = charts_height.toString();
   draw_bar_charts();
 }
 
@@ -463,8 +479,8 @@ function createLineChart(){
   new_content += "</div>";
 
   document.getElementById("line-charts-content").innerHTML += new_content;
-  document.getElementById("line-chart-" + charts_data.length).width = bar_chart_width;
-  document.getElementById("line-chart-" + charts_data.length).height = bar_chart_height;
+  document.getElementById("line-chart-" + charts_data.length).width = charts_width.toString();
+  document.getElementById("line-chart-" + charts_data.length).height = charts_height.toString();
   draw_line_charts();
 }
 
@@ -482,8 +498,8 @@ function createPieChart(){
   new_content += "</div>";
 
   document.getElementById("pie-charts-content").innerHTML += new_content;
-  document.getElementById("pie-chart-" + charts_data.length).width = bar_chart_width;
-  document.getElementById("pie-chart-" + charts_data.length).height = bar_chart_height;
+  document.getElementById("pie-chart-" + charts_data.length).width = charts_width.toString();
+  document.getElementById("pie-chart-" + charts_data.length).height = charts_height.toString();
   draw_pie_charts();
 } 
 
