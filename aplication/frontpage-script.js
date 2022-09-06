@@ -24,6 +24,7 @@ const piechart_y_center = 300;
 const piechart_big_radio = 250;
 const piechart_radio = 200;
 const piechart_small_radio = 150;
+const piechart_small_gradient_radio = 5;
 
 // Función para obtener un color pastel aleatorio que no sea igual al anterior
 function getSectionColor(){
@@ -231,10 +232,17 @@ function draw_bar_charts() {
 
     for(var j = 0; j < current_chart.getStructuredDataValues().length; j++){
       var value = current_chart.getStructuredDataValues()[j];
+      var x0 = 55 + j*40;
+      var y0 = cealing-value*factor_y-1;
+      var x1 = x0 + 35;
+      var y1 = y0 + value*factor_y;
 
-      ctx.fillStyle = getSectionColor();
-      ctx.fillRect(55 + j*40,cealing-value*factor_y-1, 35, value*factor_y); //Rellenar los rectángulos de la gráfica
-      ctx.strokeRect(55 + j*40,cealing-value*factor_y-1, 35, value*factor_y); // El contorno de los rectángulos
+      var gradient = ctx.createLinearGradient(x0, y0, x1, y1)
+      gradient.addColorStop(0, getSectionColor());
+      gradient.addColorStop(1, "white");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x0, y0, 35, value*factor_y); //Rellenar los rectángulos de la gráfica
+      ctx.strokeRect(x0, y0, 35, value*factor_y); // El contorno de los rectángulos
     }
 
     ctx.fillStyle = "black";
@@ -294,8 +302,6 @@ function draw_line_charts() {
 
     ctx.stroke(); // Dibujamos todo el gráfico de líneas
 
-    ctx.fillStyle = "black";
-
     // Etiquetas verticales y valores de la serie horizonatales
     for(var j = 0; j < current_chart.getStructuredDataTags().length; j++){
       ctx.fillText(current_chart.getStructuredDataValues()[j], 60 + j*40, cealing - current_chart.getStructuredDataValues()[j]*factor_y - 10);
@@ -340,7 +346,10 @@ function draw_pie_charts() {
       en el sentido de las agujas del reloj, creando un ángulo de (currentAngle-lastAngle) radianes */
       ctx.arc(piechart_x_center,piechart_y_center, piechart_radio, lastAngle, currentAngle, false);
       ctx.lineTo(piechart_x_center,piechart_y_center);
-      ctx.fillStyle = getSectionColor();
+      var gradient = ctx.createRadialGradient(piechart_x_center, piechart_y_center, piechart_small_gradient_radio, piechart_x_center, piechart_y_center, piechart_radio);
+      gradient.addColorStop(0, "white");
+      gradient.addColorStop(1, getSectionColor());
+      ctx.fillStyle = gradient;
       ctx.fill();
       ctx.stroke();
       
