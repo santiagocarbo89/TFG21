@@ -18,39 +18,21 @@
         </nav>
         <div class="main">
             <div id="home">
-                <div class="graph" onclick="showBarCharts();">
-                    <h3>Bar chart</h3>
-                    <img src="imgs/bar-chart.png">
+                <div class="header-container">
+                    <h3>Please, choose a graph type</h3>
+                    <select id="select-graph" onchange="showGraphs()">
+                        <option value="none">Graph type</option>
+                        <option value="bar">Bar Chart</option>
+                        <option value="line">Line Chart</option>
+                        <option value="pie">Pie Chart</option>
+                    </select>
+                    </div>
+                    <div id="bar-charts-content"></div>
+                    <div id="line-charts-content"></div>
+                    <div id="pie-charts-content"></div>
                 </div>
-                <div class="graph" onclick="showLineCharts();">
-                    <h3>Line chart</h3>
-                    <img src="imgs/line-chart.jpg">
-                </div>
-                <div class="graph" onclick="showPieCharts();">
-                    <h3>Pie chart</h3>
-                    <img src="imgs/pie-chart.png">
-                </div>
-            </div>
-            <div id="bar-charts">
-                <div class="back" onclick="showHome();">
-                    <strong>&larr; Back</strong>
-                </div>
-                <div id="bar-charts-content"></div>
-            </div>
-            <div id="line-charts">
-                <div class="back" onclick="showHome();">
-                    <strong>&larr; Back</strong>
-                </div>
-                <div id="line-charts-content"></div>
-            </div>
-            <div id="pie-charts">
-                <div class="back" onclick="showHome();">
-                    <strong>&larr; Back</strong>
-                </div>
-                <div id="pie-charts-content"></div>
-            </div>
             <div id="data">
-                <div class="drop-insert-file" ondrop="dropManager(event)" ondragover="dragoverManager(event)">
+                <div class="header-container" ondrop="dropManager(event)" ondragover="dragoverManager(event)">
                     <h3>Drop or insert a file</h3>
                     <input type="file" id="insert-file" accept=".csv" onchange="insertManager(this.files)"><br></br>
                 </div>

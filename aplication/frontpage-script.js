@@ -38,8 +38,15 @@ function getSectionColor(){
   return "hsl(" + sectionColor + ", 100%, 90%)";
 }
 
-// Clase 'ChartData' que encapsula los datos procesados del .csv
-class ChartData{
+// Enumerado 'ChartType'
+const ChartType = {
+  BarChart: 0,
+  LineChart: 1,
+  PieChart: 2
+}
+
+// Clase 'Chart' que encapsula los datos procesados del .csv
+class Chart{
   constructor() {
     this.unstructured_data = '';
     this.structured_data_tags = [];
@@ -107,14 +114,25 @@ class ChartData{
   }
 }
 
+
+// Clase 'DataSeries'
+class DataSeries{
+
+}
+
+
+
 var charts_data = []; // Vector de gráficas
 
 // Funciones para visibilizar y ocultar
 function showHome(){
+  var select = document.getElementById('select-graph');
+  select.selectedIndex = 0; // En 'Home' siempre dejamos que el índice elegido sea el 0
+
   document.getElementById("home").style.display = "block";
-  document.getElementById("bar-charts").style.display = "none";
-  document.getElementById("line-charts").style.display = "none";
-  document.getElementById("pie-charts").style.display = "none";
+  document.getElementById("bar-charts-content").style.display = "none";
+  document.getElementById("line-charts-content").style.display = "none";
+  document.getElementById("pie-charts-content").style.display = "none";
   document.getElementById("data").style.display = "none";
   document.getElementById("contact").style.display = "none";
   document.getElementById("about").style.display = "none";
@@ -122,9 +140,9 @@ function showHome(){
 
 function showData(){
   document.getElementById("home").style.display = "none";
-  document.getElementById("bar-charts").style.display = "none";
-  document.getElementById("line-charts").style.display = "none";
-  document.getElementById("pie-charts").style.display = "none";
+  document.getElementById("bar-charts-content").style.display = "none";
+  document.getElementById("line-charts-content").style.display = "none";
+  document.getElementById("pie-charts-content").style.display = "none";
   document.getElementById("data").style.display = "block";
   document.getElementById("contact").style.display = "none";
   document.getElementById("about").style.display = "none";
@@ -132,9 +150,9 @@ function showData(){
 
 function showContact(){
   document.getElementById("home").style.display = "none";
-  document.getElementById("bar-charts").style.display = "none";
-  document.getElementById("line-charts").style.display = "none";
-  document.getElementById("pie-charts").style.display = "none";
+  document.getElementById("bar-charts-content").style.display = "none";
+  document.getElementById("line-charts-content").style.display = "none";
+  document.getElementById("pie-charts-content").style.display = "none";
   document.getElementById("data").style.display = "none";
   document.getElementById("contact").style.display = "block";
   document.getElementById("about").style.display = "none";
@@ -142,27 +160,35 @@ function showContact(){
 
 function showAbout(){
   document.getElementById("home").style.display = "none";
-  document.getElementById("bar-charts").style.display = "none";
-  document.getElementById("line-charts").style.display = "none";
-  document.getElementById("pie-charts").style.display = "none";
+  document.getElementById("bar-charts-content").style.display = "none";
+  document.getElementById("line-charts-content").style.display = "none";
+  document.getElementById("pie-charts-content").style.display = "none";
   document.getElementById("data").style.display = "none";
   document.getElementById("contact").style.display = "none";
   document.getElementById("about").style.display = "block";
 }
 
-function showBarCharts(){
-  document.getElementById("home").style.display = "none";
-  document.getElementById("bar-charts").style.display = "block";
-}
+function showGraphs(){
+  var select = document.getElementById('select-graph');
+  var graph = select.options[select.selectedIndex].value;
 
-function showLineCharts(){
-  document.getElementById("home").style.display = "none";
-  document.getElementById("line-charts").style.display = "block";
-}
-
-function showPieCharts(){
-  document.getElementById("home").style.display = "none";
-  document.getElementById("pie-charts").style.display = "block";
+  if(graph == "none") {
+    document.getElementById("bar-charts-content").style.display = "none";
+    document.getElementById("line-charts-content").style.display = "none";
+    document.getElementById("pie-charts-content").style.display = "none";
+  } else if(graph == "bar"){ // Mostrar gráficos de barras
+    document.getElementById("bar-charts-content").style.display = "block";
+    document.getElementById("line-charts-content").style.display = "none";
+    document.getElementById("pie-charts-content").style.display = "none";
+  } else if(graph == "line") {  // Mostrar gráficos de líneas
+    document.getElementById("bar-charts-content").style.display = "none";
+    document.getElementById("line-charts-content").style.display = "block";
+    document.getElementById("pie-charts-content").style.display = "none";
+  } else if(graph == "pie") {  // Mostrar gráficos de barras
+    document.getElementById("bar-charts-content").style.display = "none";
+    document.getElementById("line-charts-content").style.display = "none";
+    document.getElementById("pie-charts-content").style.display = "block";
+  }
 }
 
 // Logo
@@ -411,7 +437,7 @@ function dragoverManager(event) {
 }
 
 function structure_data(uns_dat, tit){
-  var chart_data = new ChartData();
+  var chart_data = new Chart();
   chart_data.setTitle(tit);
   chart_data.setUnstructuredData(uns_dat);
 
@@ -447,22 +473,29 @@ function structure_data(uns_dat, tit){
 }
 
 function addDataToHTML(){
-  document.getElementById("content").innerHTML += 
+  var new_content = 
   "<div id=\"chart_data\">" +
-  "    <h3>DATA SLOT " + charts_data.length + "</h3>" +
-  "    <p>Title: " + charts_data[charts_data.length-1].getTitle() + "</p>" +
-  "    <p>Number of variables: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</p>" +
-  "</div>";
+  "    <h3>Title:  " + charts_data.length + "</h3>" +
+  "    <p>File name: " + charts_data[charts_data.length-1].getTitle() + "</p>" +
+  "    <p>Selection criteria length: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</p>";
+
+  for(var i = 0; i < charts_data[charts_data.length-1].getNumberOfVariables(); i++){
+    new_content += "<p>Selection criteria " + (i+1) + " (" + charts_data[charts_data.length-1].getVariableTags()[i] + "): " + charts_data[charts_data.length-1].getVariableValues()[i] + "</p><br></br>";
+  }
+
+  new_content += "</div>";
+
+  document.getElementById("content").innerHTML += new_content; 
 }
 
 function createBarChart(){
   var new_content = 
   "<div class=\"bar-chart\">" +
   "    <h3>Title: " + charts_data[charts_data.length-1].getTitle() + "</h3>" +
-  "    <strong>Number of variables: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</strong><br></br>";
+  "    <strong>Selection criteria length: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</strong><br></br>";
 
   for(var i = 0; i < charts_data[charts_data.length-1].getNumberOfVariables(); i++){
-    new_content += "<strong>Variable " + (i+1) + " (" + charts_data[charts_data.length-1].getVariableTags()[i] + "): " + charts_data[charts_data.length-1].getVariableValues()[i] + "</strong><br></br>";
+    new_content += "<strong>Selection criteria " + (i+1) + " (" + charts_data[charts_data.length-1].getVariableTags()[i] + "): " + charts_data[charts_data.length-1].getVariableValues()[i] + "</strong><br></br>";
   }
 
   new_content += "<canvas id=\"bar-chart-" + charts_data.length + "\"></canvas>";
@@ -478,10 +511,10 @@ function createLineChart(){
   var new_content = 
   "<div class=\"line-chart\">" +
   "    <h3>Title: " + charts_data[charts_data.length-1].getTitle() + "</h3>" +
-  "    <strong>Number of variables: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</strong><br></br>";
+  "    <strong>Selection criteria length: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</strong><br></br>";
 
   for(var i = 0; i < charts_data[charts_data.length-1].getNumberOfVariables(); i++){
-    new_content += "<strong>Variable " + (i+1) + " (" + charts_data[charts_data.length-1].getVariableTags()[i] + "): " + charts_data[charts_data.length-1].getVariableValues()[i] + "</strong><br></br>";
+    new_content += "<strong>Selection criteria " + (i+1) + " (" + charts_data[charts_data.length-1].getVariableTags()[i] + "): " + charts_data[charts_data.length-1].getVariableValues()[i] + "</strong><br></br>";
   }
 
   new_content += "<canvas id=\"line-chart-" + charts_data.length + "\"></canvas>";
@@ -497,10 +530,10 @@ function createPieChart(){
   var new_content = 
   "<div class=\"pie-chart\">" +
   "    <h3>Title: " + charts_data[charts_data.length-1].getTitle() + "</h3>" +
-  "    <strong>Number of variables: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</strong><br></br>";
+  "    <strong>Selection criteria length: "+ charts_data[charts_data.length-1].getNumberOfVariables() +"</strong><br></br>";
 
   for(var i = 0; i < charts_data[charts_data.length-1].getNumberOfVariables(); i++){
-    new_content += "<strong>Variable " + (i+1) + " (" + charts_data[charts_data.length-1].getVariableTags()[i] + "): " + charts_data[charts_data.length-1].getVariableValues()[i] + "</strong><br></br>";
+    new_content += "<strong>Selection criteria " + (i+1) + " (" + charts_data[charts_data.length-1].getVariableTags()[i] + "): " + charts_data[charts_data.length-1].getVariableValues()[i] + "</strong><br></br>";
   }
 
   new_content += "<canvas id=\"pie-chart-" + charts_data.length + "\"></canvas>";

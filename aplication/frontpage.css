@@ -45,26 +45,15 @@ body{
     background-color: beige;
 }
 
-.graph{
+.header-container{
+    margin: 1%;
+    border-radius: 25px;   
+    background-color:#f0ffff;
+    font-size: 20px;
+    line-height: 22px;
     font-family: sans-serif;
     text-align: center;
-    margin: 1%;
-    padding: 0.005%;
-    max-height: 17.5%;
-    border-radius: 25px;
-    background-color: rgb(202, 241, 213);
-}
-
-.graph:hover{
-    background-color:  #d5f9f9;
-    cursor: pointer;
-}
-
-.graph img{
-    width: 5%;
-    max-width: 50px;
-    max-height: 50px;
-    margin-bottom: 20%;
+    padding: 15px;
 }
 
 #data{
@@ -80,17 +69,6 @@ body{
     display: none;
 }
 
-.drop-insert-file{
-    margin: 1%;
-    border-radius: 25px;   
-    background-color:#f0ffff;
-    font-size: 20px;
-    line-height: 22px;
-    font-family: sans-serif;
-    text-align: center;
-    padding: 15px;
-}
-
 #content{
     margin: 1%;
     border-radius: 25px;   
@@ -98,7 +76,7 @@ body{
     line-height: 22px;
     font-family: sans-serif;
     text-align: center;
-    padding: 15px;
+    padding: 30px;
     height: 90%;
 }
 
@@ -108,26 +86,10 @@ body{
     text-align: center;
     margin: 1%;
     padding: 0.005%;
-    width: 45%;
+    width: 97.5%;
     height: 50%;
     border-radius: 25px;
     background-color:#f0ffff;
-}
-
-.back{
-    margin: 1%;
-    border-radius: 25px;   
-    background-color:#f0ffff;
-    font-size: 20px;
-    line-height: 22px;
-    font-family: sans-serif;
-    text-align: center;
-    padding: 15px;
-}
-
-.back:hover{
-    background-color:  #d5f9f9;
-    cursor: pointer;
 }
 
 #bar-charts{
