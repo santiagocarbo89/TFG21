@@ -92,6 +92,10 @@ body{
     background-color:#f0ffff;
 }
 
+#title-textbox{
+    display: none;
+}
+
 #bar-charts{
     display: none;
     margin-top: 1%;

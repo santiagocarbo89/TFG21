@@ -21,7 +21,7 @@
                 <div class="header-container">
                     <h3>Please, choose a graph type</h3>
                     <select id="select-graph" onchange="showGraphs()">
-                        <option value="none">Graph type</option>
+                        <option value="none">Choose a graph type</option>
                         <option value="bar">Bar Chart</option>
                         <option value="line">Line Chart</option>
                         <option value="pie">Pie Chart</option>
@@ -35,6 +35,13 @@
                 <div class="header-container" ondrop="dropManager(event)" ondragover="dragoverManager(event)">
                     <h3>Drop or insert a file</h3>
                     <input type="file" id="insert-file" accept=".csv" onchange="insertManager(this.files)"><br></br>
+                    <div id="title-textbox">
+                        <form id="form-textbox">
+                            <label for="title">Title:</label><br>
+                            <input type="text" name="title" id="title" required><br><br>
+                            <input type="submit" value="Submit">
+                        </form>
+                    </div>
                 </div>
                 <div id="content"></div>
             </div>
