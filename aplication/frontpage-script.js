@@ -5,11 +5,6 @@ var ctx;
 // Variables para lectura de archivos
 var fileReader = new FileReader();
 
-// Constantes que indican el ancho y el alto del canvas de las gráficas
-const charts_width = 750;
-const charts_height = 750;
-
-
 // Clase 'DataSeries' que encapsula los datos procesados del .csv
 class DataSeries{
   constructor() {
@@ -79,6 +74,7 @@ class DataSeries{
   }
 
   structure_data(){
+    
     var unstructured_data_by_endline = this.getUnstructuredData().split("\n");
     unstructured_data_by_endline.shift();
     this.setNumberOfVariables(unstructured_data_by_endline[0].split(";").length/2 - 1);
@@ -97,9 +93,13 @@ class DataSeries{
       unstructured_data_split_by_semicolon = unstructured_data_by_endline[i].split(";");
   
       this.setStructuredDataTags(i, unstructured_data_split_by_semicolon[unstructured_data_split_by_semicolon.length-2]);
-  
+      
       aux_value = unstructured_data_split_by_semicolon[unstructured_data_split_by_semicolon.length-1].replace(',','.');
-  
+      
+      if(parseFloat(aux_value) % 1 === 0 && aux_value.indexOf('.') != -1){
+        aux_value = aux_value.substring(0, aux_value.indexOf('.'));
+      }
+
       this.setStructuredDataValues(i, aux_value);
     }
   }
@@ -117,6 +117,10 @@ var pie_charts = []; // Vector de gráficos circulares
 
 // Clase 'Chart'
 class Chart{
+  /* Atributos de instancia */
+  static WIDTH = 750;
+  static HEIGHT = 400;
+
   /* Atributos de instancia */
   constructor(id, data_serie, letter_font, strokeStyle, lineWidth) {
     this.id = id;
@@ -180,12 +184,14 @@ class Chart{
       new_content += "<p><b>\tSelection criteria " + (i+1) + " (" + data_series[data_series.length-1].getVariableTags()[i] + "):</b> " + data_series[data_series.length-1].getVariableValues()[i] + "</p>";
     }
   
+    new_content += "<div class=\"horizontal-slider\">";
     new_content += "<canvas id=\"" + this.getChartType()  + "-chart-" + data_series.length + "\"></canvas>";
+    new_content += "</div>";
     new_content += "</div>";
   
     document.getElementById(this.getChartType()  + "-charts-content").innerHTML += new_content;
-    document.getElementById(this.getChartType()  + "-chart-" + data_series.length).width = charts_width.toString();
-    document.getElementById(this.getChartType()  + "-chart-" + data_series.length).height = charts_height.toString();
+    document.getElementById(this.getChartType()  + "-chart-" + data_series.length).width = this.getWidth().toString();
+    document.getElementById(this.getChartType()  + "-chart-" + data_series.length).height = Chart.HEIGHT.toString();
     
     this.refresh();
   }
@@ -193,13 +199,67 @@ class Chart{
 
 class BarChart extends Chart{
   /* Atributos de clase */
-  static CEALING = 370;
-  static FACTOR_CEALING = 0.75;
-  static NUMBER_OF_VERTICAL_LINES = 10;
+  static PADDING_LEFT = 50;
+  static PADDING_RIGHT = 10;
+  static PADDING_TOP = 10;
+  static PADDING_BOTTOM = 30;
+
+  static BARS_MARGIN = 5;
+  static SPACE_BETWEEN_BARS = 5;
+  static MAX_SCALE_FACTOR_X = 1.25;
+  static MAX_NORMAL_WIDTH = 700;
+  static MAX_SCALE_FACTOR_Y = 0.75;
+  static MAX_NUMBER_OF_VERTICAL_LINES = 10;
+  static MIN_NUMBER_OF_VERTICAL_LINES = 3;
+  static VERTICAL_LINES_WIDTH = 5;
+  static VERTICAL_LINES_RATIO = 1.0/(BarChart.MAX_NUMBER_OF_VERTICAL_LINES - BarChart.MIN_NUMBER_OF_VERTICAL_LINES)
+
+  static LETTERS_MARGIN_LEFT = 10;
+  static LETTERS_MARGIN_TOP = 15;
+  static LETTERS_MARGIN_BOTTOM = 5;
+  static LETTER_BAR_WIDTH_FACTOR = 1.25;
 
   /* Atributos de instancia */
   constructor(id, data_serie, letter_font, strokeStyle, lineWidth) {
     super(id, data_serie, letter_font, strokeStyle, lineWidth);
+
+    this.scale_factor_y = ((BarChart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM) * BarChart.MAX_SCALE_FACTOR_Y)/data_serie.getMaxSerieValue();
+    this.max_value_graph = data_serie.getMaxSerieValue()/BarChart.MAX_SCALE_FACTOR_Y;
+    
+    var letter_value_width = ctx.measureText(data_serie.getMaxSerieValue().toString()).width*BarChart.LETTER_BAR_WIDTH_FACTOR;
+    var letter_tag_width = ctx.measureText(data_serie.getStructuredDataTags()[0]).width*BarChart.LETTER_BAR_WIDTH_FACTOR;
+    
+    this.bar_width = Math.max(letter_value_width, letter_tag_width);
+
+    this.width = BarChart.MAX_SCALE_FACTOR_X*
+      Math.max((Math.ceil(BarChart.PADDING_LEFT + BarChart.BARS_MARGIN + (this.bar_width + BarChart.SPACE_BETWEEN_BARS)*data_serie.getStructuredDataValues().length)),
+      BarChart.MAX_NORMAL_WIDTH);
+
+    var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
+
+    if(logMaxValue >= 2.0)
+      this.number_of_vertical_lines = BarChart.MIN_NUMBER_OF_VERTICAL_LINES;
+    else if(logMaxValue <= 1.0)
+      this.number_of_vertical_lines = BarChart.MAX_NUMBER_OF_VERTICAL_LINES;
+    else{
+      
+      while(logMaxValue >= 1.0)
+        logMaxValue -= 1.0;
+
+      if(logMaxValue >= 0.0 && logMaxValue <= BarChart.VERTICAL_LINES_RATIO){
+        this.number_of_vertical_lines = 4;
+      } else if(logMaxValue >= BarChart.VERTICAL_LINES_RATIO && logMaxValue <= BarChart.VERTICAL_LINES_RATIO*2) {
+        this.number_of_vertical_lines = 5;
+      } else if(logMaxValue >= BarChart.VERTICAL_LINES_RATIO*2 && logMaxValue <= BarChart.VERTICAL_LINES_RATIO*3) {
+        this.number_of_vertical_lines = 6;
+      } else if(logMaxValue >= BarChart.VERTICAL_LINES_RATIO*3 && logMaxValue <= BarChart.VERTICAL_LINES_RATIO*4) {
+        this.number_of_vertical_lines = 7;
+      } else if(logMaxValue >= BarChart.VERTICAL_LINES_RATIO*4 && logMaxValue <= BarChart.VERTICAL_LINES_RATIO*5) {
+        this.number_of_vertical_lines = 8;
+      } else if(logMaxValue >= BarChart.VERTICAL_LINES_RATIO*5 && logMaxValue <= BarChart.VERTICAL_LINES_RATIO*6) {
+        this.number_of_vertical_lines = 9;
+      }
+    }
   }
 
   /* Métodos */
@@ -207,9 +267,99 @@ class BarChart extends Chart{
     return 'bar';
   }
 
+  getWidth(){
+    return this.width;
+  }
+
+  getScaleFactorY(){
+    return this.scale_factor_y;
+  }
+
+  getNumberOfVerticalLines(){
+    return this.number_of_vertical_lines;
+  }
+
+  getMaxValueChart(){
+    return this.max_value_graph;
+  }
+
   refresh(){
     draw_logo();
     draw_bar_charts();
+  }
+}
+
+// Gráficos de barras
+function draw_bar_charts() {
+  for(var i = 0; i < bar_charts.length; i++){
+    var bar_chart = bar_charts[i];
+    var chart_id = "bar-chart-" + bar_chart.getId();
+    canvas = document.getElementById(chart_id);
+  
+    if (canvas.getContext) {
+      ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    var data_serie = bar_chart.getDataSerie();
+
+    // Parámetros de estilo
+    ctx.strokeStyle = bar_chart.getStrokeStyle();
+    ctx.lineWidth = bar_chart.getLineWidth();
+    ctx.font = bar_chart.getLetterFont();
+
+    // Eje de abcisas y de ordenadas
+    ctx.beginPath();
+    ctx.moveTo(BarChart.PADDING_LEFT, BarChart.PADDING_TOP);
+    ctx.lineTo(BarChart.PADDING_LEFT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
+    ctx.lineTo(bar_chart.getWidth() - BarChart.PADDING_RIGHT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
+    ctx.stroke();
+
+    var number_tag;
+
+    for(var j = 0; j < bar_chart.getNumberOfVerticalLines(); j++){
+      
+      ctx.beginPath();
+      ctx.moveTo(BarChart.PADDING_LEFT - BarChart.VERTICAL_LINES_WIDTH,
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
+
+      ctx.lineTo(BarChart.PADDING_LEFT, 
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
+
+      ctx.stroke(); // Líneas verticales que indican los números de referencia
+
+      number_tag = bar_chart.getMaxValueChart()*(bar_chart.getNumberOfVerticalLines() - j - 1)/(bar_chart.getNumberOfVerticalLines() - 1);
+      
+      ctx.fillText(Math.ceil(number_tag).toString(), BarChart.LETTERS_MARGIN_LEFT, 
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j); // Números referencias
+    }
+      
+
+    for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
+      var value = data_serie.getStructuredDataValues()[j];
+      var x0 = BarChart.PADDING_LEFT + BarChart.BARS_MARGIN + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j;
+      var y0 = Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getScaleFactorY()*value;
+      var x1 = x0 + bar_chart.bar_width;
+      var y1 = y0 + bar_chart.getScaleFactorY()*value;
+
+      var gradient = ctx.createLinearGradient(x0, y0, x1, y1)
+      gradient.addColorStop(0, bar_chart.getSectionColor());
+      gradient.addColorStop(1, "white");
+      ctx.fillStyle = gradient;
+
+      ctx.fillRect(x0, y0, bar_chart.bar_width, bar_chart.getScaleFactorY()*value); //Rellenar los rectángulos de la gráfica
+      ctx.strokeRect(x0, y0, bar_chart.bar_width, bar_chart.getScaleFactorY()*value); // El contorno de los rectángulos
+
+      ctx.fillStyle = "black";
+
+      ctx.fillText(data_serie.getStructuredDataTags()[j], 
+        (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j, 
+          Chart.HEIGHT - BarChart.PADDING_BOTTOM + BarChart.LETTERS_MARGIN_TOP); // Tags
+      
+      ctx.fillText(data_serie.getStructuredDataValues()[j], 
+        (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j, 
+          Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getScaleFactorY()*data_serie.getStructuredDataValues()[j] - BarChart.LETTERS_MARGIN_BOTTOM); // Values
+    }
   }
 }
 
@@ -355,70 +505,6 @@ function draw_logo(){
     ctx.stroke();
 }
 
-// Gráficos de barras
-function draw_bar_charts() {
-  for(var i = 0; i < bar_charts.length; i++){
-    var bar_chart = bar_charts[i];
-    var chart_id = "bar-chart-" + bar_chart.getId();
-    canvas = document.getElementById(chart_id);
-  
-    if (canvas.getContext) {
-      ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    var data_serie = bar_chart.getDataSerie();
-
-    // Parámetros de estilo
-    ctx.strokeStyle = bar_chart.getStrokeStyle();
-    ctx.lineWidth = bar_chart.getLineWidth();
-    ctx.font = bar_chart.getLetterFont();
-
-    // Eje de abcisas y de ordenadas
-    ctx.beginPath();
-    ctx.moveTo(50,10);
-    ctx.lineTo(50, BarChart.CEALING);
-    ctx.lineTo(charts_width, BarChart.CEALING);
-    ctx.stroke();
-
-    var factor_y = (BarChart.CEALING * BarChart.FACTOR_CEALING)/data_serie.getMaxSerieValue(); // Factor para que el gráfico tenga siempre cierto tamaño
-    var number_tag;
-
-    for(var j = 0; j < BarChart.NUMBER_OF_VERTICAL_LINES; j++){
-      ctx.beginPath();
-      ctx.moveTo(45,((BarChart.CEALING + 28)/BarChart.NUMBER_OF_VERTICAL_LINES) * j + 11);
-      ctx.lineTo(50,((BarChart.CEALING + 28)/BarChart.NUMBER_OF_VERTICAL_LINES) * j + 11);
-      ctx.stroke(); // Líneas verticales que indican los números de referencia
-
-      number_tag = (BarChart.CEALING + 28)/factor_y*((BarChart.NUMBER_OF_VERTICAL_LINES-j-1)/BarChart.NUMBER_OF_VERTICAL_LINES);
-      ctx.fillText(number_tag.toFixed(2) + "", 0, ((BarChart.CEALING + 28)/BarChart.NUMBER_OF_VERTICAL_LINES)*j + 11); // Números referencias
-    }
-
-    for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
-      var value = data_serie.getStructuredDataValues()[j];
-      var x0 = 55 + j*40;
-      var y0 = BarChart.CEALING - value*factor_y - 1;
-      var x1 = x0 + 35;
-      var y1 = y0 + value*factor_y;
-
-      var gradient = ctx.createLinearGradient(x0, y0, x1, y1)
-      gradient.addColorStop(0, bar_chart.getSectionColor());
-      gradient.addColorStop(1, "white");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(x0, y0, 35, value*factor_y); //Rellenar los rectángulos de la gráfica
-      ctx.strokeRect(x0, y0, 35, value*factor_y); // El contorno de los rectángulos
-    }
-
-    ctx.fillStyle = "black";
-
-    // Etiquetas verticales y valores de la serie horizonatales
-    for(var j = 0; j < data_serie.getStructuredDataTags().length; j++){
-      ctx.fillText(data_serie.getStructuredDataValues()[j], 60 + j*40, BarChart.CEALING - data_serie.getStructuredDataValues()[j]*factor_y - 10);
-      ctx.fillText(data_serie.getStructuredDataTags()[j], 60 + j*40, BarChart.CEALING + 15);
-    }
-  }
-}
-
 // Gráfico de líneas
 function draw_line_charts() {
   for(var i = 0; i < line_charts.length; i++){
@@ -442,7 +528,7 @@ function draw_line_charts() {
     ctx.beginPath();
     ctx.moveTo(50,10);
     ctx.lineTo(50, LineChart.CEALING);
-    ctx.lineTo(charts_width, LineChart.CEALING);
+    ctx.lineTo(line_chart.getWidth(), LineChart.CEALING);
     ctx.stroke();
 
     var factor_y = (LineChart.CEALING * LineChart.FACTOR_CEALING)/data_serie.getMaxSerieValue(); // Factor para que el gráfico tenga siempre cierto tamaño
@@ -603,14 +689,14 @@ function submitCharts(file){
     bar_chart.insertChartData();
 
     // Gráfico de líneas
-    var line_chart = new LineChart(line_charts.length + 1, chart_data, '10pt Times New Roman', 'black', 2.0);
-    line_charts.push(line_chart);
-    line_chart.insertChartData();
+    //var line_chart = new LineChart(line_charts.length + 1, chart_data, '10pt Times New Roman', 'black', 2.0);
+    //line_charts.push(line_chart);
+    //line_chart.insertChartData();
 
     // Gráfico circular
-    var pie_chart = new PieChart(pie_charts.length + 1, chart_data, '10pt Times New Roman', 'black', 2.0);
-    pie_charts.push(pie_chart);
-    pie_chart.insertChartData();
+    //var pie_chart = new PieChart(pie_charts.length + 1, chart_data, '10pt Times New Roman', 'black', 2.0);
+    //pie_charts.push(pie_chart);
+    //pie_chart.insertChartData();
 
     document.getElementById("title-textbox").style.display = "none";
 
