@@ -34,9 +34,14 @@
             <div id="data">
                 <div class="header-container" ondrop="dropManager(event)" ondragover="dragoverManager(event)">
                     <h3>Drop or insert a file</h3>
-                    <input type="file" id="insert-file" accept=".csv" onchange="insertManager(this.files)"><br></br>
+                    <a href="javascript:selectFile()">
+                        <div class="select-file">Select a file</div>
+                    </a>
+                    <form>
+                        <input type="file" id="insert-file" accept=".csv" onchange="insertManager(this.files)"><br></br>
+                    </form>
                     <div id="title-textbox">
-                        <form id="form-textbox">
+                        <form id="form-textbox" onsubmit="submitCharts(event);">
                             <label for="title">Title:</label><br>
                             <input type="text" name="title" id="title" required><br><br>
                             <input type="submit" value="Submit">
