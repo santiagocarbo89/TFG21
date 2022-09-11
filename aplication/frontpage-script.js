@@ -196,6 +196,95 @@ class CanvasAPIApplication {
     this.ctx.stroke();
   }
 
+  draw_particular_bar_chart(id){
+    var bar_chart = this.bar_charts[id];
+    var chart_id = "bar-chart-" + id;
+    this.canvas = document.getElementById(chart_id);
+  
+    if(this.canvas.getContext) {
+      this.ctx = this.canvas.getContext('2d');
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    var data_serie = bar_chart.getDataSerie();
+
+    // Parámetros de estilo
+    this.ctx.strokeStyle = bar_chart.getStrokeStyle();
+    this.ctx.lineWidth = bar_chart.getLineWidth();
+    this.ctx.font = bar_chart.getLetterFont();
+
+    // Eje de abcisas y de ordenadas
+    this.ctx.beginPath();
+    this.ctx.moveTo(BarChart.PADDING_LEFT, BarChart.PADDING_TOP);
+    this.ctx.lineTo(BarChart.PADDING_LEFT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
+    this.ctx.lineTo(bar_chart.getWidth() - BarChart.PADDING_RIGHT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
+    this.ctx.stroke();
+
+    var number_tag;
+
+    for(var j = 0; j < bar_chart.getNumberOfVerticalLines(); j++){
+      
+      this.ctx.beginPath();
+      this.ctx.moveTo(BarChart.PADDING_LEFT - BarChart.VERTICAL_LINES_WIDTH,
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
+
+      this.ctx.lineTo(BarChart.PADDING_LEFT, 
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
+
+      this.ctx.stroke(); // Líneas verticales que indican los números de referencia
+
+      number_tag = bar_chart.getMaxValueChart()*(bar_chart.getNumberOfVerticalLines() - j - 1)/(bar_chart.getNumberOfVerticalLines() - 1);
+      
+      this.ctx.fillText(Math.ceil(number_tag).toString(), BarChart.LETTERS_MARGIN_LEFT, 
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j); // Números referencias
+    }
+      
+
+    for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
+      var value = data_serie.getStructuredDataValues()[j];
+      var x0 = BarChart.PADDING_LEFT + BarChart.BARS_MARGIN + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j;
+      var y0 = Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getScaleFactorY()*value;
+      var x1 = x0 + bar_chart.bar_width;
+      var y1 = y0 + bar_chart.getScaleFactorY()*value;
+
+      //var gradient = this.ctx.createLinearGradient(x0, y0, x1, y1)
+      //gradient.addColorStop(0, bar_chart.getSectionColor());
+      //gradient.addColorStop(1, "white");
+      this.ctx.fillStyle = bar_chart.getColors()[j];
+
+      //Shadows
+      if(bar_chart.getShadows()){
+        this.ctx.shadowOffsetX = 5;
+        this.ctx.shadowOffsetY = 2;
+        this.ctx.shadowBlur = 4;
+        this.ctx.shadowColor = 'black';
+      } else {
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
+        this.ctx.shadowBlur = 0;
+      }
+
+      this.ctx.fillRect(x0, y0, bar_chart.bar_width, bar_chart.getScaleFactorY()*value); //Rellenar los rectángulos de la gráfica
+
+      // Las sombras solo afectan a los rectángulos
+      this.ctx.shadowOffsetX = 0;
+      this.ctx.shadowOffsetY = 0;
+      this.ctx.shadowBlur = 0;
+
+      this.ctx.strokeRect(x0, y0, bar_chart.bar_width, bar_chart.getScaleFactorY()*value); // El contorno de los rectángulos
+
+      this.ctx.fillStyle = "black";
+
+      this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
+        (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j, 
+          Chart.HEIGHT - BarChart.PADDING_BOTTOM + BarChart.LETTERS_MARGIN_TOP); // Tags
+      
+      this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+        (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j, 
+          Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getScaleFactorY()*data_serie.getStructuredDataValues()[j] - BarChart.LETTERS_MARGIN_BOTTOM); // Values
+    }
+  }
+
   // Gráficos de barras
   draw_bar_charts() {
     for(var i = 0; i < this.bar_charts.length; i++){
@@ -249,10 +338,8 @@ class CanvasAPIApplication {
         var x1 = x0 + bar_chart.bar_width;
         var y1 = y0 + bar_chart.getScaleFactorY()*value;
 
-        var gradient = this.ctx.createLinearGradient(x0, y0, x1, y1)
-        gradient.addColorStop(0, bar_chart.getSectionColor());
-        gradient.addColorStop(1, "white");
-        this.ctx.fillStyle = gradient;
+        bar_chart.setColor(j, bar_chart.getSectionColor());
+        this.ctx.fillStyle = bar_chart.getColors()[j];
 
         this.ctx.fillRect(x0, y0, bar_chart.bar_width, bar_chart.getScaleFactorY()*value); //Rellenar los rectángulos de la gráfica
         this.ctx.strokeRect(x0, y0, bar_chart.bar_width, bar_chart.getScaleFactorY()*value); // El contorno de los rectángulos
@@ -419,6 +506,20 @@ class CanvasAPIApplication {
       }
     }
   }
+
+  changeLineWidthBarChart(id, value){
+    var real_id = id.substr(id.length - 1);
+    var bar_chart = this.bar_charts[real_id];
+    bar_chart.setLineWidth(value);
+    this.draw_particular_bar_chart(real_id);
+  }
+
+  changeShadowsBarChart(id){
+    var real_id = id.substr(id.length - 1);
+    var bar_chart = this.bar_charts[real_id];
+    bar_chart.setShadows();
+    this.draw_particular_bar_chart(real_id);
+  }
 }
 
 var application = new CanvasAPIApplication();
@@ -544,10 +645,12 @@ class Chart{
     this.id = id;
     this.data_serie = data_serie;
     this.letter_font = letter_font;
+    this.colors = []; // Colores de las correspondientes secciones
     this.sectionColor = 'white';
     this.previousSectionColor = 'white';
     this.strokeStyle = strokeStyle;
     this.lineWidth = lineWidth;
+    this.shadows = false;
   }
 
   /* Métodos */
@@ -564,6 +667,10 @@ class Chart{
     return this.letter_font;
   }
 
+  getColors(){
+    return this.colors;
+  }
+
   getStrokeStyle(){
     return this.strokeStyle;
   }
@@ -572,12 +679,20 @@ class Chart{
     return this.lineWidth;
   }
 
+  setColor(i, color){
+    this.colors[i] = color;
+  }
+
   setStrokeStyle(strokeStyle){
     this.strokeStyle = strokeStyle;
   }
 
   setLineWidth(lineWidth){
     this.lineWidth = lineWidth;
+  }
+
+  setShadows(){
+    this.shadows = !this.shadows;
   }
 
   // Función para obtener un color pastel aleatorio que no sea igual al anterior
@@ -590,6 +705,10 @@ class Chart{
     /* Establecemos 'lightness' en un 90% para 
     que aparezcan colores pastel*/
     return "hsl(" + this.sectionColor + ", 100%, 90%)";
+  }
+
+  getShadows(){
+    return this.shadows;
   }
 
   insertChartData(){
@@ -607,6 +726,17 @@ class Chart{
     if(this.getChartType() === "bar"){
       new_content += "<div class=\"options-panel-bar-chart\">";
       new_content += "<h3>Options</h3>";
+      new_content += "<hr class=\"solid\">";
+      new_content += "<div class=\"content-options\">";
+      new_content += "<h5>Line width</h5>";
+      new_content += "<input type=\"range\" id=\"bar-axis-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+      + "onchange=\"application.changeLineWidthBarChart(this.id, this.value)\">";
+      new_content += "</div>"
+      new_content += "<div class=\"content-options\">";
+      new_content += "<h5>Shadows</h5>";
+      new_content += "<input type=\"checkbox\" id=\"bar-shadows-" + this.getId() + "\""
+      + "onchange=\"application.changeShadowsBarChart(this.id)\">";
+      new_content += "</div>"
     } else if(this.getChartType() === "line"){
       new_content += "<div class=\"options-panel-line-chart\">";
       new_content += "<h3>Options</h3>";

@@ -41,11 +41,22 @@ body{
     display: none;
 }
 
+.content-options{
+    float: left;
+    text-align: center;
+    margin-right: 2.5%;
+}
+
 .options-panel-bar-chart{
     outline: solid;
     width: 90%;
+    height: 150px;
     margin-left: 2.5%;
-    padding: 1%;
+    padding: 0.5%;
+}
+
+.options-panel-bar-chart h3{
+    text-align: center;
 }
 
 .options-panel-line-chart{
@@ -132,7 +143,7 @@ body{
     padding: 0.005%;
     padding-left: 1%;
     width: 97%;
-    height: 810px;
+    height: 900px;
     border-radius: 25px;
     background-color:#f0ffff;
     overflow-x: auto;
