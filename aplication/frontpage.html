@@ -6,21 +6,21 @@
         <link rel="stylesheet" href="frontpage.css">
         <script src="frontpage-script.js" defer></script>
     </head>
-    <body onload="draw_logo();">
+    <body onload="application.draw_logo();">
         <header><canvas id="logo"></canvas> Data Visualization of the Sustainable Development Goals</header>
         <nav>
             <ul>
-                <li onclick="showHome();">Home</li>
-                <li onclick="showData();">Data</li>
-                <li onclick="showContact();">Contact</li>
-                <li onclick="showAbout();">About</li>
+                <li onclick="application.showHome();">Home</li>
+                <li onclick="application.showData();">Data</li>
+                <li onclick="application.showContact();">Contact</li>
+                <li onclick="application.showAbout();">About</li>
             </ul>
         </nav>
         <div class="main">
             <div id="home">
                 <div class="header-container">
                     <h3>Please, choose a graph type</h3>
-                    <select id="select-graph" onchange="showGraphs()">
+                    <select id="select-graph" onchange="application.showGraphs()">
                         <option value="none">Choose a graph type</option>
                         <option value="bar">Bar Chart</option>
                         <option value="line">Line Chart</option>
@@ -32,16 +32,16 @@
                     <div id="pie-charts-content"></div>
                 </div>
             <div id="data">
-                <div class="header-container" ondrop="dropManager(event)" ondragover="dragoverManager(event)">
+                <div class="header-container" ondrop="application.dropManager(event)" ondragover="application.dragoverManager(event)">
                     <h3>Drop or insert a file</h3>
-                    <a href="javascript:selectFile()">
+                    <a href="javascript:application.selectFile()">
                         <div class="select-file">Select a file</div>
                     </a>
                     <form>
-                        <input type="file" id="insert-file" accept=".csv" onchange="insertManager(this.files)"><br></br>
+                        <input type="file" id="insert-file" accept=".csv" onchange="application.insertManager(this.files)"><br></br>
                     </form>
                     <div id="title-textbox">
-                        <form id="form-textbox" onsubmit="submitCharts(event);">
+                        <form id="form-textbox" onsubmit="application.submitCharts(event);">
                             <label for="title">Title:</label><br>
                             <input type="text" name="title" id="title" required><br><br>
                             <input type="submit" value="Submit">

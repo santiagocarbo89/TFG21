@@ -41,8 +41,20 @@ body{
     display: none;
 }
 
-.select-file{
+.options-panel-bar-chart{
+    outline: solid;
+    width: 90%;
+    margin-left: 2.5%;
+    padding: 1%;
+}
+
+.options-panel-line-chart{
+    outline: solid;
     
+}
+
+.options-panel-pie-chart{
+    outline: solid;
 }
 
 #home{
@@ -120,10 +132,10 @@ body{
     padding: 0.005%;
     padding-left: 1%;
     width: 97%;
-    height: 50%;
+    height: 810px;
     border-radius: 25px;
     background-color:#f0ffff;
-    overflow: auto;
+    overflow-x: auto;
 }
 
 
@@ -143,10 +155,10 @@ body{
     padding: 0.005%;
     padding-left: 1%;
     width: 97%;
-    height: 50%;
+    height: 810px;
     border-radius: 25px;
     background-color:#f0ffff;
-    overflow: auto;
+    overflow-x: auto;
 }
 
 #pie-charts{
@@ -165,10 +177,10 @@ body{
     padding: 0.005%;
     padding-left: 1%;
     width: 97%;
-    height: 50%;
+    height: 810px;
     border-radius: 25px;
     background-color:#f0ffff;
-    overflow: auto;
+    overflow-x: auto;
 }
 
 aside{
