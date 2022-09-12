@@ -211,7 +211,9 @@ class CanvasAPIApplication {
     // Parámetros de estilo
     this.ctx.strokeStyle = bar_chart.getStrokeStyle();
     this.ctx.lineWidth = bar_chart.getLineWidth();
+    this.ctx.lineCap = bar_chart.getLineCap();
     this.ctx.font = bar_chart.getLetterFont();
+    this.ctx.globalAlpha = bar_chart.getTransparency();
 
     // Eje de abcisas y de ordenadas
     this.ctx.beginPath();
@@ -302,7 +304,9 @@ class CanvasAPIApplication {
       // Parámetros de estilo
       this.ctx.strokeStyle = bar_chart.getStrokeStyle();
       this.ctx.lineWidth = bar_chart.getLineWidth();
+      this.ctx.lineCap = bar_chart.getLineCap();
       this.ctx.font = bar_chart.getLetterFont();
+      this.ctx.globalAlpha = bar_chart.getTransparency();
 
       // Eje de abcisas y de ordenadas
       this.ctx.beginPath();
@@ -520,6 +524,20 @@ class CanvasAPIApplication {
     bar_chart.setShadows();
     this.draw_particular_bar_chart(real_id);
   }
+
+  changeTransparencyBarChart(id, value){
+    var real_id = id.substr(id.length - 1);
+    var bar_chart = this.bar_charts[real_id];
+    bar_chart.setTransparency(value);
+    this.draw_particular_bar_chart(real_id);
+  }
+
+  changeLineCapBarChart(id, value){
+    var real_id = id.substr(id.length - 1);
+    var bar_chart = this.bar_charts[real_id];
+    bar_chart.setLineCap(value);
+    this.draw_particular_bar_chart(real_id);
+  }
 }
 
 var application = new CanvasAPIApplication();
@@ -650,7 +668,9 @@ class Chart{
     this.previousSectionColor = 'white';
     this.strokeStyle = strokeStyle;
     this.lineWidth = lineWidth;
+    this.lineCap = 'butt';
     this.shadows = false;
+    this.transparency = 1.0;
   }
 
   /* Métodos */
@@ -679,6 +699,14 @@ class Chart{
     return this.lineWidth;
   }
 
+  getLineCap(){
+    return this.lineCap;
+  }
+
+  getTransparency(){
+    return this.transparency;
+  }
+
   setColor(i, color){
     this.colors[i] = color;
   }
@@ -691,8 +719,16 @@ class Chart{
     this.lineWidth = lineWidth;
   }
 
+  setLineCap(lineCap){
+    this.lineCap = lineCap;
+  }
+
   setShadows(){
     this.shadows = !this.shadows;
+  }
+
+  setTransparency(transparency){
+    this.transparency = transparency;
   }
 
   // Función para obtener un color pastel aleatorio que no sea igual al anterior
@@ -723,20 +759,41 @@ class Chart{
   
     new_content += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
 
-    if(this.getChartType() === "bar"){
+    if(this.getChartType() === "bar"){ // Opciones de los 'BarCharts'
       new_content += "<div class=\"options-panel-bar-chart\">";
       new_content += "<h3>Options</h3>";
       new_content += "<hr class=\"solid\">";
+
+      // BarChart: 'Opciones de LineWidth'
       new_content += "<div class=\"content-options\">";
       new_content += "<h5>Line width</h5>";
-      new_content += "<input type=\"range\" id=\"bar-axis-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+      new_content += "<input type=\"range\" id=\"bar-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
       + "onchange=\"application.changeLineWidthBarChart(this.id, this.value)\">";
-      new_content += "</div>"
+      new_content += "</div>";
+
+      // BarChart: 'Opciones de LineCap'
+      new_content += "<div class=\"content-options\">";
+      new_content += "<h5>Line cap</h5>";
+      new_content += "<select id=\"bar-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapBarChart(this.id, this.value)\">";
+      new_content += "<option value=\"butt\" selected>Butt</option>";
+      new_content += "<option value=\"round\">Round</option>";
+      new_content += "<option value=\"square\">Square</option>";
+      new_content += "</select>";
+      new_content += "</div>";
+
+      // BarChart: 'Opciones de Shadows'
       new_content += "<div class=\"content-options\">";
       new_content += "<h5>Shadows</h5>";
       new_content += "<input type=\"checkbox\" id=\"bar-shadows-" + this.getId() + "\""
       + "onchange=\"application.changeShadowsBarChart(this.id)\">";
-      new_content += "</div>"
+      new_content += "</div>";
+
+      // BarChart: 'Opciones de Transparency'
+      new_content += "<div class=\"content-options\">";
+      new_content += "<h5>Transparency</h5>";
+      new_content += "<input type=\"range\" id=\"bar-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+      + "value=\"1.0\" onchange=\"application.changeTransparencyBarChart(this.id, this.value)\">";
+      new_content += "</div>";
     } else if(this.getChartType() === "line"){
       new_content += "<div class=\"options-panel-line-chart\">";
       new_content += "<h3>Options</h3>";
