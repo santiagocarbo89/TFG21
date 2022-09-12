@@ -249,10 +249,10 @@ class CanvasAPIApplication {
       var x1 = x0 + bar_chart.bar_width;
       var y1 = y0 + bar_chart.getScaleFactorY()*value;
 
-      //var gradient = this.ctx.createLinearGradient(x0, y0, x1, y1)
-      //gradient.addColorStop(0, bar_chart.getSectionColor());
-      //gradient.addColorStop(1, "white");
-      this.ctx.fillStyle = bar_chart.getColors()[j];
+      var gradient = this.ctx.createLinearGradient(x0, y0, x1, y1)
+      gradient.addColorStop(1 - bar_chart.getGradient(), bar_chart.getColors()[j]);
+      gradient.addColorStop(1, "white");
+      this.ctx.fillStyle = gradient;
 
       //Shadows
       if(bar_chart.getShadows()){
@@ -538,6 +538,13 @@ class CanvasAPIApplication {
     bar_chart.setLineCap(value);
     this.draw_particular_bar_chart(real_id);
   }
+
+  changeGradientBarChart(id, value){
+    var real_id = id.substr(id.length - 1);
+    var bar_chart = this.bar_charts[real_id];
+    bar_chart.setGradient(value);
+    this.draw_particular_bar_chart(real_id);
+  }
 }
 
 var application = new CanvasAPIApplication();
@@ -671,6 +678,7 @@ class Chart{
     this.lineCap = 'butt';
     this.shadows = false;
     this.transparency = 1.0;
+    this.gradient = 0.0;
   }
 
   /* Métodos */
@@ -703,8 +711,16 @@ class Chart{
     return this.lineCap;
   }
 
+  getShadows(){
+    return this.shadows;
+  }
+
   getTransparency(){
     return this.transparency;
+  }
+
+  getGradient(){
+    return this.gradient;
   }
 
   setColor(i, color){
@@ -731,6 +747,10 @@ class Chart{
     this.transparency = transparency;
   }
 
+  setGradient(gradient){
+    this.gradient = gradient;
+  }
+
   // Función para obtener un color pastel aleatorio que no sea igual al anterior
   getSectionColor(){
     do{
@@ -741,10 +761,6 @@ class Chart{
     /* Establecemos 'lightness' en un 90% para 
     que aparezcan colores pastel*/
     return "hsl(" + this.sectionColor + ", 100%, 90%)";
-  }
-
-  getShadows(){
-    return this.shadows;
   }
 
   insertChartData(){
@@ -790,9 +806,16 @@ class Chart{
 
       // BarChart: 'Opciones de Transparency'
       new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Transparency</h5>";
+      new_content += "<h5>Opacity</h5>";
       new_content += "<input type=\"range\" id=\"bar-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
       + "value=\"1.0\" onchange=\"application.changeTransparencyBarChart(this.id, this.value)\">";
+      new_content += "</div>";
+
+      // BarChart: 'Opciones de Gradiente'
+      new_content += "<div class=\"content-options\">";
+      new_content += "<h5>Gradient</h5>";
+      new_content += "<input type=\"range\" id=\"bar-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+      + "value=\"0.0\" onchange=\"application.changeGradientBarChart(this.id, this.value)\">";
       new_content += "</div>";
     } else if(this.getChartType() === "line"){
       new_content += "<div class=\"options-panel-line-chart\">";
