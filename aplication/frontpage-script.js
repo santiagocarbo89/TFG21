@@ -148,7 +148,7 @@ class CanvasAPIApplication {
     // Gráfico circular
     var pie_chart = new PieChart(this.pie_charts.length, chart_data, '10pt Times New Roman', 'black', 2.0);
 
-    bar_chart.setColors();
+    pie_chart.setColors();
     this.pie_charts.push(pie_chart);
     pie_chart.insertChartData();
 
@@ -368,6 +368,8 @@ class CanvasAPIApplication {
       this.ctx.lineTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + LineChart.SPACE_BETWEEN_POINTS*j, 
         Chart.HEIGHT - BarChart.PADDING_BOTTOM - value*line_chart.getScaleFactorY()); // Cada línea del gráfico de líneas
 
+      this.ctx.stroke();
+
       // Las sombras solo afectan a las líneas
       this.ctx.shadowOffsetX = 0;
       this.ctx.shadowOffsetY = 0;
@@ -384,8 +386,6 @@ class CanvasAPIApplication {
         (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + LineChart.SPACE_BETWEEN_POINTS*j, 
           Chart.HEIGHT - LineChart.PADDING_BOTTOM - line_chart.getScaleFactorY()*data_serie.getStructuredDataValues()[j] - LineChart.LETTERS_MARGIN_BOTTOM); // Values
     }
-
-    this.ctx.stroke();
   }
 
   // Gráficos circulares
@@ -421,7 +421,19 @@ class CanvasAPIApplication {
       
       this.ctx.beginPath();
       this.ctx.moveTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
-      
+
+      //Shadows
+      if(pie_chart.getShadows()){
+        this.ctx.shadowOffsetX = 5;
+        this.ctx.shadowOffsetY = 2;
+        this.ctx.shadowBlur = 4;
+        this.ctx.shadowColor = 'black';
+      } else {
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
+        this.ctx.shadowBlur = 0;
+      }
+
       /* Crea arcos de una circunferencia de centro (300, 300) y de radio 200
       en el sentido de las agujas del reloj, creando un ángulo de (currentAngle-lastAngle) radianes */
       this.ctx.arc(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
@@ -435,12 +447,23 @@ class CanvasAPIApplication {
       //gradient.addColorStop(0, "white");
       //gradient.addColorStop(1, pie_chart.getSectionColor());
       
-      this.ctx.fillStyle = pie_chart.getSectionColor();
+      var gradient = this.ctx.createRadialGradient(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.SMALL_GRADIENT_RADIO*pie_chart.getGradient(), 
+      PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.RADIO);
+      
+      gradient.addColorStop(0, pie_chart.getGradientColor());
+      gradient.addColorStop(1, pie_chart.getColors()[j]);
+      this.ctx.fillStyle = gradient;
+
       this.ctx.fill();
       this.ctx.stroke();
       
       lastAngle = currentAngle;
     }
+
+    // Las sombras solo afectan a las líneas
+    this.ctx.shadowOffsetX = 0;
+    this.ctx.shadowOffsetY = 0;
+    this.ctx.shadowBlur = 0;
     
     this.ctx.fillStyle = "black";
     lastAngle = 0; // Volvemos a establecer como ángulo inicial 0
@@ -532,6 +555,42 @@ class CanvasAPIApplication {
     var line_chart = this.line_charts[real_id];
     line_chart.setLineCap(value);
     this.draw_line_chart(real_id);
+  }
+
+  // Gráficos circulares
+  changeLineWidthPieChart(id, value){
+    var real_id = id.substr(id.length - 1);
+    var pie_chart = this.pie_charts[real_id];
+    pie_chart.setLineWidth(value);
+    this.draw_pie_chart(real_id);
+  }
+
+  changeShadowsPieChart(id){
+    var real_id = id.substr(id.length - 1);
+    var pie_chart = this.pie_charts[real_id];
+    pie_chart.setShadows();
+    this.draw_pie_chart(real_id);
+  }
+
+  changeTransparencyPieChart(id, value){
+    var real_id = id.substr(id.length - 1);
+    var pie_chart = this.pie_charts[real_id];
+    pie_chart.setTransparency(value);
+    this.draw_pie_chart(real_id);
+  }
+
+  changeGradientPieChart(id, value){
+    var real_id = id.substr(id.length - 1);
+    var pie_chart = this.pie_charts[real_id];
+    pie_chart.setGradient(value);
+    this.draw_pie_chart(real_id);
+  }
+
+  changeGradientColorPieChart(id, value){
+    var real_id = id.substr(id.length - 1);
+    var pie_chart = this.pie_charts[real_id];
+    pie_chart.setGradientColor(value);
+    this.draw_pie_chart(real_id);
   }
 }
 
@@ -774,7 +833,7 @@ class Chart{
     new_content += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
 
     if(this.getChartType() === "bar"){ // Opciones de los 'BarCharts'
-      new_content += "<div class=\"options-panel-bar-chart\">";
+      new_content += "<div class=\"options-panel-chart\">";
       new_content += "<h3>Options</h3>";
       new_content += "<hr class=\"solid\">";
 
@@ -788,7 +847,7 @@ class Chart{
       // BarChart: 'Opciones de LineCap'
       new_content += "<div class=\"content-options\">";
       new_content += "<h5>Line cap</h5>";
-      new_content += "<select id=\"bar-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapLineChart(this.id, this.value)\">";
+      new_content += "<select id=\"bar-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapBarChart(this.id, this.value)\">";
       new_content += "<option value=\"butt\" selected>Butt</option>";
       new_content += "<option value=\"round\">Round</option>";
       new_content += "<option value=\"square\">Square</option>";
@@ -823,7 +882,7 @@ class Chart{
       + "value=\"#ffffff\" onchange=\"application.changeGradientColorBarChart(this.id, this.value)\">";
       new_content += "</div>";
     } else if(this.getChartType() === "line"){
-      new_content += "<div class=\"options-panel-bar-chart\">";
+      new_content += "<div class=\"options-panel-chart\">";
       new_content += "<h3>Options</h3>";
       new_content += "<hr class=\"solid\">";
 
@@ -837,7 +896,7 @@ class Chart{
       // BarChart: 'Opciones de LineCap'
       new_content += "<div class=\"content-options\">";
       new_content += "<h5>Line cap</h5>";
-      new_content += "<select id=\"line-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapBarChart(this.id, this.value)\">";
+      new_content += "<select id=\"line-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapLineChart(this.id, this.value)\">";
       new_content += "<option value=\"butt\" selected>Butt</option>";
       new_content += "<option value=\"round\">Round</option>";
       new_content += "<option value=\"square\">Square</option>";
@@ -858,8 +917,43 @@ class Chart{
       + "value=\"1.0\" onchange=\"application.changeTransparencyLineChart(this.id, this.value)\">";
       new_content += "</div>";
     } else if(this.getChartType() === "pie"){
-      new_content += "<div class=\"options-panel-pie-chart\">";
+      new_content += "<div class=\"options-panel-chart\">";
       new_content += "<h3>Options</h3>";
+
+      // BarChart: 'Opciones de LineWidth'
+      new_content += "<div class=\"content-options\">";
+      new_content += "<h5>Line width</h5>";
+      new_content += "<input type=\"range\" id=\"pie-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+      + "onchange=\"application.changeLineWidthPieChart(this.id, this.value)\">";
+      new_content += "</div>";
+
+      // BarChart: 'Opciones de Shadows'
+      new_content += "<div class=\"content-options\">";
+      new_content += "<h5>Shadows</h5>";
+      new_content += "<input type=\"checkbox\" id=\"pie-shadows-" + this.getId() + "\""
+      + "onchange=\"application.changeShadowsPieChart(this.id)\">";
+      new_content += "</div>";
+
+      // BarChart: 'Opciones de Transparency'
+      new_content += "<div class=\"content-options\">";
+      new_content += "<h5>Opacity</h5>";
+      new_content += "<input type=\"range\" id=\"pie-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+      + "value=\"1.0\" onchange=\"application.changeTransparencyPieChart(this.id, this.value)\">";
+      new_content += "</div>";
+
+      // BarChart: 'Opciones de Gradiente'
+      new_content += "<div class=\"content-options\">";
+      new_content += "<h5>Gradient</h5>";
+      new_content += "<input type=\"range\" id=\"pie-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+      + "value=\"0.0\" onchange=\"application.changeGradientPieChart(this.id, this.value)\">";
+      new_content += "</div>";
+
+      // BarChart: 'Opciones de Color del Gradiente'
+      new_content += "<div class=\"content-options\">";
+      new_content += "<h5>Gradient Color</h5>";
+      new_content += "<input type=\"color\" id=\"pie-color-gradient-" + this.getId() + "\" "
+      + "value=\"#ffffff\" onchange=\"application.changeGradientColorPieChart(this.id, this.value)\">";
+      new_content += "</div>";
     }
 
     new_content += "</div></div>";
@@ -1050,7 +1144,7 @@ class PieChart extends Chart{
   static BIG_RADIO = 175;
   static RADIO = 125;
   static SMALL_RADIO = 75;
-  static SMALL_GRADIENT_RADIO = 5;
+  static SMALL_GRADIENT_RADIO = 50;
 
   /* Atributos de instancia */
   constructor(id, data_serie, letter_font, strokeStyle, lineWidth) {

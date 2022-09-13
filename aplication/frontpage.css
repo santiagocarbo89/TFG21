@@ -47,7 +47,7 @@ body{
     margin-right: 2%;
 }
 
-.options-panel-bar-chart{
+.options-panel-chart{
     outline: solid;
     width: 90%;
     height: 160px;
@@ -55,17 +55,8 @@ body{
     padding: 0.5%;
 }
 
-.options-panel-bar-chart h3{
+.options-panel-chart h3{
     text-align: center;
-}
-
-.options-panel-line-chart{
-    outline: solid;
-    
-}
-
-.options-panel-pie-chart{
-    outline: solid;
 }
 
 #home{
