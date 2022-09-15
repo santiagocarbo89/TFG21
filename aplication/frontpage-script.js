@@ -19,8 +19,8 @@ class CanvasAPIApplication {
 
   /* Métodos */
   showHome(){
-    var select = document.getElementById('select-graph');
-    select.selectedIndex = 0; // En 'Home' siempre dejamos que el índice elegido sea el 0
+    //var select = document.getElementById('select-graph');
+    //select.selectedIndex = 0; // En 'Home' siempre dejamos que el índice elegido sea el 0
 
     document.getElementById("home").style.display = "block";
     document.getElementById("bar-charts-content").style.display = "none";
@@ -97,6 +97,7 @@ class CanvasAPIApplication {
       alert("Insert just one file, please.");
 
     this.fileReader.readAsText(file[0], "UTF-8");
+    document.getElementById("file-loaded").style.display = "block";
   }
 
   dropManager(event){
@@ -105,8 +106,9 @@ class CanvasAPIApplication {
     if(event.dataTransfer.items && event.dataTransfer.files.length == 1){
       this.fileReader.readAsText(event.dataTransfer.files[0], "UTF-8");
       event.dataTransfer.items.clear();
+      document.getElementById("file-loaded").style.display = "block";
     } else if(event.dataTransfer.items && event.dataTransfer.files.length > 1){
-      alert("Drop just one file, please.")
+      alert("Drop just one file, please.");
     }else
       event.dataTransfer.clearData()
   }
@@ -153,14 +155,17 @@ class CanvasAPIApplication {
     pie_chart.insertChartData();
 
     document.getElementById("title-textbox").style.display = "none";
+    document.getElementById("file-loaded").style.display = "none";
 
     var new_content = 
-    "<div id=\"chart_data\">" +
-    "    <h3>Title:  " + this.data_series[this.data_series.length-1].getTitle() + "</h3>" +
-    "    <p>Selection criteria length: "+ this.data_series[this.data_series.length-1].getNumberOfVariables() +"</p>";
+    "<div class=\"chart_data\" id=\"chart-data-" + chart_data.getId() + "\">" +
+    "    <button class=\"remove-serie-button\" id=\"remove-serie-button-" + chart_data.getId() + "\" onclick=\"application.removeDataSerie(this.id)\">Eliminar serie de datos</button>" +
+    "    <h3>Título:  " + this.data_series[this.data_series.length-1].getTitle() + "</h3>" +
+    "    <hr class=\"solid\">" +
+    "    <p><b>Criterios de selección usados:</b> "+ this.data_series[this.data_series.length-1].getNumberOfVariables() +"</p>";
   
     for(var i = 0; i < this.data_series[this.data_series.length-1].getNumberOfVariables(); i++){
-      new_content += "<p>Selection criteria " + (i+1) + " (" + this.data_series[this.data_series.length-1].getVariableTags()[i] + "): " + this.data_series[this.data_series.length-1].getVariableValues()[i] + "</p><br></br>";
+      new_content += "<p><u>Criterio de selección " + (i+1) + " (" + this.data_series[this.data_series.length-1].getVariableTags()[i] + "):</u> " + this.data_series[this.data_series.length-1].getVariableValues()[i] + "</p>";
     }
   
     new_content += "</div>";
@@ -234,6 +239,9 @@ class CanvasAPIApplication {
     var number_tag;
 
     for(var j = 0; j < bar_chart.getNumberOfVerticalLines(); j++){
+
+      bar_chart.setStrokeStyle('black');
+      this.ctx.strokeStyle = bar_chart.getStrokeStyle();
       
       this.ctx.beginPath();
       this.ctx.moveTo(BarChart.PADDING_LEFT - BarChart.VERTICAL_LINES_WIDTH,
@@ -242,6 +250,12 @@ class CanvasAPIApplication {
       this.ctx.lineTo(BarChart.PADDING_LEFT, 
         BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
 
+      bar_chart.setStrokeStyle('#e5e4e2');
+      this.ctx.strokeStyle = bar_chart.getStrokeStyle();
+
+      this.ctx.lineTo(bar_chart.getWidth() - BarChart.PADDING_RIGHT,
+          BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
+
       this.ctx.stroke(); // Líneas verticales que indican los números de referencia
 
       number_tag = bar_chart.getMaxValueChart()*(bar_chart.getNumberOfVerticalLines() - j - 1)/(bar_chart.getNumberOfVerticalLines() - 1);
@@ -249,6 +263,9 @@ class CanvasAPIApplication {
       this.ctx.fillText(Math.ceil(number_tag).toString(), BarChart.LETTERS_MARGIN_LEFT, 
         BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j); // Números referencias
     }
+
+    bar_chart.setStrokeStyle('black');
+    this.ctx.strokeStyle = bar_chart.getStrokeStyle();
       
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
@@ -327,12 +344,21 @@ class CanvasAPIApplication {
     var number_tag;
 
     for(var j = 0; j < line_chart.getNumberOfVerticalLines(); j++){
+
+      line_chart.setStrokeStyle('black');
+      this.ctx.strokeStyle = line_chart.getStrokeStyle();
       
       this.ctx.beginPath();
       this.ctx.moveTo(LineChart.PADDING_LEFT - LineChart.VERTICAL_LINES_WIDTH,
         LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
 
       this.ctx.lineTo(LineChart.PADDING_LEFT, 
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
+
+      line_chart.setStrokeStyle('#e5e4e2');
+      this.ctx.strokeStyle = line_chart.getStrokeStyle();
+  
+      this.ctx.lineTo(line_chart.getWidth() - LineChart.PADDING_RIGHT,
         LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
 
       this.ctx.stroke(); // Líneas verticales que indican los números de referencia
@@ -342,6 +368,9 @@ class CanvasAPIApplication {
       this.ctx.fillText(Math.ceil(number_tag).toString(), LineChart.LETTERS_MARGIN_LEFT, 
         LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j); // Números referencias
     }
+
+    line_chart.setStrokeStyle('black');
+    this.ctx.strokeStyle = line_chart.getStrokeStyle();
 
     this.ctx.beginPath();
     this.ctx.moveTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN, 
@@ -442,10 +471,6 @@ class CanvasAPIApplication {
         
       this.ctx.lineTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
         PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
-        
-      //var gradient = this.ctx.createRadialGradient(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER, PieChart.SMALL_GRADIENT_RADIO, PieChart.X_CENTER, PieChart.Y_CENTER, PieChart.RADIO);
-      //gradient.addColorStop(0, "white");
-      //gradient.addColorStop(1, pie_chart.getSectionColor());
       
       var gradient = this.ctx.createRadialGradient(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.SMALL_GRADIENT_RADIO*pie_chart.getGradient(), 
       PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.RADIO);
@@ -591,6 +616,13 @@ class CanvasAPIApplication {
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setGradientColor(value);
     this.draw_pie_chart(real_id);
+  }
+
+  // Series de datos
+  removeDataSerie(id){
+    var real_id = id.substr(id.length - 1);
+    this.data_series.splice(real_id, 1);
+    document.getElementById("chart-data-" + real_id).remove();
   }
 }
 
@@ -823,16 +855,18 @@ class Chart{
   insertChartData(){
     var new_content = 
     "<div class=\"" + this.getChartType()  + "-chart\">" +
-    "    <h3>Title: " + this.data_serie.getTitle() + "</h3>" +
-    "    <p><b>Selection criteria length:</b>"+ this.data_serie.getNumberOfVariables() +"</p>";
+    "    <h3>Título: " + this.data_serie.getTitle() + "</h3>" +
+    "    <hr class=\"solid\">" +
+    "    <p><b>Criterios de selección usados:</b>"+ this.data_serie.getNumberOfVariables() +"</p>";
   
     for(var i = 0; i <this.data_serie.getNumberOfVariables(); i++){
-      new_content += "<p><b>\tSelection criteria " + (i+1) + " (" + this.data_serie.getVariableTags()[i] + "):</b> " + this.data_serie.getVariableValues()[i] + "</p>";
+      new_content += "<p><u>Criterio de selección " + (i+1) + " (" + this.data_serie.getVariableTags()[i] + "):</u> " + this.data_serie.getVariableValues()[i] + "</p>";
     }
   
     new_content += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
 
     if(this.getChartType() === "bar"){ // Opciones de los 'BarCharts'
+
       new_content += "<div class=\"options-panel-chart\">";
       new_content += "<h3>Options</h3>";
       new_content += "<hr class=\"solid\">";
@@ -881,7 +915,8 @@ class Chart{
       new_content += "<input type=\"color\" id=\"bar-color-gradient-" + this.getId() + "\" "
       + "value=\"#ffffff\" onchange=\"application.changeGradientColorBarChart(this.id, this.value)\">";
       new_content += "</div>";
-    } else if(this.getChartType() === "line"){
+    } else if(this.getChartType() === "line"){ // Opciones de los 'LineCharts'
+
       new_content += "<div class=\"options-panel-chart\">";
       new_content += "<h3>Options</h3>";
       new_content += "<hr class=\"solid\">";
@@ -916,7 +951,8 @@ class Chart{
       new_content += "<input type=\"range\" id=\"line-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
       + "value=\"1.0\" onchange=\"application.changeTransparencyLineChart(this.id, this.value)\">";
       new_content += "</div>";
-    } else if(this.getChartType() === "pie"){
+    } else if(this.getChartType() === "pie"){ // Opciones de los 'PieCharts'
+ 
       new_content += "<div class=\"options-panel-chart\">";
       new_content += "<h3>Options</h3>";
 

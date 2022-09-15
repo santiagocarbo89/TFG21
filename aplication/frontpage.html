@@ -1,50 +1,49 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Data Visualization of the Sustainable Development Goals</title>
+        <title>Visualización de datos de los Objetivos de Desarrollo Sostenible</title>
         <meta charset="utf-8"/>
         <link rel="stylesheet" href="frontpage.css">
         <script src="frontpage-script.js" defer></script>
     </head>
     <body onload="application.draw_logo();">
-        <header><canvas id="logo"></canvas> Data Visualization of the Sustainable Development Goals</header>
+        <header><canvas id="logo"></canvas> Visualización de datos de los Objetivos de Desarrollo Sostenible</header>
         <nav>
             <ul>
-                <li onclick="application.showHome();">Home</li>
-                <li onclick="application.showData();">Data</li>
-                <li onclick="application.showContact();">Contact</li>
-                <li onclick="application.showAbout();">About</li>
+                <li onclick="application.showHome();">Gráficas</li>
+                <li onclick="application.showData();">Datos</li>
+                <li onclick="application.showContact();">Contacto</li>
+                <li onclick="application.showAbout();">Información</li>
             </ul>
         </nav>
         <div class="main">
             <div id="home">
-                <div class="header-container">
-                    <h3>Please, choose a graph type</h3>
+            <!-- <div class="header-container">
                     <select id="select-graph" onchange="application.showGraphs()">
                         <option value="none">Choose a graph type</option>
-                        <option value="bar">Bar Chart</option>
-                        <option value="line">Line Chart</option>
-                        <option value="pie">Pie Chart</option>
+                        <option value="bar">Gráfico de barras</option>
+                        <option value="line">Gráfico de líneas</option>
+                        <option value="pie">Gráfico circular</option>
                     </select>
-                    </div>
-                    <div id="bar-charts-content"></div>
-                    <div id="line-charts-content"></div>
-                    <div id="pie-charts-content"></div>
-                </div>
+                </div> -->
+                <button class="add-graph-button">Añadir gráfica</button>
+                <div id="bar-charts-content"></div>
+                <div id="line-charts-content"></div>
+                <div id="pie-charts-content"></div>
+            </div>
             <div id="data">
                 <div class="header-container" ondrop="application.dropManager(event)" ondragover="application.dragoverManager(event)">
-                    <h3>Drop or insert a file</h3>
-                    <a href="javascript:application.selectFile()">
-                        <div class="select-file">Select a file</div>
-                    </a>
-                    <form>
+                    <h3>Suelte un archivo o seleccionelo</h3>
+                    <a href="javascript:application.selectFile()"><p class="select-file">Selecione un archivo .csv</p></a>
+                    <p id="file-loaded">¡Archivo cargado!</p>
+                    <form id="form-insert-file">
                         <input type="file" id="insert-file" accept=".csv" onchange="application.insertManager(this.files)"><br></br>
                     </form>
                     <div id="title-textbox">
                         <form id="form-textbox" onsubmit="application.submitCharts(event);">
-                            <label for="title">Title:</label><br>
+                            <label for="title"><b>Elija un título:</b></label>
                             <input type="text" name="title" id="title" required><br><br>
-                            <input type="submit" value="Submit">
+                            <input type="submit" id="submit-data" value="Enviar">
                         </form>
                     </div>
                 </div>
