@@ -20,13 +20,17 @@
             <div id="home">
             <!-- <div class="header-container">
                     <select id="select-graph" onchange="application.showGraphs()">
-                        <option value="none">Choose a graph type</option>
                         <option value="bar">Gráfico de barras</option>
                         <option value="line">Gráfico de líneas</option>
                         <option value="pie">Gráfico circular</option>
                     </select>
                 </div> -->
-                <button class="add-graph-button">Añadir gráfica</button>
+                <button class="add-graph-button" onclick="application.showAddGraphMenu();">Añadir gráfica</button>
+                <div id="add-graph-menu">
+                    <h3>Elija la serie de datos: </h3>
+                    <br></br>
+                    <h3>Elija el tipo de gráfica: </h3>
+                </div>
                 <div id="bar-charts-content"></div>
                 <div id="line-charts-content"></div>
                 <div id="pie-charts-content"></div>
@@ -40,7 +44,7 @@
                         <input type="file" id="insert-file" accept=".csv" onchange="application.insertManager(this.files)"><br></br>
                     </form>
                     <div id="title-textbox">
-                        <form id="form-textbox" onsubmit="application.submitCharts(event);">
+                        <form id="form-textbox" onsubmit="application.submitDataSerie(event);">
                             <label for="title"><b>Elija un título:</b></label>
                             <input type="text" name="title" id="title" required><br><br>
                             <input type="submit" id="submit-data" value="Enviar">

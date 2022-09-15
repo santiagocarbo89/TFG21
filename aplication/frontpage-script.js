@@ -61,27 +61,8 @@ class CanvasAPIApplication {
     document.getElementById("about").style.display = "block";
   }
 
-  showGraphs(){
-    var select = document.getElementById('select-graph');
-    var graph = select.options[select.selectedIndex].value;
-
-    if(graph == "none") {
-      document.getElementById("bar-charts-content").style.display = "none";
-      document.getElementById("line-charts-content").style.display = "none";
-      document.getElementById("pie-charts-content").style.display = "none";
-    } else if(graph == "bar"){ // Mostrar gráficos de barras
-      document.getElementById("bar-charts-content").style.display = "block";
-      document.getElementById("line-charts-content").style.display = "none";
-      document.getElementById("pie-charts-content").style.display = "none";
-    } else if(graph == "line") {  // Mostrar gráficos de líneas
-      document.getElementById("bar-charts-content").style.display = "none";
-      document.getElementById("line-charts-content").style.display = "block";
-      document.getElementById("pie-charts-content").style.display = "none";
-    } else if(graph == "pie") {  // Mostrar gráficos de barras
-      document.getElementById("bar-charts-content").style.display = "none";
-      document.getElementById("line-charts-content").style.display = "none";
-      document.getElementById("pie-charts-content").style.display = "block";
-    }
+  showAddGraphMenu(){
+    document.getElementById("add-graph-menu").style.display = "block";
   }
 
   selectFile(){
@@ -118,7 +99,7 @@ class CanvasAPIApplication {
   }
 
 
-  submitCharts(event){
+  submitDataSerie(event){
     event.preventDefault();
 
     var title = document.getElementsByName('title')[0].value;
@@ -133,6 +114,26 @@ class CanvasAPIApplication {
 
     this.data_series.push(chart_data);
 
+    document.getElementById("title-textbox").style.display = "none";
+    document.getElementById("file-loaded").style.display = "none";
+
+    var new_content = 
+    "<div class=\"chart_data\" id=\"chart-data-" + chart_data.getId() + "\">" +
+    "    <button class=\"remove-serie-button\" id=\"remove-serie-button-" + chart_data.getId() + "\" onclick=\"application.removeDataSerie(this.id)\">Eliminar serie de datos</button>" +
+    "    <h3>Título:  " + this.data_series[this.data_series.length-1].getTitle() + "</h3>" +
+    "    <hr class=\"solid\">" +
+    "    <p><b>Criterios de selección usados:</b> "+ this.data_series[this.data_series.length-1].getNumberOfVariables() +"</p>";
+  
+    for(var i = 0; i < this.data_series[this.data_series.length-1].getNumberOfVariables(); i++){
+      new_content += "<p><u>Criterio de selección " + (i+1) + " (" + this.data_series[this.data_series.length-1].getVariableTags()[i] + "):</u> " + this.data_series[this.data_series.length-1].getVariableValues()[i] + "</p>";
+    }
+  
+    new_content += "</div>";
+    document.getElementById("content").innerHTML += new_content;
+  }
+
+  submitChart(){
+  /* 
     // Gráfico de barras
     var bar_chart = new BarChart(this.bar_charts.length, chart_data, '10pt Times New Roman', 
       this.ctx.measureText(chart_data.getMaxSerieValue().toString()).width, 
@@ -154,23 +155,6 @@ class CanvasAPIApplication {
     this.pie_charts.push(pie_chart);
     pie_chart.insertChartData();
 
-    document.getElementById("title-textbox").style.display = "none";
-    document.getElementById("file-loaded").style.display = "none";
-
-    var new_content = 
-    "<div class=\"chart_data\" id=\"chart-data-" + chart_data.getId() + "\">" +
-    "    <button class=\"remove-serie-button\" id=\"remove-serie-button-" + chart_data.getId() + "\" onclick=\"application.removeDataSerie(this.id)\">Eliminar serie de datos</button>" +
-    "    <h3>Título:  " + this.data_series[this.data_series.length-1].getTitle() + "</h3>" +
-    "    <hr class=\"solid\">" +
-    "    <p><b>Criterios de selección usados:</b> "+ this.data_series[this.data_series.length-1].getNumberOfVariables() +"</p>";
-  
-    for(var i = 0; i < this.data_series[this.data_series.length-1].getNumberOfVariables(); i++){
-      new_content += "<p><u>Criterio de selección " + (i+1) + " (" + this.data_series[this.data_series.length-1].getVariableTags()[i] + "):</u> " + this.data_series[this.data_series.length-1].getVariableValues()[i] + "</p>";
-    }
-  
-    new_content += "</div>";
-    document.getElementById("content").innerHTML += new_content;
-
     for(var i = 0; i < this.bar_charts.length; i++)
       this.draw_bar_chart(i);
     
@@ -179,6 +163,7 @@ class CanvasAPIApplication {
 
     for(var i = 0; i < this.pie_charts.length; i++)
       this.draw_pie_chart(i);
+      */
   }
 
   
