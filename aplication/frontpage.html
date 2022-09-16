@@ -28,12 +28,21 @@
                 <button class="add-graph-button" onclick="application.showAddGraphMenu();">Añadir gráfica</button>
                 <div id="add-graph-menu">
                     <h3>Elija la serie de datos: </h3>
+                    <select id="select-data-serie">
+                        <option value="none" selected>Elija una serie de datos</option>
+                    </select>
                     <br></br>
                     <h3>Elija el tipo de gráfica: </h3>
+                    <select id="select-chart-type">
+                        <option value="none" selected>Elija un tipo de gráfica</option>
+                        <option value="bar">Gráfico de barras</option>
+                        <option value="line">Gráfico de líneas</option>
+                        <option value="pie">Gráfico circular</option>
+                    </select>
+                    <br></br>
+                    <input type="button" value="Enviar" id="submit-chart" onclick="application.submitNewChart()">
                 </div>
-                <div id="bar-charts-content"></div>
-                <div id="line-charts-content"></div>
-                <div id="pie-charts-content"></div>
+                <div id="charts-content"></div>
             </div>
             <div id="data">
                 <div class="header-container" ondrop="application.dropManager(event)" ondragover="application.dragoverManager(event)">
