@@ -181,6 +181,19 @@ body{
     margin-top: 2%;
 }
 
+.remove-chart-button{
+    float: right;
+    font-family: sans-serif;
+    background-color: beige;
+    color: black;
+    border-radius: 15px;
+    width: 30%;
+    font-size: 80%;
+    padding: 1%;
+    cursor: pointer;
+    margin-top: 2%;
+}
+
 #bar-charts{
     display: none;
     margin-top: 1%;

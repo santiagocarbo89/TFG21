@@ -54,7 +54,13 @@ class CanvasAPIApplication {
   }
 
   showAddGraphMenu(){
-    document.getElementById("add-graph-menu").style.display = "block";
+    var add_graph_menu = document.getElementById("add-graph-menu");
+    var add_graph_menu_display = window.getComputedStyle(add_graph_menu).display
+
+    if(add_graph_menu_display == "none")
+      add_graph_menu.style.display = "block";
+    else if(add_graph_menu_display == "block")
+      add_graph_menu.style.display = "none";
   }
 
   selectFile(){
@@ -469,42 +475,42 @@ class CanvasAPIApplication {
 
   // Gráficos de barras
   changeLineWidthBarChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setLineWidth(value);
     this.draw_bar_chart(real_id);
   }
 
   changeShadowsBarChart(id){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setShadows();
     this.draw_bar_chart(real_id);
   }
 
   changeTransparencyBarChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setTransparency(value);
     this.draw_bar_chart(real_id);
   }
 
   changeLineCapBarChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setLineCap(value);
     this.draw_bar_chart(real_id);
   }
 
   changeGradientBarChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setGradient(value);
     this.draw_bar_chart(real_id);
   }
 
   changeGradientColorBarChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setGradientColor(value);
     this.draw_bar_chart(real_id);
@@ -512,28 +518,28 @@ class CanvasAPIApplication {
 
   // Gráficos de líneas
   changeLineWidthLineChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var line_chart = this.line_charts[real_id];
     line_chart.setLineWidth(value);
     this.draw_line_chart(real_id);
   }
 
   changeShadowsLineChart(id){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var line_chart = this.line_charts[real_id];
     line_chart.setShadows();
     this.draw_line_chart(real_id);
   }
 
   changeTransparencyLineChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var line_chart = this.line_charts[real_id];
     line_chart.setTransparency(value);
     this.draw_line_chart(real_id);
   }
 
   changeLineCapLineChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var line_chart = this.line_charts[real_id];
     line_chart.setLineCap(value);
     this.draw_line_chart(real_id);
@@ -541,55 +547,132 @@ class CanvasAPIApplication {
 
   // Gráficos circulares
   changeLineWidthPieChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setLineWidth(value);
     this.draw_pie_chart(real_id);
   }
 
   changeShadowsPieChart(id){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setShadows();
     this.draw_pie_chart(real_id);
   }
 
   changeTransparencyPieChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setTransparency(value);
     this.draw_pie_chart(real_id);
   }
 
   changeGradientPieChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setGradient(value);
     this.draw_pie_chart(real_id);
   }
 
   changeGradientColorPieChart(id, value){
-    var real_id = id.substr(id.length - 1);
+    var real_id = id.substring(id.length - 1);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setGradientColor(value);
     this.draw_pie_chart(real_id);
   }
 
+  removeChart(id){
+    var real_id = id.substring(id.length - 1);
+    var aux_string = id.substring(id.search("-") + 1);
+    var chart_type = aux_string.substring(0, aux_string.search("-"));
+
+    if(chart_type == "bar"){
+      var select_charts = document.getElementById("charts-" + this.bar_charts[real_id].getDataSerie().getId());
+
+      if(select_charts.options.length > 1){
+        for(var i = 0; i < select_charts.options.length; i++){
+          if(select_charts.options[i].value == "bar")
+            select_charts.options[i].remove();
+        }
+      } else
+        document.getElementById(chart_type + "-chart-div-" + real_id).remove();
+
+      this.bar_charts.splice(real_id, 1);
+    } else if(chart_type == "line"){
+      var select_charts = document.getElementById("charts-" + this.line_charts[real_id].getDataSerie().getId());
+
+      if(select_charts.options.length > 1){
+        for(var i = 0; i < select_charts.options.length; i++){
+          if(select_charts.options[i].value == "line")
+            select_charts.options[i].remove();
+        }
+      } else
+        document.getElementById(chart_type + "-chart-div-" + real_id).remove();
+
+      this.line_charts.splice(real_id, 1);
+    } else if(chart_type == "pie"){
+      var select_charts = document.getElementById("charts-" + this.pie_charts[real_id].getDataSerie().getId());
+
+      if(select_charts.options.length > 1){
+        for(var i = 0; i < select_charts.options.length; i++){
+          if(select_charts.options[i].value == "pie")
+            select_charts.options[i].remove();
+        }
+      } else
+        document.getElementById(chart_type + "-chart-div-" + real_id).remove();
+
+      this.pie_charts.splice(real_id, 1);
+    }
+  }
+
+  // remove-" + this.getChartType() + "-chart-button-" + this.getId()
+
   // Series de datos
   removeDataSerie(id){
-    var real_id = id.substr(id.length - 1);
-    var select_data_serie = document.getElementById("select-data-serie");
-    var loop = true;
+    var real_id = id.substring(id.length - 1);
 
-    for(var i = 0; i < select_data_serie.options.length && loop; i++){
-      if(select_data_serie.options[i].text == this.data_series[real_id].getTitle()){
-        select_data_serie.remove(i);
-        loop = false;
+    if(!this.dataSerieHasAssociatedCharts(real_id)){
+
+      var select_data_serie = document.getElementById("select-data-serie");
+      var loop = true;
+
+      for(var i = 0; i < select_data_serie.options.length && loop; i++){
+        if(select_data_serie.options[i].text == this.data_series[real_id].getTitle()){
+          select_data_serie.remove(i);
+          loop = false;
+        }
       }
+
+      this.data_series.splice(real_id, 1);
+      document.getElementById("chart-data-" + real_id).remove();
+    } else
+      alert("Existen gráficas asociadas con la serie de datos. Por favor, elimine previamente las gráficas.");
+  }
+
+  dataSerieHasAssociatedCharts(real_id){
+    var data_serie = this.data_series[real_id];
+    var associated_charts = false;
+
+    for(var i = 0; i < this.bar_charts.length && !associated_charts; i++){
+      if(this.bar_charts[i].getDataSerie() === data_serie)
+        associated_charts = true;
     }
 
-    this.data_series.splice(real_id, 1);
-    document.getElementById("chart-data-" + real_id).remove();
+    for(var i = 0; i < this.line_charts.length && !associated_charts; i++){
+      if(this.line_charts[i].getDataSerie() === data_serie)
+        associated_charts = true;
+    }
+
+    for(var i = 0; i < this.pie_charts.length && !associated_charts; i++){
+      if(this.pie_charts[i].getDataSerie() === data_serie)
+        associated_charts = true;
+    }
+
+    return associated_charts;
+  }
+
+  changeChartVisualized(id, value){
+
   }
 
   // Nueva gráfica
@@ -609,9 +692,7 @@ class CanvasAPIApplication {
 
       for(var i = 0; i < this.data_series.length; i++){
         if(this.data_series[i].getTitle() == select_data_serie.options[select_data_serie.selectedIndex].text)
-        chart_data = this.data_series[i];
-
-        console.log(select_data_serie);
+          chart_data = this.data_series[i];
       }
 
       if(select_chart_type.value == "bar"){ // Gráfico de barras
@@ -868,7 +949,9 @@ class Chart{
 
   insertChartData(){
     var new_content = 
-    "<div class=\"" + this.getChartType()  + "-chart\">" +
+    
+    "<div class=\"" + this.getChartType()  + "-chart\" id=\"" + this.getChartType() + "-chart-div-" + this.getId() + "\">" +
+    "    <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>" +
     "    <h3>Título: " + this.data_serie.getTitle() + "</h3>" +
     "    <hr class=\"solid\">" +
     "    <p><b>Criterios de selección usados:</b>"+ this.data_serie.getNumberOfVariables() +"</p>";
@@ -877,18 +960,36 @@ class Chart{
       new_content += "<p><u>Criterio de selección " + (i+1) + " (" + this.data_serie.getVariableTags()[i] + "):</u> " + this.data_serie.getVariableValues()[i] + "</p>";
     }
 
-    new_content += "<p><b>Gráficas cargadas: </b>"
-    new_content += "<select id=\"charts-" + this.data_serie.getId() + "\">";
+    new_content += "<p><b>Gráficas cargadas: </b>";
 
-    if (this.getChartType() == "bar"){
-      new_content += "<option value=\"" + this.getChartType() + "\">Gráfico de barras</option>";
-    } else if(this.getChartType() == "line") {
-      new_content += "<option value=\"" + this.getChartType() + "\">Gráfico de líneas</option>";
-    } else if(this.getChartType() == "pie") {
-      new_content += "<option value=\"" + this.getChartType() + "\">Gráfico circular</option>";
-    }
+    var check_select = document.getElementById("charts-" + this.data_serie.getId());
+
+    if(check_select !== null){
+      var option = document.createElement("option");
+      option.value = this.getChartType();
+
+      if (this.getChartType() == "bar"){
+        option.text = "Gráfico de barras";
+      } else if(this.getChartType() == "line") {
+        option.text = "Gráfico de líneas";
+      } else if(this.getChartType() == "pie") {
+        option.text = "Gráfico circular";
+      }
+
+      check_select.add(option);
+    } else{
+      new_content += "<select id=\"charts-" + this.data_serie.getId() + "\" onchange=\"changeChartVisualized(this.id, this.value)\">";
+
+      if (this.getChartType() == "bar"){
+        new_content += "<option value=\"" + this.getChartType() + "\">Gráfico de barras</option>";
+      } else if(this.getChartType() == "line") {
+        new_content += "<option value=\"" + this.getChartType() + "\">Gráfico de líneas</option>";
+      } else if(this.getChartType() == "pie") {
+        new_content += "<option value=\"" + this.getChartType() + "\">Gráfico circular</option>";
+      }
   
-    new_content += "</select><br></br></p>";
+      new_content += "</select><br></br></p>";
+    }
   
     new_content += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
 
