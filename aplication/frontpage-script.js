@@ -672,7 +672,105 @@ class CanvasAPIApplication {
   }
 
   changeChartVisualized(id, value){
+    var id_data_serie = id.substring(id.length - 1);
 
+    var another_chart1;
+    var another_chart2;
+    var id_chart;
+    var id_chart_buttom1 = null;
+    var id_chart_buttom2 = null;
+    var buttom1;
+    var buttom2;
+
+    // Ocultamos el antiguo
+    if(value == "bar"){
+      another_chart1 = document.getElementById("line-chart-" + id_data_serie);
+      another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
+      
+      for(var i = 0; i < this.bar_charts.length; i++){
+        if(this.bar_charts[i].getDataSerie() === this.data_series[id_data_serie])
+          id_chart = i;
+      }
+
+      for(var i = 0; i < this.line_charts.length; i++){
+        if(this.line_charts[i].getDataSerie() === this.data_series[id_data_serie])
+          id_chart_buttom1 = i;
+      }
+
+      for(var i = 0; i < this.pie_charts.length; i++){
+        if(this.pie_charts[i].getDataSerie() === this.data_series[id_data_serie])
+          id_chart_buttom2 = i;
+      }
+
+      buttom1 = document.getElementById("remove-line-chart-button-" + id_chart_buttom1);
+      buttom2 = document.getElementById("remove-pie-chart-button-" + id_chart_buttom2);
+
+      if(buttom1 !== null)
+        document.getElementById("remove-line-chart-button-" + id_chart_buttom1).style.display = "none";
+      else if(buttom2 !== null)
+        document.getElementById("remove-pie-chart-button-" + id_chart_buttom2).style.display = "none";
+      
+    } else if(value == "line"){
+      another_chart1 = document.getElementById("bar-chart-" + id_data_serie);
+      another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
+
+      for(var i = 0; i < this.bar_charts.length; i++){
+        if(this.bar_charts[i].getDataSerie() === this.data_series[id_data_serie])
+          id_chart_buttom1 = i;
+      }
+
+      for(var i = 0; i < this.line_charts.length; i++){
+        if(this.line_charts[i].getDataSerie() === this.data_series[id_data_serie])
+          id_chart = i;
+      }
+
+      for(var i = 0; i < this.pie_charts.length; i++){
+        if(this.pie_charts[i].getDataSerie() === this.data_series[id_data_serie])
+          id_chart_buttom2 = i;
+      }
+
+      buttom1 = document.getElementById("remove-bar-chart-button-" + id_chart_buttom1);
+      buttom2 = document.getElementById("remove-pie-chart-button-" + id_chart_buttom2);
+
+      if(buttom1 !== null)
+        document.getElementById("remove-bar-chart-button-" + id_chart_buttom1).style.display = "none";
+      else if(buttom2 !== null)
+        document.getElementById("remove-pie-chart-button-" + id_chart_buttom2).style.display = "none";
+
+    } else if(value == "pie"){
+      another_chart1 = document.getElementById("line-chart-" + id_data_serie);
+      another_chart2 = document.getElementById("bar-chart-" + id_data_serie);
+
+      for(var i = 0; i < this.bar_charts.length; i++){
+        if(this.bar_charts[i].getDataSerie() === this.data_series[id_data_serie])
+          id_chart_buttom1 = i;
+      }
+
+      for(var i = 0; i < this.line_charts.length; i++){
+        if(this.line_charts[i].getDataSerie() === this.data_series[id_data_serie])
+          id_chart_buttom2 = i;
+      }
+
+      for(var i = 0; i < this.pie_charts.length; i++){
+        if(this.pie_charts[i].getDataSerie() === this.data_series[id_data_serie])
+          id_chart = i;
+      }
+
+      buttom1 = document.getElementById("remove-bar-chart-button-" + id_chart_buttom1);
+      buttom2 = document.getElementById("remove-line-chart-button-" + id_chart_buttom2);
+
+      if(buttom1 !== null)
+        document.getElementById("remove-bar-chart-button-" + id_chart_buttom1).style.display = "none";
+      else if(buttom2 !== null)
+        document.getElementById("remove-line-chart-button-" + id_chart_buttom2).style.display = "none";
+    }
+
+    // Mostramos nuevo canvas
+    document.getElementById(value + "-chart-" + id_data_serie).style.display = "block";
+
+    console.log(id_chart);
+    // Mostramos nuevo botón
+    //document.getElementById("remove-" + value + "-chart-button-" + id_chart).style.display = "block";
   }
 
   // Nueva gráfica
@@ -948,20 +1046,6 @@ class Chart{
   }
 
   insertChartData(){
-    var new_content = 
-    
-    "<div class=\"" + this.getChartType()  + "-chart\" id=\"" + this.getChartType() + "-chart-div-" + this.getId() + "\">" +
-    "    <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>" +
-    "    <h3>Título: " + this.data_serie.getTitle() + "</h3>" +
-    "    <hr class=\"solid\">" +
-    "    <p><b>Criterios de selección usados:</b>"+ this.data_serie.getNumberOfVariables() +"</p>";
-  
-    for(var i = 0; i <this.data_serie.getNumberOfVariables(); i++){
-      new_content += "<p><u>Criterio de selección " + (i+1) + " (" + this.data_serie.getVariableTags()[i] + "):</u> " + this.data_serie.getVariableValues()[i] + "</p>";
-    }
-
-    new_content += "<p><b>Gráficas cargadas: </b>";
-
     var check_select = document.getElementById("charts-" + this.data_serie.getId());
 
     if(check_select !== null){
@@ -977,23 +1061,40 @@ class Chart{
       }
 
       check_select.add(option);
+
+      document.getElementById("canvas-" + this.data_serie.getId()).innerHTML += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
     } else{
-      new_content += "<select id=\"charts-" + this.data_serie.getId() + "\" onchange=\"changeChartVisualized(this.id, this.value)\">";
-
-      if (this.getChartType() == "bar"){
-        new_content += "<option value=\"" + this.getChartType() + "\">Gráfico de barras</option>";
-      } else if(this.getChartType() == "line") {
-        new_content += "<option value=\"" + this.getChartType() + "\">Gráfico de líneas</option>";
-      } else if(this.getChartType() == "pie") {
-        new_content += "<option value=\"" + this.getChartType() + "\">Gráfico circular</option>";
-      }
+      var new_content = 
+        "<div class=\"" + this.getChartType()  + "-chart\" id=\"" + this.getChartType() + "-chart-div-" + this.getId() + "\">" +
+        "     <div id=\"buttoms-" + this.data_serie.getId() + "\">"
+        "     <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>" +
+        "     </div>" +
+        "    <h3>Título: " + this.data_serie.getTitle() + "</h3>" +
+        "    <hr class=\"solid\">" +
+        "    <p><b>Criterios de selección usados:</b>"+ this.data_serie.getNumberOfVariables() +"</p>";
   
-      new_content += "</select><br></br></p>";
-    }
-  
-    new_content += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
+        for(var i = 0; i <this.data_serie.getNumberOfVariables(); i++){
+          new_content += "<p><u>Criterio de selección " + (i+1) + " (" + this.data_serie.getVariableTags()[i] + "):</u> " + this.data_serie.getVariableValues()[i] + "</p>";
+        }
 
-    if(this.getChartType() === "bar"){ // Opciones de los 'BarCharts'
+        new_content += "<p><b>Gráficas cargadas: </b>";
+        new_content += "<select id=\"charts-" + this.data_serie.getId() + "\" onchange=\"application.changeChartVisualized(this.id, this.value)\">";
+
+        if (this.getChartType() == "bar"){
+          new_content += "<option value=\"" + this.getChartType() + "\">Gráfico de barras</option>";
+        } else if(this.getChartType() == "line") {
+          new_content += "<option value=\"" + this.getChartType() + "\">Gráfico de líneas</option>";
+        } else if(this.getChartType() == "pie") {
+          new_content += "<option value=\"" + this.getChartType() + "\">Gráfico circular</option>";
+        }
+  
+        new_content += "</select><br></br></p>";
+
+        new_content += "<div id=\"canvas-" + this.data_serie.getId() + "\">"
+        new_content += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
+        new_content += "</div>"
+
+    /*if(this.getChartType() === "bar"){ // Opciones de los 'BarCharts'
 
       new_content += "<div class=\"options-panel-chart\">";
       new_content += "<h3>Options</h3>";
@@ -1118,9 +1219,12 @@ class Chart{
       new_content += "<input type=\"color\" id=\"pie-color-gradient-" + this.getId() + "\" "
       + "value=\"#ffffff\" onchange=\"application.changeGradientColorPieChart(this.id, this.value)\">";
       new_content += "</div>";
-    }
+    }*/
 
     new_content += "</div></div>";
+    }
+  
+  
   
     document.getElementById("charts-content").innerHTML += new_content;
     document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).width = this.getWidth().toString();
