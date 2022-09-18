@@ -588,47 +588,63 @@ class CanvasAPIApplication {
     var real_id = id.substring(id.length - 1);
     var aux_string = id.substring(id.search("-") + 1);
     var chart_type = aux_string.substring(0, aux_string.search("-"));
+    var select_charts = document.getElementById("charts-" + real_id);
+    var id_drawn = -1;
 
     if(chart_type == "bar"){
-      var select_charts = document.getElementById("charts-" + this.bar_charts[real_id].getDataSerie().getId());
 
-      if(select_charts.options.length > 1){
-        for(var i = 0; i < select_charts.options.length; i++){
-          if(select_charts.options[i].value == "bar")
-            select_charts.options[i].remove();
+      for(var i = 0; i < this.bar_charts.length; i++){
+        if(this.bar_charts[i].getDataSerie() === this.data_series[real_id]){
+          id_drawn = i;
+          this.bar_charts.splice(i, 1);
         }
-      } else
-        document.getElementById(chart_type + "-chart-div-" + real_id).remove();
+      }
 
-      this.bar_charts.splice(real_id, 1);
+      for(var i = 0; i < this.bar_charts_to_draw.length; i++){
+        if(this.bar_charts_to_draw[i] == id_drawn){
+          this.bar_charts_to_draw.splice(i, 1);
+        }
+      }
     } else if(chart_type == "line"){
-      var select_charts = document.getElementById("charts-" + this.line_charts[real_id].getDataSerie().getId());
 
-      if(select_charts.options.length > 1){
-        for(var i = 0; i < select_charts.options.length; i++){
-          if(select_charts.options[i].value == "line")
-            select_charts.options[i].remove();
+      for(var i = 0; i < this.line_charts.length; i++){
+        if(this.line_charts[i].getDataSerie() === this.data_series[real_id]){
+          id_drawn = i;
+          this.line_charts.splice(i, 1);
         }
-      } else
-        document.getElementById(chart_type + "-chart-div-" + real_id).remove();
+      }
 
-      this.line_charts.splice(real_id, 1);
+      for(var i = 0; i < this.line_charts_to_draw.length; i++){
+        if(this.line_charts_to_draw[i] == id_drawn){
+          this.line_charts_to_draw.splice(i, 1);
+        }
+      }
     } else if(chart_type == "pie"){
-      var select_charts = document.getElementById("charts-" + this.pie_charts[real_id].getDataSerie().getId());
-
-      if(select_charts.options.length > 1){
-        for(var i = 0; i < select_charts.options.length; i++){
-          if(select_charts.options[i].value == "pie")
-            select_charts.options[i].remove();
+      for(var i = 0; i < this.pie_charts.length; i++){
+        if(this.pie_charts[i].getDataSerie() === this.data_series[real_id]){
+          id_drawn = i;
+          this.pie_charts.splice(i, 1);
         }
-      } else
-        document.getElementById(chart_type + "-chart-div-" + real_id).remove();
+      }
 
-      this.pie_charts.splice(real_id, 1);
+      for(var i = 0; i < this.pie_charts_to_draw.length; i++){
+        if(this.pie_charts_to_draw[i] == id_drawn){
+          this.pie_charts_to_draw.splice(i, 1);
+        }
+      }
     }
+
+    if(select_charts.options.length > 1){
+      select_charts.remove(select_charts.selectedIndex);
+      document.getElementById("remove-" + chart_type + "-chart-button-" + real_id).remove();
+      this.changeChartVisualized(real_id, select_charts.options[(select_charts.selectedIndex + 1) % select_charts.options.length].value);
+    } else {
+      document.getElementById("div-chart-" + real_id).remove();
+    }
+
+    this.draw_charts();
   }
 
-  // remove-" + this.getChartType() + "-chart-button-" + this.getId()
 
   // Series de datos
   removeDataSerie(id){
@@ -679,12 +695,20 @@ class CanvasAPIApplication {
 
     var another_chart1;
     var another_chart2;
+    var another_buttom1;
+    var another_buttom2;
+    var another_options1;
+    var another_options2;
 
 
     // Ocultamos el antiguo
     if(value == "bar"){
       another_chart1 = document.getElementById("line-chart-" + id_data_serie);
       another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
+      another_buttom1 = document.getElementById("remove-line-chart-button-" + id_data_serie);
+      another_buttom2 = document.getElementById("remove-pie-chart-button-" + id_data_serie);
+      another_options1 = document.getElementById("line-chart-options-" + id_data_serie);
+      another_options2 = document.getElementById("pie-chart-options-" + id_data_serie);
 
       for(var i = 0; i < this.bar_charts.length; i++){
         if(this.bar_charts[i].getDataSerie() === this.data_series[id_data_serie])
@@ -706,6 +730,10 @@ class CanvasAPIApplication {
     } else if(value == "line"){
       another_chart1 = document.getElementById("bar-chart-" + id_data_serie);
       another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
+      another_buttom1 = document.getElementById("remove-bar-chart-button-" + id_data_serie);
+      another_buttom2 = document.getElementById("remove-pie-chart-button-" + id_data_serie);
+      another_options1 = document.getElementById("bar-chart-options-" + id_data_serie);
+      another_options2 = document.getElementById("pie-chart-options-" + id_data_serie);
 
       for(var i = 0; i < this.line_charts.length; i++){
         if(this.line_charts[i].getDataSerie() === this.data_series[id_data_serie])
@@ -727,6 +755,10 @@ class CanvasAPIApplication {
     } else if(value == "pie"){
       another_chart1 = document.getElementById("line-chart-" + id_data_serie);
       another_chart2 = document.getElementById("bar-chart-" + id_data_serie);
+      another_buttom1 = document.getElementById("remove-bar-chart-button-" + id_data_serie);
+      another_buttom2 = document.getElementById("remove-line-chart-button-" + id_data_serie);
+      another_options1 = document.getElementById("bar-chart-options-" + id_data_serie);
+      another_options2 = document.getElementById("line-chart-options-" + id_data_serie);
 
       for(var i = 0; i < this.pie_charts.length; i++){
         if(this.pie_charts[i].getDataSerie() === this.data_series[id_data_serie])
@@ -752,11 +784,26 @@ class CanvasAPIApplication {
     if(another_chart2 !== null)
       another_chart2.style.display = "none";
 
+    if(another_buttom1 !== null)
+      another_buttom1.style.display = "none";
+
+    if(another_buttom2 !== null)
+      another_buttom2.style.display = "none";
+
+    if(another_options1 !== null)
+      another_options1.style.display = "none";
+
+    if(another_options2 !== null)
+      another_options2.style.display = "none";
+
     // Mostramos nuevo canvas
     document.getElementById(value + "-chart-" + id_data_serie).style.display = "block";
 
     // Mostramos nuevo botón
-    //document.getElementById("remove-" + value + "-chart-button-" + id_chart).style.display = "block";
+    document.getElementById("remove-" + value + "-chart-button-" + id_data_serie).style.display = "block";
+
+    // Mostramos nuevas opciones
+    document.getElementById(value + "-chart-options-" + id_data_serie).style.display = "block";
 
     this.draw_charts();
   }
@@ -1054,29 +1101,44 @@ class Chart{
 
   insertChartData(){
     var check_select = document.getElementById("charts-" + this.data_serie.getId());
+    var new_content;
 
     if(check_select !== null){
-      var option = document.createElement("option");
-      option.value = this.getChartType();
+      var same_option = false;
 
-      if (this.getChartType() == "bar"){
-        option.text = "Gráfico de barras";
-      } else if(this.getChartType() == "line") {
-        option.text = "Gráfico de líneas";
-      } else if(this.getChartType() == "pie") {
-        option.text = "Gráfico circular";
+      for(var i = 0; i < check_select.options.length && !same_option; i++){
+        if(check_select.options[i].value == this.getChartType())
+          same_option = true;
       }
 
-      check_select.add(option);
+      if(!same_option){
+        var option = document.createElement("option");
+        option.value = this.getChartType();
 
-      document.getElementById("canvas-" + this.data_serie.getId()).innerHTML += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
-      document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).style.display = "none";
+        if (this.getChartType() == "bar"){
+          option.text = "Gráfico de barras";
+        } else if(this.getChartType() == "line") {
+          option.text = "Gráfico de líneas";
+        } else if(this.getChartType() == "pie") {
+          option.text = "Gráfico circular";
+        }
+
+        check_select.add(option);
+
+        document.getElementById("canvas-" + this.data_serie.getId()).innerHTML += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
+        document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).style.display = "none";
+        document.getElementById("buttoms-" + this.data_serie.getId()).innerHTML += "     <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>";
+        document.getElementById("remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId()).style.display = "none";
+        
+      } else
+        alert("La gráfica seleccionada ya existe");
+
     } else{
-      var new_content = 
+      new_content = 
         "<div class=\"div-charts\" id=\"div-chart-" + this.data_serie.getId() + "\">" +
-        //"     <div id=\"buttoms-" + this.data_serie.getId() + "\">"
-        //"     <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>" +
-        //"     </div>" +
+        "     <div id=\"buttoms-" + this.data_serie.getId() + "\">" +
+        "     <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>" +
+        "     </div>" +
         "    <h3>Título: " + this.data_serie.getTitle() + "</h3>" +
         "    <hr class=\"solid\">" +
         "    <p><b>Criterios de selección usados:</b>"+ this.data_serie.getNumberOfVariables() +"</p>";
@@ -1102,138 +1164,147 @@ class Chart{
         new_content += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
         new_content += "</div>"
 
-    /*if(this.getChartType() === "bar"){ // Opciones de los 'BarCharts'
-
-      new_content += "<div class=\"options-panel-chart\">";
-      new_content += "<h3>Options</h3>";
-      new_content += "<hr class=\"solid\">";
-
-      // BarChart: 'Opciones de LineWidth'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Line width</h5>";
-      new_content += "<input type=\"range\" id=\"bar-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
-      + "onchange=\"application.changeLineWidthBarChart(this.id, this.value)\">";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de LineCap'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Line cap</h5>";
-      new_content += "<select id=\"bar-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapBarChart(this.id, this.value)\">";
-      new_content += "<option value=\"butt\" selected>Butt</option>";
-      new_content += "<option value=\"round\">Round</option>";
-      new_content += "<option value=\"square\">Square</option>";
-      new_content += "</select>";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de Shadows'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Shadows</h5>";
-      new_content += "<input type=\"checkbox\" id=\"bar-shadows-" + this.getId() + "\""
-      + "onchange=\"application.changeShadowsBarChart(this.id)\">";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de Transparency'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Opacity</h5>";
-      new_content += "<input type=\"range\" id=\"bar-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
-      + "value=\"1.0\" onchange=\"application.changeTransparencyBarChart(this.id, this.value)\">";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de Gradiente'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Gradient</h5>";
-      new_content += "<input type=\"range\" id=\"bar-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
-      + "value=\"0.0\" onchange=\"application.changeGradientBarChart(this.id, this.value)\">";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de Color del Gradiente'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Gradient Color</h5>";
-      new_content += "<input type=\"color\" id=\"bar-color-gradient-" + this.getId() + "\" "
-      + "value=\"#ffffff\" onchange=\"application.changeGradientColorBarChart(this.id, this.value)\">";
-      new_content += "</div>";
-    } else if(this.getChartType() === "line"){ // Opciones de los 'LineCharts'
-
-      new_content += "<div class=\"options-panel-chart\">";
-      new_content += "<h3>Options</h3>";
-      new_content += "<hr class=\"solid\">";
-
-      // BarChart: 'Opciones de LineWidth'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Line width</h5>";
-      new_content += "<input type=\"range\" id=\"line-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
-      + "onchange=\"application.changeLineWidthLineChart(this.id, this.value)\">";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de LineCap'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Line cap</h5>";
-      new_content += "<select id=\"line-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapLineChart(this.id, this.value)\">";
-      new_content += "<option value=\"butt\" selected>Butt</option>";
-      new_content += "<option value=\"round\">Round</option>";
-      new_content += "<option value=\"square\">Square</option>";
-      new_content += "</select>";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de Shadows'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Shadows</h5>";
-      new_content += "<input type=\"checkbox\" id=\"line-shadows-" + this.getId() + "\""
-      + "onchange=\"application.changeShadowsLineChart(this.id)\">";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de Transparency'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Opacity</h5>";
-      new_content += "<input type=\"range\" id=\"line-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
-      + "value=\"1.0\" onchange=\"application.changeTransparencyLineChart(this.id, this.value)\">";
-      new_content += "</div>";
-    } else if(this.getChartType() === "pie"){ // Opciones de los 'PieCharts'
- 
-      new_content += "<div class=\"options-panel-chart\">";
-      new_content += "<h3>Options</h3>";
-
-      // BarChart: 'Opciones de LineWidth'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Line width</h5>";
-      new_content += "<input type=\"range\" id=\"pie-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
-      + "onchange=\"application.changeLineWidthPieChart(this.id, this.value)\">";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de Shadows'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Shadows</h5>";
-      new_content += "<input type=\"checkbox\" id=\"pie-shadows-" + this.getId() + "\""
-      + "onchange=\"application.changeShadowsPieChart(this.id)\">";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de Transparency'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Opacity</h5>";
-      new_content += "<input type=\"range\" id=\"pie-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
-      + "value=\"1.0\" onchange=\"application.changeTransparencyPieChart(this.id, this.value)\">";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de Gradiente'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Gradient</h5>";
-      new_content += "<input type=\"range\" id=\"pie-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
-      + "value=\"0.0\" onchange=\"application.changeGradientPieChart(this.id, this.value)\">";
-      new_content += "</div>";
-
-      // BarChart: 'Opciones de Color del Gradiente'
-      new_content += "<div class=\"content-options\">";
-      new_content += "<h5>Gradient Color</h5>";
-      new_content += "<input type=\"color\" id=\"pie-color-gradient-" + this.getId() + "\" "
-      + "value=\"#ffffff\" onchange=\"application.changeGradientColorPieChart(this.id, this.value)\">";
-      new_content += "</div>";
-      new_content += "</div>";
-    }*/
-
-    new_content += "</div>";
+        new_content += "<div id=\"options-" + this.data_serie.getId() + "\">";
+        new_content += "</div>";
   
-    document.getElementById("charts-content").innerHTML += new_content;
-  }
+        document.getElementById("charts-content").innerHTML += new_content;
+      }
+
+      new_content = "";
+
+      if(this.getChartType() === "bar"){ // Opciones de los 'BarCharts'
+
+        new_content += "<div class=\"options-panel-chart\" id=\"bar-chart-options-" + this.data_serie.getId() + "\">";
+        new_content += "<h3>Options</h3>";
+        new_content += "<hr class=\"solid\">";
+
+        // BarChart: 'Opciones de LineWidth'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Line width</h5>";
+        new_content += "<input type=\"range\" id=\"bar-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+        + "onchange=\"application.changeLineWidthBarChart(this.id, this.value)\">";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de LineCap'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Line cap</h5>";
+        new_content += "<select id=\"bar-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapBarChart(this.id, this.value)\">";
+        new_content += "<option value=\"butt\" selected>Butt</option>";
+        new_content += "<option value=\"round\">Round</option>";
+        new_content += "<option value=\"square\">Square</option>";
+        new_content += "</select>";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de Shadows'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Shadows</h5>";
+        new_content += "<input type=\"checkbox\" id=\"bar-shadows-" + this.getId() + "\""
+        + "onchange=\"application.changeShadowsBarChart(this.id)\">";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de Transparency'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Opacity</h5>";
+        new_content += "<input type=\"range\" id=\"bar-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        + "value=\"1.0\" onchange=\"application.changeTransparencyBarChart(this.id, this.value)\">";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de Gradiente'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Gradient</h5>";
+        new_content += "<input type=\"range\" id=\"bar-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        + "value=\"0.0\" onchange=\"application.changeGradientBarChart(this.id, this.value)\">";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de Color del Gradiente'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Gradient Color</h5>";
+        new_content += "<input type=\"color\" id=\"bar-color-gradient-" + this.getId() + "\" "
+        + "value=\"#ffffff\" onchange=\"application.changeGradientColorBarChart(this.id, this.value)\">";
+        new_content += "</div>";
+      } else if(this.getChartType() === "line"){ // Opciones de los 'LineCharts'
+
+        new_content += "<div class=\"options-panel-chart\" id=\"line-chart-options-" + this.data_serie.getId() + "\">";
+        new_content += "<h3>Options</h3>";
+        new_content += "<hr class=\"solid\">";
+
+        // BarChart: 'Opciones de LineWidth'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Line width</h5>";
+        new_content += "<input type=\"range\" id=\"line-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+        + "onchange=\"application.changeLineWidthLineChart(this.id, this.value)\">";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de LineCap'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Line cap</h5>";
+        new_content += "<select id=\"line-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapLineChart(this.id, this.value)\">";
+        new_content += "<option value=\"butt\" selected>Butt</option>";
+        new_content += "<option value=\"round\">Round</option>";
+        new_content += "<option value=\"square\">Square</option>";
+        new_content += "</select>";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de Shadows'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Shadows</h5>";
+        new_content += "<input type=\"checkbox\" id=\"line-shadows-" + this.getId() + "\""
+        + "onchange=\"application.changeShadowsLineChart(this.id)\">";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de Transparency'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Opacity</h5>";
+        new_content += "<input type=\"range\" id=\"line-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        + "value=\"1.0\" onchange=\"application.changeTransparencyLineChart(this.id, this.value)\">";
+        new_content += "</div>";
+      } else if(this.getChartType() === "pie"){ // Opciones de los 'PieCharts'
+
+        new_content += "<div class=\"options-panel-chart\" id=\"pie-chart-options-" + this.data_serie.getId() + "\">";
+        new_content += "<h3>Options</h3>";
+
+        // BarChart: 'Opciones de LineWidth'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Line width</h5>";
+        new_content += "<input type=\"range\" id=\"pie-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+        + "onchange=\"application.changeLineWidthPieChart(this.id, this.value)\">";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de Shadows'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Shadows</h5>";
+        new_content += "<input type=\"checkbox\" id=\"pie-shadows-" + this.getId() + "\""
+        + "onchange=\"application.changeShadowsPieChart(this.id)\">";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de Transparency'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Opacity</h5>";
+        new_content += "<input type=\"range\" id=\"pie-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        + "value=\"1.0\" onchange=\"application.changeTransparencyPieChart(this.id, this.value)\">";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de Gradiente'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Gradient</h5>";
+        new_content += "<input type=\"range\" id=\"pie-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        + "value=\"0.0\" onchange=\"application.changeGradientPieChart(this.id, this.value)\">";
+        new_content += "</div>";
+
+        // BarChart: 'Opciones de Color del Gradiente'
+        new_content += "<div class=\"content-options\">";
+        new_content += "<h5>Gradient Color</h5>";
+        new_content += "<input type=\"color\" id=\"pie-color-gradient-" + this.getId() + "\" "
+        + "value=\"#ffffff\" onchange=\"application.changeGradientColorPieChart(this.id, this.value)\">";
+        new_content += "</div>";
+        new_content += "</div>";
+      }
+
+    document.getElementById("options-" + this.data_serie.getId()).innerHTML += new_content;
+
+    if(check_select !== null)
+      document.getElementById(this.getChartType() + "-chart-options-" + this.data_serie.getId()).style.display = "none";
+
     document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).width = this.getWidth().toString();
     document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).height = Chart.HEIGHT.toString();
 
