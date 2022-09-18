@@ -203,18 +203,6 @@ body{
     background-color: beige;
 }
 
-.bar-chart{
-    float: left;
-    font-family: sans-serif;
-    text-align: left;
-    margin: 1%;
-    padding: 0.005%;
-    padding-left: 1%;
-    width: 97%;
-    height: 900px;
-    border-radius: 25px;
-    background-color:#f0ffff;
-}
 
 
 #line-charts{
@@ -226,18 +214,6 @@ body{
     background-color: beige;
 }
 
-.line-chart{
-    float: left;
-    font-family: sans-serif;
-    text-align: left;
-    margin: 1%;
-    padding: 0.005%;
-    padding-left: 1%;
-    width: 97%;
-    height: 810px;
-    border-radius: 25px;
-    background-color:#f0ffff;
-}
 
 #pie-charts{
     display: none;
@@ -248,7 +224,7 @@ body{
     background-color: beige;
 }
 
-.pie-chart{
+.div-charts{
     float: left;
     font-family: sans-serif;
     text-align: left;

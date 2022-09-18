@@ -13,8 +13,11 @@ class CanvasAPIApplication {
 
     this.data_series = []; // Vector de series de datos
     this.bar_charts = []; // Vector de gráficos de barras
+    this.bar_charts_to_draw = []; // Vector de gráficos de barras que hay que dibujar
     this.line_charts = []; // Vector de gráficos de líneas
+    this.line_charts_to_draw = []; // Vector de gráficos de líneas que hay que dibujar
     this.pie_charts = []; // Vector de gráficos circulares
+    this.pie_charts_to_draw = []; // Vector de gráficos circulares que hay que dibujar
   }
 
   /* Métodos */
@@ -676,101 +679,86 @@ class CanvasAPIApplication {
 
     var another_chart1;
     var another_chart2;
-    var id_chart;
-    var id_chart_buttom1 = null;
-    var id_chart_buttom2 = null;
-    var buttom1;
-    var buttom2;
+
 
     // Ocultamos el antiguo
     if(value == "bar"){
       another_chart1 = document.getElementById("line-chart-" + id_data_serie);
       another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
-      
+
       for(var i = 0; i < this.bar_charts.length; i++){
         if(this.bar_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          id_chart = i;
+          this.bar_charts_to_draw.push(this.bar_charts[i].getId());
+      }
+      
+      for(var i = 0; i < this.line_charts_to_draw.length; i++){
+        if(this.line_charts[this.line_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
+          this.line_charts_to_draw.splice(i, 1);
+        }
       }
 
-      for(var i = 0; i < this.line_charts.length; i++){
-        if(this.line_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          id_chart_buttom1 = i;
+      for(var i = 0; i < this.pie_charts_to_draw.length; i++){
+        if(this.pie_charts[this.pie_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
+          this.pie_charts_to_draw.splice(i, 1);
+        }
       }
-
-      for(var i = 0; i < this.pie_charts.length; i++){
-        if(this.pie_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          id_chart_buttom2 = i;
-      }
-
-      buttom1 = document.getElementById("remove-line-chart-button-" + id_chart_buttom1);
-      buttom2 = document.getElementById("remove-pie-chart-button-" + id_chart_buttom2);
-
-      if(buttom1 !== null)
-        document.getElementById("remove-line-chart-button-" + id_chart_buttom1).style.display = "none";
-      else if(buttom2 !== null)
-        document.getElementById("remove-pie-chart-button-" + id_chart_buttom2).style.display = "none";
       
     } else if(value == "line"){
       another_chart1 = document.getElementById("bar-chart-" + id_data_serie);
       another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
 
-      for(var i = 0; i < this.bar_charts.length; i++){
-        if(this.bar_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          id_chart_buttom1 = i;
-      }
-
       for(var i = 0; i < this.line_charts.length; i++){
         if(this.line_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          id_chart = i;
+          this.line_charts_to_draw.push(this.line_charts[i].getId());
       }
 
-      for(var i = 0; i < this.pie_charts.length; i++){
-        if(this.pie_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          id_chart_buttom2 = i;
+      for(var i = 0; i < this.bar_charts_to_draw.length; i++){
+        if(this.bar_charts[this.bar_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
+          this.bar_charts_to_draw.splice(i, 1);
+        }
       }
 
-      buttom1 = document.getElementById("remove-bar-chart-button-" + id_chart_buttom1);
-      buttom2 = document.getElementById("remove-pie-chart-button-" + id_chart_buttom2);
-
-      if(buttom1 !== null)
-        document.getElementById("remove-bar-chart-button-" + id_chart_buttom1).style.display = "none";
-      else if(buttom2 !== null)
-        document.getElementById("remove-pie-chart-button-" + id_chart_buttom2).style.display = "none";
+      for(var i = 0; i < this.pie_charts_to_draw.length; i++){
+        if(this.pie_charts[this.pie_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
+          this.pie_charts_to_draw.splice(i, 1);
+        }
+      }
 
     } else if(value == "pie"){
       another_chart1 = document.getElementById("line-chart-" + id_data_serie);
       another_chart2 = document.getElementById("bar-chart-" + id_data_serie);
 
-      for(var i = 0; i < this.bar_charts.length; i++){
-        if(this.bar_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          id_chart_buttom1 = i;
-      }
-
-      for(var i = 0; i < this.line_charts.length; i++){
-        if(this.line_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          id_chart_buttom2 = i;
-      }
-
       for(var i = 0; i < this.pie_charts.length; i++){
         if(this.pie_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          id_chart = i;
+          this.pie_charts_to_draw.push(this.pie_charts[i].getId());
       }
 
-      buttom1 = document.getElementById("remove-bar-chart-button-" + id_chart_buttom1);
-      buttom2 = document.getElementById("remove-line-chart-button-" + id_chart_buttom2);
+      for(var i = 0; i < this.bar_charts_to_draw.length; i++){
+        if(this.bar_charts[this.bar_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
+          this.bar_charts_to_draw.splice(i, 1);
+        }
+      }
 
-      if(buttom1 !== null)
-        document.getElementById("remove-bar-chart-button-" + id_chart_buttom1).style.display = "none";
-      else if(buttom2 !== null)
-        document.getElementById("remove-line-chart-button-" + id_chart_buttom2).style.display = "none";
+      for(var i = 0; i < this.line_charts_to_draw.length; i++){
+        if(this.line_charts[this.line_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
+          this.line_charts_to_draw.splice(i, 1);
+        }
+      }
     }
+
+    if(another_chart1 !== null)
+      another_chart1.style.display = "none";
+
+    if(another_chart2 !== null)
+      another_chart2.style.display = "none";
 
     // Mostramos nuevo canvas
     document.getElementById(value + "-chart-" + id_data_serie).style.display = "block";
 
-    console.log(id_chart);
     // Mostramos nuevo botón
     //document.getElementById("remove-" + value + "-chart-button-" + id_chart).style.display = "block";
+
+    this.draw_charts();
   }
 
   // Nueva gráfica
@@ -800,22 +788,41 @@ class CanvasAPIApplication {
     
         bar_chart.setColors();
         this.bar_charts.push(bar_chart);
-        bar_chart.insertChartData();
-        this.draw_bar_chart(this.bar_charts.length-1);
+
+        if(bar_chart.insertChartData())
+          this.bar_charts_to_draw.push(bar_chart.getId());
+        
       } else if(select_chart_type.value == "line"){ // Gráfico de líneas
         var line_chart = new LineChart(this.line_charts.length, chart_data, '10pt Times New Roman', 'black', 2.0);
         this.line_charts.push(line_chart);
-        line_chart.insertChartData();
-        this.draw_line_chart(this.line_charts.length-1);
+
+        if(line_chart.insertChartData())
+          this.line_charts_to_draw.push(line_chart.getId());
+
       } else if(select_chart_type.value == "pie"){ // Gráfico circular
         var pie_chart = new PieChart(this.pie_charts.length, chart_data, '10pt Times New Roman', 'black', 2.0);
 
         pie_chart.setColors();
         this.pie_charts.push(pie_chart);
-        pie_chart.insertChartData();
-        this.draw_pie_chart(this.pie_charts.length-1);
+        
+        if(pie_chart.insertChartData())
+          this.pie_charts_to_draw.push(pie_chart.getId());
+
       }
     }
+
+    this.draw_charts();
+  }
+
+  draw_charts(){
+    for(var i = 0; i < this.bar_charts_to_draw.length; i++)
+        this.draw_bar_chart(this.bar_charts_to_draw[i]);
+
+    for(var i = 0; i < this.line_charts_to_draw.length; i++)
+        this.draw_line_chart(this.line_charts_to_draw[i]);
+
+    for(var i = 0; i < this.pie_charts_to_draw.length; i++)
+        this.draw_pie_chart(this.pie_charts_to_draw[i]);
   }
 }
 
@@ -1063,12 +1070,13 @@ class Chart{
       check_select.add(option);
 
       document.getElementById("canvas-" + this.data_serie.getId()).innerHTML += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
+      document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).style.display = "none";
     } else{
       var new_content = 
-        "<div class=\"" + this.getChartType()  + "-chart\" id=\"" + this.getChartType() + "-chart-div-" + this.getId() + "\">" +
-        "     <div id=\"buttoms-" + this.data_serie.getId() + "\">"
-        "     <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>" +
-        "     </div>" +
+        "<div class=\"div-charts\" id=\"div-chart-" + this.data_serie.getId() + "\">" +
+        //"     <div id=\"buttoms-" + this.data_serie.getId() + "\">"
+        //"     <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>" +
+        //"     </div>" +
         "    <h3>Título: " + this.data_serie.getTitle() + "</h3>" +
         "    <hr class=\"solid\">" +
         "    <p><b>Criterios de selección usados:</b>"+ this.data_serie.getNumberOfVariables() +"</p>";
@@ -1088,7 +1096,7 @@ class Chart{
           new_content += "<option value=\"" + this.getChartType() + "\">Gráfico circular</option>";
         }
   
-        new_content += "</select><br></br></p>";
+        new_content += "</select></p>";
 
         new_content += "<div id=\"canvas-" + this.data_serie.getId() + "\">"
         new_content += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
@@ -1219,16 +1227,17 @@ class Chart{
       new_content += "<input type=\"color\" id=\"pie-color-gradient-" + this.getId() + "\" "
       + "value=\"#ffffff\" onchange=\"application.changeGradientColorPieChart(this.id, this.value)\">";
       new_content += "</div>";
+      new_content += "</div>";
     }*/
 
-    new_content += "</div></div>";
-    }
-  
-  
+    new_content += "</div>";
   
     document.getElementById("charts-content").innerHTML += new_content;
+  }
     document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).width = this.getWidth().toString();
     document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).height = Chart.HEIGHT.toString();
+
+    return (check_select === null);
   }
 }
 
