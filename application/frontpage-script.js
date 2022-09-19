@@ -857,9 +857,13 @@ class CanvasAPIApplication {
       }
 
       var check_select = document.getElementById("charts-" + chart_data.getId());
+      var same_option = false;
 
       if(check_select !== null){
-        
+        for(var i = 0; i < check_select.options.length; i++){
+          if(check_select.options[i].value == select_chart_type.options[select_chart_type.selectedIndex].value)
+            same_option = true;
+        }
       }
 
       if(select_chart_type.value == "bar"){ // Gráfico de barras
@@ -869,9 +873,7 @@ class CanvasAPIApplication {
 
         bar_chart.setColors();
 
-        if(check_select === null || 
-          (check_select !== null && check_select.options[check_select.selectedIndex].value 
-          != select_chart_type.options[select_chart_type.selectedIndex].value)){
+        if(!same_option){
           this.bar_charts.push(bar_chart);
 
           if(bar_chart.insertChartData())
@@ -882,9 +884,7 @@ class CanvasAPIApplication {
       } else if(select_chart_type.value == "line"){ // Gráfico de líneas
         var line_chart = new LineChart(this.line_charts.length, chart_data, '10pt Times New Roman', 'black', 2.0);
 
-        if(check_select === null || 
-          (check_select !== null && check_select.options[check_select.selectedIndex].value 
-          != select_chart_type.options[select_chart_type.selectedIndex].value)){
+        if(!same_option){
           this.line_charts.push(line_chart);
 
           if(line_chart.insertChartData())
@@ -897,13 +897,11 @@ class CanvasAPIApplication {
 
         pie_chart.setColors();
 
-        if(check_select === null || 
-          (check_select !== null && check_select.options[check_select.selectedIndex].value 
-          != select_chart_type.options[select_chart_type.selectedIndex].value)){
+        if(!same_option){
           this.pie_charts.push(pie_chart);
 
           if(pie_chart.insertChartData())
-          this.pie_charts_to_draw.push(pie_chart.getId());
+            this.pie_charts_to_draw.push(pie_chart.getId());
         } else
           alert("La gráfica seleccionada ya existe.");
       }
