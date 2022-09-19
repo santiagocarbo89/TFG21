@@ -58,12 +58,23 @@ class CanvasAPIApplication {
 
   showAddGraphMenu(){
     var add_graph_menu = document.getElementById("add-graph-menu");
-    var add_graph_menu_display = window.getComputedStyle(add_graph_menu).display
+    var add_graph_menu_display = window.getComputedStyle(add_graph_menu).display;
 
     if(add_graph_menu_display == "none")
       add_graph_menu.style.display = "block";
     else if(add_graph_menu_display == "block")
       add_graph_menu.style.display = "none";
+  }
+
+  showOptions(id){
+    var real_id = id.substring(0, id.search("-")) + "-chart-options-" + id.substring(id.length - 1);
+    var options_button = document.getElementById(real_id);
+    var options_button_display = window.getComputedStyle(options_button).display;
+
+    if(options_button_display == "none")
+      options_button.style.display = "block";
+    else if(options_button_display == "block")
+      options_button.style.display = "none";
   }
 
   selectFile(){
@@ -637,6 +648,7 @@ class CanvasAPIApplication {
     if(select_charts.options.length > 1){
       select_charts.remove(select_charts.selectedIndex);
       document.getElementById("remove-" + chart_type + "-chart-button-" + real_id).remove();
+      document.getElementById(chart_type + "-options-buttoms-" + real_id).remove();
       this.changeChartVisualized(real_id, select_charts.options[(select_charts.selectedIndex + 1) % select_charts.options.length].value);
     } else {
       document.getElementById("div-chart-" + real_id).remove();
@@ -699,6 +711,8 @@ class CanvasAPIApplication {
     var another_buttom2;
     var another_options1;
     var another_options2;
+    var another_options_button1;
+    var another_options_button2;
 
 
     // Ocultamos el antiguo
@@ -709,6 +723,8 @@ class CanvasAPIApplication {
       another_buttom2 = document.getElementById("remove-pie-chart-button-" + id_data_serie);
       another_options1 = document.getElementById("line-chart-options-" + id_data_serie);
       another_options2 = document.getElementById("pie-chart-options-" + id_data_serie);
+      another_options_button1 = document.getElementById("line-options-buttoms-" + id_data_serie);
+      another_options_button2 = document.getElementById("pie-options-buttoms-" + id_data_serie);
 
       for(var i = 0; i < this.bar_charts.length; i++){
         if(this.bar_charts[i].getDataSerie() === this.data_series[id_data_serie])
@@ -734,6 +750,8 @@ class CanvasAPIApplication {
       another_buttom2 = document.getElementById("remove-pie-chart-button-" + id_data_serie);
       another_options1 = document.getElementById("bar-chart-options-" + id_data_serie);
       another_options2 = document.getElementById("pie-chart-options-" + id_data_serie);
+      another_options_button1 = document.getElementById("bar-options-buttoms-" + id_data_serie);
+      another_options_button2 = document.getElementById("pie-options-buttoms-" + id_data_serie);
 
       for(var i = 0; i < this.line_charts.length; i++){
         if(this.line_charts[i].getDataSerie() === this.data_series[id_data_serie])
@@ -759,6 +777,8 @@ class CanvasAPIApplication {
       another_buttom2 = document.getElementById("remove-line-chart-button-" + id_data_serie);
       another_options1 = document.getElementById("bar-chart-options-" + id_data_serie);
       another_options2 = document.getElementById("line-chart-options-" + id_data_serie);
+      another_options_button1 = document.getElementById("line-options-buttoms-" + id_data_serie);
+      another_options_button2 = document.getElementById("pie-options-buttoms-" + id_data_serie);
 
       for(var i = 0; i < this.pie_charts.length; i++){
         if(this.pie_charts[i].getDataSerie() === this.data_series[id_data_serie])
@@ -796,6 +816,12 @@ class CanvasAPIApplication {
     if(another_options2 !== null)
       another_options2.style.display = "none";
 
+    if(another_options_button1 !== null)
+      another_options_button1.style.display = "none";
+
+    if(another_options_button2 !== null)
+      another_options_button2.style.display = "none";
+
     // Mostramos nuevo canvas
     document.getElementById(value + "-chart-" + id_data_serie).style.display = "block";
 
@@ -804,6 +830,7 @@ class CanvasAPIApplication {
 
     // Mostramos nuevas opciones
     document.getElementById(value + "-chart-options-" + id_data_serie).style.display = "block";
+    document.getElementById(value + "-options-buttoms-" + id_data_serie).style.display = "block";
 
     this.draw_charts();
   }
@@ -1127,21 +1154,27 @@ class Chart{
 
         document.getElementById("canvas-" + this.data_serie.getId()).innerHTML += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
         document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).style.display = "none";
-        document.getElementById("buttoms-" + this.data_serie.getId()).innerHTML += "     <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>";
+        document.getElementById("buttoms-" + this.data_serie.getId()).innerHTML += "     <button class=\"charts-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>";
         document.getElementById("remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId()).style.display = "none";
+        document.getElementById("options-buttoms-" + this.data_serie.getId()).innerHTML += "<button class=\"charts-button\" id=\"" + this.getChartType() + "-options-buttoms-" + this.data_serie.getId() + "\" onclick=\"application.showOptions(this.id)\">Mostrar opciones</button>";
+        document.getElementById(this.getChartType() + "-options-buttoms-" + this.data_serie.getId()).style.display = "none";
         
       } else
         alert("La gráfica seleccionada ya existe");
 
     } else{
-      new_content = 
-        "<div class=\"div-charts\" id=\"div-chart-" + this.data_serie.getId() + "\">" +
-        "     <div id=\"buttoms-" + this.data_serie.getId() + "\">" +
-        "     <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>" +
-        "     </div>" +
-        "    <h3>Título: " + this.data_serie.getTitle() + "</h3>" +
-        "    <hr class=\"solid\">" +
-        "    <p><b>Criterios de selección usados:</b>"+ this.data_serie.getNumberOfVariables() +"</p>";
+        new_content = 
+          "<div class=\"div-charts\" id=\"div-chart-" + this.data_serie.getId() + "\">" +
+          "     <div id=\"buttoms-" + this.data_serie.getId() + "\">" +
+          "     <button class=\"charts-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>" +
+          "     </div>" +
+          "    <h3>Título: " + this.data_serie.getTitle() + "</h3>" +
+          "    <hr class=\"solid\">";
+        new_content += "<div id=\"options-buttoms-" + this.data_serie.getId() + "\">";
+        new_content += "<button class=\"charts-button\" id=\"" + this.getChartType() + "-options-buttoms-" + this.data_serie.getId() + "\" onclick=\"application.showOptions(this.id)\">Mostrar opciones</button>";
+        new_content += "</div>";
+        
+        new_content += "<p><b>Criterios de selección usados:</b>"+ this.data_serie.getNumberOfVariables() +"</p>";
   
         for(var i = 0; i <this.data_serie.getNumberOfVariables(); i++){
           new_content += "<p><u>Criterio de selección " + (i+1) + " (" + this.data_serie.getVariableTags()[i] + "):</u> " + this.data_serie.getVariableValues()[i] + "</p>";
@@ -1301,10 +1334,6 @@ class Chart{
       }
 
     document.getElementById("options-" + this.data_serie.getId()).innerHTML += new_content;
-
-    if(check_select !== null)
-      document.getElementById(this.getChartType() + "-chart-options-" + this.data_serie.getId()).style.display = "none";
-
     document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).width = this.getWidth().toString();
     document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).height = Chart.HEIGHT.toString();
 

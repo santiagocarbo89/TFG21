@@ -79,6 +79,7 @@ body{
 }
 
 .options-panel-chart{
+    display: none;
     outline: solid;
     width: 90%;
     height: 160px;
@@ -181,7 +182,7 @@ body{
     margin-top: 2%;
 }
 
-.remove-chart-button{
+.charts-button{
     float: right;
     font-family: sans-serif;
     background-color: beige;
