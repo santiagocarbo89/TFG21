@@ -646,10 +646,11 @@ class CanvasAPIApplication {
     }
 
     if(select_charts.options.length > 1){
+      document.getElementById(chart_type + "-chart-" + real_id).remove();
       select_charts.remove(select_charts.selectedIndex);
       document.getElementById("remove-" + chart_type + "-chart-button-" + real_id).remove();
       document.getElementById(chart_type + "-options-buttoms-" + real_id).remove();
-      this.changeChartVisualized(real_id, select_charts.options[(select_charts.selectedIndex + 1) % select_charts.options.length].value);
+      this.changeChartVisualized("charts-" + real_id, select_charts.options[select_charts.selectedIndex].value);
     } else {
       document.getElementById("div-chart-" + real_id).remove();
     }
@@ -855,33 +856,56 @@ class CanvasAPIApplication {
           chart_data = this.data_series[i];
       }
 
+      var check_select = document.getElementById("charts-" + chart_data.getId());
+
+      if(check_select !== null){
+        
+      }
+
       if(select_chart_type.value == "bar"){ // Gráfico de barras
         var bar_chart = new BarChart(this.bar_charts.length, chart_data, '10pt Times New Roman', 
           this.ctx.measureText(chart_data.getMaxSerieValue().toString()).width, 
           this.ctx.measureText(chart_data.getStructuredDataTags()[0]).width,'black', 2.0);
-    
-        bar_chart.setColors();
-        this.bar_charts.push(bar_chart);
 
-        if(bar_chart.insertChartData())
-          this.bar_charts_to_draw.push(bar_chart.getId());
+        bar_chart.setColors();
+
+        if(check_select === null || 
+          (check_select !== null && check_select.options[check_select.selectedIndex].value 
+          != select_chart_type.options[select_chart_type.selectedIndex].value)){
+          this.bar_charts.push(bar_chart);
+
+          if(bar_chart.insertChartData())
+            this.bar_charts_to_draw.push(bar_chart.getId());
+        } else
+          alert("La gráfica seleccionada ya existe.");
         
       } else if(select_chart_type.value == "line"){ // Gráfico de líneas
         var line_chart = new LineChart(this.line_charts.length, chart_data, '10pt Times New Roman', 'black', 2.0);
-        this.line_charts.push(line_chart);
 
-        if(line_chart.insertChartData())
-          this.line_charts_to_draw.push(line_chart.getId());
+        if(check_select === null || 
+          (check_select !== null && check_select.options[check_select.selectedIndex].value 
+          != select_chart_type.options[select_chart_type.selectedIndex].value)){
+          this.line_charts.push(line_chart);
 
+          if(line_chart.insertChartData())
+            this.line_charts_to_draw.push(line_chart.getId());
+
+        } else
+          alert("La gráfica seleccionada ya existe.");
       } else if(select_chart_type.value == "pie"){ // Gráfico circular
         var pie_chart = new PieChart(this.pie_charts.length, chart_data, '10pt Times New Roman', 'black', 2.0);
 
         pie_chart.setColors();
-        this.pie_charts.push(pie_chart);
-        
-        if(pie_chart.insertChartData())
-          this.pie_charts_to_draw.push(pie_chart.getId());
 
+        if(check_select === null || 
+          (check_select !== null && check_select.options[check_select.selectedIndex].value 
+          != select_chart_type.options[select_chart_type.selectedIndex].value)){
+          this.pie_charts.push(pie_chart);
+
+          if(pie_chart.insertChartData())
+          this.pie_charts_to_draw.push(pie_chart.getId());
+        } else
+          alert("La gráfica seleccionada ya existe.");
       }
     }
 
@@ -1131,37 +1155,25 @@ class Chart{
     var new_content;
 
     if(check_select !== null){
-      var same_option = false;
+      var option = document.createElement("option");
+      option.value = this.getChartType();
 
-      for(var i = 0; i < check_select.options.length && !same_option; i++){
-        if(check_select.options[i].value == this.getChartType())
-          same_option = true;
+      if (this.getChartType() == "bar"){
+        option.text = "Gráfico de barras";
+      } else if(this.getChartType() == "line") {
+        option.text = "Gráfico de líneas";
+      } else if(this.getChartType() == "pie") {
+        option.text = "Gráfico circular";
       }
 
-      if(!same_option){
-        var option = document.createElement("option");
-        option.value = this.getChartType();
+      check_select.add(option);
 
-        if (this.getChartType() == "bar"){
-          option.text = "Gráfico de barras";
-        } else if(this.getChartType() == "line") {
-          option.text = "Gráfico de líneas";
-        } else if(this.getChartType() == "pie") {
-          option.text = "Gráfico circular";
-        }
-
-        check_select.add(option);
-
-        document.getElementById("canvas-" + this.data_serie.getId()).innerHTML += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
-        document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).style.display = "none";
-        document.getElementById("buttoms-" + this.data_serie.getId()).innerHTML += "     <button class=\"charts-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>";
-        document.getElementById("remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId()).style.display = "none";
-        document.getElementById("options-buttoms-" + this.data_serie.getId()).innerHTML += "<button class=\"charts-button\" id=\"" + this.getChartType() + "-options-buttoms-" + this.data_serie.getId() + "\" onclick=\"application.showOptions(this.id)\">Mostrar opciones</button>";
-        document.getElementById(this.getChartType() + "-options-buttoms-" + this.data_serie.getId()).style.display = "none";
-        
-      } else
-        alert("La gráfica seleccionada ya existe");
-
+      document.getElementById("canvas-" + this.data_serie.getId()).innerHTML += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
+      document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).style.display = "none";
+      document.getElementById("buttoms-" + this.data_serie.getId()).innerHTML += "     <button class=\"charts-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>";
+      document.getElementById("remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId()).style.display = "none";
+      document.getElementById("options-buttoms-" + this.data_serie.getId()).innerHTML += "<button class=\"charts-button\" id=\"" + this.getChartType() + "-options-buttoms-" + this.data_serie.getId() + "\" onclick=\"application.showOptions(this.id)\">Mostrar opciones</button>";
+      document.getElementById(this.getChartType() + "-options-buttoms-" + this.data_serie.getId()).style.display = "none";
     } else{
         new_content = 
           "<div class=\"div-charts\" id=\"div-chart-" + this.data_serie.getId() + "\">" +
