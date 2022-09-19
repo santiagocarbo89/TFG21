@@ -143,12 +143,12 @@ body{
 
 #add-graph-menu{
     display: none;
-    background-color: #f0ffff;
+    background-color: rgb(214, 237, 216);
     font-family: sans-serif;
     text-align: center;
     border-radius: 15px;
     padding: 2%;
-    margin-top: 2%;
+    margin-top: 6%;
 }
 
 .chart_data{
@@ -172,7 +172,7 @@ body{
 .remove-serie-button{
     float: right;
     font-family: sans-serif;
-    background-color: beige;
+    background-color: rgb(234, 184, 184);
     color: black;
     border-radius: 15px;
     width: 30%;
@@ -185,14 +185,28 @@ body{
 .charts-button{
     float: right;
     font-family: sans-serif;
-    background-color: beige;
+    background-color: rgb(234, 184, 184);
     color: black;
     border-radius: 15px;
     width: 30%;
     font-size: 80%;
     padding: 1%;
     cursor: pointer;
+    margin-top: 1%;
+    margin-right: 1%;
+}
+
+.show-options-button{
+    float: right;
+    font-family: sans-serif;
+    background-color: rgb(200, 189, 135);
+    color: black;
+    width: 30%;
+    font-size: 80%;
+    padding: 1%;
+    cursor: pointer;
     margin-top: 2%;
+    margin-right: 1%;
 }
 
 #bar-charts{
@@ -229,11 +243,11 @@ body{
     float: left;
     font-family: sans-serif;
     text-align: left;
-    margin: 1%;
-    padding: 0.005%;
+    margin-top: 1%;
+    padding: 1%;
     padding-left: 1%;
-    width: 97%;
-    height: 810px;
+    width: 100%;
+    height: 1000px;
     border-radius: 25px;
     background-color:#f0ffff;
 }
