@@ -12,19 +12,12 @@
             <ul>
                 <li onclick="application.showHome();">Gráficas</li>
                 <li onclick="application.showData();">Datos</li>
-                <li onclick="application.showContact();">Contacto</li>
                 <li onclick="application.showAbout();">Información</li>
+                <li onclick="application.showContact();">Contacto</li>
             </ul>
         </nav>
         <div class="main">
             <div id="home">
-            <!-- <div class="header-container">
-                    <select id="select-graph" onchange="application.showGraphs()">
-                        <option value="bar">Gráfico de barras</option>
-                        <option value="line">Gráfico de líneas</option>
-                        <option value="pie">Gráfico circular</option>
-                    </select>
-                </div> -->
                 <button class="add-graph-button" onclick="application.showAddGraphMenu();">Añadir gráfica</button>
                 <div id="add-graph-menu">
                     <h3>Elija la serie de datos: </h3>
@@ -62,11 +55,17 @@
                 </div>
                 <div id="content"></div>
             </div>
-            <div id="contact">
-
-            </div>
             <div id="about">
-
+                
+            </div>
+            <div id="contact">
+                <div class="personal-file">
+                    <img src="./imgs/me.jpg">
+                    <div class="staff">
+                        <p><b>Autor</b>: Santiago Carbó García</p>
+                        <p><b>Tutor</b>: Carlos Ureña Almagro</p>
+                    </div>
+                </div>
             </div>
             <aside>
                 <h3>Bibliografía relacionada</h3>
