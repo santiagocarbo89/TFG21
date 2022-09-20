@@ -220,8 +220,14 @@ class CanvasAPIApplication {
       this.ctx.lineTo(BarChart.PADDING_LEFT, 
         BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
 
+      this.ctx.stroke(); // Líneas cortas verticales de referencia
+
       bar_chart.setStrokeStyle('#e5e4e2');
       this.ctx.strokeStyle = bar_chart.getStrokeStyle();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(BarChart.PADDING_LEFT, 
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
 
       this.ctx.lineTo(bar_chart.getWidth() - BarChart.PADDING_RIGHT,
           BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
@@ -243,7 +249,6 @@ class CanvasAPIApplication {
     this.ctx.lineTo(BarChart.PADDING_LEFT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
     this.ctx.lineTo(bar_chart.getWidth() - BarChart.PADDING_RIGHT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
     this.ctx.stroke();
-      
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var value = data_serie.getStructuredDataValues()[j];
@@ -311,13 +316,6 @@ class CanvasAPIApplication {
    this.ctx.font = line_chart.getLetterFont();
    this.ctx.globalAlpha = line_chart.getTransparency();
 
-    // Eje de abcisas y de ordenadas
-    this.ctx.beginPath();
-    this.ctx.moveTo(LineChart.PADDING_LEFT, LineChart.PADDING_TOP);
-    this.ctx.lineTo(LineChart.PADDING_LEFT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
-    this.ctx.lineTo(line_chart.getWidth() - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
-    this.ctx.stroke();
-
     var number_tag;
 
     for(var j = 0; j < line_chart.getNumberOfVerticalLines(); j++){
@@ -332,8 +330,14 @@ class CanvasAPIApplication {
       this.ctx.lineTo(LineChart.PADDING_LEFT, 
         LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
 
+      this.ctx.stroke();
+
       line_chart.setStrokeStyle('#e5e4e2');
       this.ctx.strokeStyle = line_chart.getStrokeStyle();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(LineChart.PADDING_LEFT, 
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
   
       this.ctx.lineTo(line_chart.getWidth() - LineChart.PADDING_RIGHT,
         LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
@@ -349,14 +353,21 @@ class CanvasAPIApplication {
     line_chart.setStrokeStyle('black');
     this.ctx.strokeStyle = line_chart.getStrokeStyle();
 
+    // Eje de abcisas y de ordenadas
+    this.ctx.beginPath();
+    this.ctx.moveTo(LineChart.PADDING_LEFT, LineChart.PADDING_TOP);
+    this.ctx.lineTo(LineChart.PADDING_LEFT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
+    this.ctx.lineTo(line_chart.getWidth() - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
+    this.ctx.stroke();
+
+    line_chart.setStrokeStyle("hsl(7, 0%, 30%)");
+    this.ctx.strokeStyle = line_chart.getStrokeStyle();
+
     this.ctx.beginPath();
     this.ctx.moveTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN, 
       Chart.HEIGHT - BarChart.PADDING_BOTTOM - data_serie.getStructuredDataValues()[0]*line_chart.getScaleFactorY()); // Inicio del gráfico de líneas
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
-      line_chart.setStrokeStyle("hsl(7, 0%, 30%)");
-      this.ctx.strokeStyle = line_chart.getStrokeStyle();
-
       var value = data_serie.getStructuredDataValues()[j];
 
       //Shadows
@@ -370,6 +381,9 @@ class CanvasAPIApplication {
         this.ctx.shadowOffsetY = 0;
         this.ctx.shadowBlur = 0;
       }
+
+      line_chart.setStrokeStyle("hsl(7, 0%, 30%)");
+      this.ctx.strokeStyle = line_chart.getStrokeStyle();
 
       this.ctx.lineTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + LineChart.SPACE_BETWEEN_POINTS*j, 
         Chart.HEIGHT - BarChart.PADDING_BOTTOM - value*line_chart.getScaleFactorY()); // Cada línea del gráfico de líneas
@@ -778,8 +792,8 @@ class CanvasAPIApplication {
       another_buttom2 = document.getElementById("remove-line-chart-button-" + id_data_serie);
       another_options1 = document.getElementById("bar-chart-options-" + id_data_serie);
       another_options2 = document.getElementById("line-chart-options-" + id_data_serie);
-      another_options_button1 = document.getElementById("line-options-buttoms-" + id_data_serie);
-      another_options_button2 = document.getElementById("pie-options-buttoms-" + id_data_serie);
+      another_options_button1 = document.getElementById("bar-options-buttoms-" + id_data_serie);
+      another_options_button2 = document.getElementById("line-options-buttoms-" + id_data_serie);
 
       for(var i = 0; i < this.pie_charts.length; i++){
         if(this.pie_charts[i].getDataSerie() === this.data_series[id_data_serie])
@@ -830,7 +844,7 @@ class CanvasAPIApplication {
     document.getElementById("remove-" + value + "-chart-button-" + id_data_serie).style.display = "block";
 
     // Mostramos nuevas opciones
-    document.getElementById(value + "-chart-options-" + id_data_serie).style.display = "block";
+    document.getElementById(value + "-chart-options-" + id_data_serie).style.display = "none";
     document.getElementById(value + "-options-buttoms-" + id_data_serie).style.display = "block";
 
     this.draw_charts();
@@ -907,6 +921,7 @@ class CanvasAPIApplication {
       }
     }
 
+    document.getElementById("add-graph-menu").style.display = "none";
     this.draw_charts();
   }
 
