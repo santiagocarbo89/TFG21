@@ -435,7 +435,6 @@ aside{
 
     /* Width y Height */
     width: 120%;
-    height: 50%;
 
     /* Margin */
     margin-top: 1%;
@@ -448,8 +447,8 @@ aside{
 }
 
 .personal-file{
-    /* Margin */
-    margin: 1%;
+    /* Width y Height */
+    height: 200px;
 
     /* Padding */
     padding: 2%;
@@ -469,8 +468,7 @@ aside{
     float: right;
 
     /* Width y Height */
-    width: 20%;
-    height: 20%;
+    width: 15%;
 
     /* Otros */
     border-radius: 25px;

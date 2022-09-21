@@ -119,7 +119,7 @@ class CanvasAPIApplication {
     var submit_serie = true;
 
     for(var i = 0; i < this.data_series.length; i++){
-      if(this.data_series[i].getTitle() === title)
+      if(this.data_series[i].getTitle() == title)
         submit_serie = false;
     }
 
@@ -193,7 +193,7 @@ class CanvasAPIApplication {
   // Gráficos de barras
   draw_bar_chart(id){
     var bar_chart = this.bar_charts[id];
-    var chart_id = "bar-chart-" + id;
+    var chart_id = "bar-chart-" + bar_chart.getId();
     this.canvas = document.getElementById(chart_id);
   
     if(this.canvas.getContext) {
@@ -688,21 +688,20 @@ class CanvasAPIApplication {
   }
 
   dataSerieHasAssociatedCharts(real_id){
-    var data_serie = this.data_series[real_id];
     var associated_charts = false;
 
     for(var i = 0; i < this.bar_charts.length && !associated_charts; i++){
-      if(this.bar_charts[i].getDataSerie() === data_serie)
+      if(this.bar_charts[i].getId() == real_id)
         associated_charts = true;
     }
 
     for(var i = 0; i < this.line_charts.length && !associated_charts; i++){
-      if(this.line_charts[i].getDataSerie() === data_serie)
+      if(this.line_charts[i].getId() == real_id)
         associated_charts = true;
     }
 
     for(var i = 0; i < this.pie_charts.length && !associated_charts; i++){
-      if(this.pie_charts[i].getDataSerie() === data_serie)
+      if(this.pie_charts[i].getId() == real_id)
         associated_charts = true;
     }
 
@@ -712,6 +711,12 @@ class CanvasAPIApplication {
   changeChartVisualized(id, value){
     var id_data_serie = id.substring(id.length - 1);
 
+    var array_in;
+    var array_in_to_draw;
+    var array_out1;
+    var array_out1_to_draw;
+    var array_out2;
+    var array_out2_to_draw;
     var another_chart1;
     var another_chart2;
     var another_buttom1;
@@ -724,6 +729,12 @@ class CanvasAPIApplication {
 
     // Ocultamos el antiguo
     if(value == "bar"){
+      array_in = this.bar_charts;
+      array_in_to_draw = this.bar_charts_to_draw;
+      array_out1 = this.line_charts;
+      array_out1_to_draw = this.line_charts_to_draw;
+      array_out2 = this.pie_charts;
+      array_out2_to_draw = this.pie_charts_to_draw;
       another_chart1 = document.getElementById("line-chart-" + id_data_serie);
       another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
       another_buttom1 = document.getElementById("remove-line-chart-button-" + id_data_serie);
@@ -732,25 +743,14 @@ class CanvasAPIApplication {
       another_options2 = document.getElementById("pie-chart-options-" + id_data_serie);
       another_options_button1 = document.getElementById("line-options-buttons-" + id_data_serie);
       another_options_button2 = document.getElementById("pie-options-buttons-" + id_data_serie);
-
-      for(var i = 0; i < this.bar_charts.length; i++){
-        if(this.bar_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          this.bar_charts_to_draw.push(this.bar_charts[i].getId());
-      }
-      
-      for(var i = 0; i < this.line_charts_to_draw.length; i++){
-        if(this.line_charts[this.line_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
-          this.line_charts_to_draw.splice(i, 1);
-        }
-      }
-
-      for(var i = 0; i < this.pie_charts_to_draw.length; i++){
-        if(this.pie_charts[this.pie_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
-          this.pie_charts_to_draw.splice(i, 1);
-        }
-      }
       
     } else if(value == "line"){
+      array_in = this.line_charts;
+      array_in_to_draw = this.line_charts_to_draw;
+      array_out1 = this.bar_charts;
+      array_out1_to_draw = this.bar_charts_to_draw;
+      array_out2 = this.pie_charts;
+      array_out2_to_draw = this.pie_charts_to_draw;
       another_chart1 = document.getElementById("bar-chart-" + id_data_serie);
       another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
       another_buttom1 = document.getElementById("remove-bar-chart-button-" + id_data_serie);
@@ -760,24 +760,13 @@ class CanvasAPIApplication {
       another_options_button1 = document.getElementById("bar-options-buttons-" + id_data_serie);
       another_options_button2 = document.getElementById("pie-options-buttons-" + id_data_serie);
 
-      for(var i = 0; i < this.line_charts.length; i++){
-        if(this.line_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          this.line_charts_to_draw.push(this.line_charts[i].getId());
-      }
-
-      for(var i = 0; i < this.bar_charts_to_draw.length; i++){
-        if(this.bar_charts[this.bar_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
-          this.bar_charts_to_draw.splice(i, 1);
-        }
-      }
-
-      for(var i = 0; i < this.pie_charts_to_draw.length; i++){
-        if(this.pie_charts[this.pie_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
-          this.pie_charts_to_draw.splice(i, 1);
-        }
-      }
-
     } else if(value == "pie"){
+      array_in = this.pie_charts;
+      array_in_to_draw = this.pie_charts_to_draw;
+      array_out1 = this.line_charts;
+      array_out1_to_draw = this.line_charts_to_draw;
+      array_out2 = this.bar_charts;
+      array_out2_to_draw = this.bar_charts_to_draw;
       another_chart1 = document.getElementById("line-chart-" + id_data_serie);
       another_chart2 = document.getElementById("bar-chart-" + id_data_serie);
       another_buttom1 = document.getElementById("remove-bar-chart-button-" + id_data_serie);
@@ -786,22 +775,27 @@ class CanvasAPIApplication {
       another_options2 = document.getElementById("line-chart-options-" + id_data_serie);
       another_options_button1 = document.getElementById("bar-options-buttons-" + id_data_serie);
       another_options_button2 = document.getElementById("line-options-buttons-" + id_data_serie);
+    }
 
-      for(var i = 0; i < this.pie_charts.length; i++){
-        if(this.pie_charts[i].getDataSerie() === this.data_series[id_data_serie])
-          this.pie_charts_to_draw.push(this.pie_charts[i].getId());
+
+    for(var i = 0; i < array_in.length; i++){
+      if(array_in[i].getId() == id_data_serie)
+        array_in_to_draw.push(array_in[i].getId());
+    }
+
+    for(var i = 0; i < array_out1.length; i++){
+      for(var j = 0; j < array_out1_to_draw.length; j++){
+        if(array_out1[i].getId() == array_out1_to_draw[j] 
+        && array_out1[i].getId() == id_data_serie)
+          array_out1_to_draw.splice(j, 1);
       }
+    }
 
-      for(var i = 0; i < this.bar_charts_to_draw.length; i++){
-        if(this.bar_charts[this.bar_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
-          this.bar_charts_to_draw.splice(i, 1);
-        }
-      }
-
-      for(var i = 0; i < this.line_charts_to_draw.length; i++){
-        if(this.line_charts[this.line_charts_to_draw[i]].getDataSerie() === this.data_series[id_data_serie]){
-          this.line_charts_to_draw.splice(i, 1);
-        }
+    for(var i = 0; i < array_out2.length; i++){
+      for(var j = 0; j < array_out2_to_draw.length; j++){
+        if(array_out2[i].getId() == array_out2_to_draw[j] 
+        && array_out2[i].getId() == id_data_serie)
+          array_out2_to_draw.splice(j, 1);
       }
     }
 
@@ -843,7 +837,7 @@ class CanvasAPIApplication {
   }
 
   // Nueva gráfica
-  submitNewChart(){
+  submitChart(){
     var select_data_serie = document.getElementById("select-data-serie");
     var select_chart_type = document.getElementById("select-chart-type");
 
@@ -873,7 +867,7 @@ class CanvasAPIApplication {
       }
 
       if(select_chart_type.value == "bar"){ // Gráfico de barras
-        var bar_chart = new BarChart(this.bar_charts.length, chart_data, '10pt Times New Roman', 
+        var bar_chart = new BarChart(chart_data.getId(), chart_data, '10pt Times New Roman', 
           this.ctx.measureText(chart_data.getMaxSerieValue().toString()).width, 
           this.ctx.measureText(chart_data.getStructuredDataTags()[0]).width,'black', 2.0);
 
@@ -888,7 +882,7 @@ class CanvasAPIApplication {
           alert("La gráfica seleccionada ya existe.");
         
       } else if(select_chart_type.value == "line"){ // Gráfico de líneas
-        var line_chart = new LineChart(this.line_charts.length, chart_data, '10pt Times New Roman', 'black', 2.0);
+        var line_chart = new LineChart(chart_data.getId(), chart_data, '10pt Times New Roman', 'black', 2.0);
 
         if(!same_option){
           this.line_charts.push(line_chart);
@@ -899,7 +893,7 @@ class CanvasAPIApplication {
         } else
           alert("La gráfica seleccionada ya existe.");
       } else if(select_chart_type.value == "pie"){ // Gráfico circular
-        var pie_chart = new PieChart(this.pie_charts.length, chart_data, '10pt Times New Roman', 'black', 2.0);
+        var pie_chart = new PieChart(chart_data.getId(), chart_data, '10pt Times New Roman', 'black', 2.0);
 
         pie_chart.setColors();
 
@@ -1039,7 +1033,7 @@ class DataSeries{
       
       aux_value = unstructured_data_split_by_semicolon[unstructured_data_split_by_semicolon.length-1].replace(',','.');
       
-      if(parseFloat(aux_value) % 1 === 0 && aux_value.indexOf('.') != -1){
+      if(parseFloat(aux_value) % 1 == 0 && aux_value.indexOf('.') != -1){
         aux_value = aux_value.substring(0, aux_value.indexOf('.'));
       }
 
@@ -1236,7 +1230,7 @@ class Chart{
       new_content = "";
 
       /* OPCIONES DE LOS 'BARCHARTS' */
-      if(this.getChartType() === "bar"){
+      if(this.getChartType() == "bar"){
 
         new_content += " <div class=\"options-panel-chart\" id=\"bar-chart-options-" + this.data_serie.getId() + "\"\n>";
         new_content += "  <h3><u>OPCIONES</u></h3>\n";
@@ -1288,7 +1282,7 @@ class Chart{
         new_content += " </div>\n";
 
         /* OPCIONES DE LOS 'LINECHARTS' */
-      } else if(this.getChartType() === "line"){ 
+      } else if(this.getChartType() == "line"){ 
 
         new_content += " <div class=\"options-panel-chart\" id=\"line-chart-options-" + this.data_serie.getId() + "\">\n";
         new_content += "  <h3><u>OPCIONES</u></h3>\n";
@@ -1326,7 +1320,7 @@ class Chart{
         new_content += " </div>\n";
 
         /* OPCIONES DE LOS 'PIECHARTS' */
-      } else if(this.getChartType() === "pie"){
+      } else if(this.getChartType() == "pie"){
 
         new_content += " <div class=\"options-panel-chart\" id=\"pie-chart-options-" + this.data_serie.getId() + "\">\n";
         new_content += "  <h3><u>OPCIONES</u></h3>\n";
