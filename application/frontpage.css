@@ -178,16 +178,21 @@ aside{
 
     /* Width y Height */
     width: 95%;
+    height: 200px;
 
     /* Margin */
     margin-top: 2%;
     margin-left: 2%;
 
     /* Padding */
-    padding: 0.5%;
+    padding: 2%;
+
+    /* Colores */
+    background-color: aliceblue;
 
     /* Otros */
-    outline: solid;
+    outline: ridge;
+    border-radius: 25px;
 }
 
 .options-panel-chart h3{
@@ -195,7 +200,7 @@ aside{
     text-align: center;
 }
 
-.content-options{
+.options-panel-chart-section{
     /* Float */
     float: left;
 
@@ -216,10 +221,7 @@ aside{
     /* Fuente */
     font-family: sans-serif;
     font-size: 80%;
-
-    /* Margin */
-    margin-top: 1%;
-    margin-right: 1%;
+    font-weight: bold;
 
     /* Padding */
     padding: 1%;
@@ -251,7 +253,7 @@ aside{
     padding: 1%;
 
     /* Colores */
-    background-color: rgb(200, 189, 135);
+    background-color: #d5f9f9;
 
     /* Otros */
     cursor: pointer;
