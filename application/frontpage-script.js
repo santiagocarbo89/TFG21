@@ -918,14 +918,26 @@ class CanvasAPIApplication {
   }
 
   draw_charts(){
-    for(var i = 0; i < this.bar_charts_to_draw.length; i++)
-        this.draw_bar_chart(this.bar_charts_to_draw[i]);
+    for(var i = 0; i < this.bar_charts.length; i++){
+      for(var j = 0; j < this.bar_charts_to_draw.length; j++){
+        if(this.bar_charts[i].getId() == this.bar_charts_to_draw[j])
+          this.draw_bar_chart(i);
+      }
+    }
 
-    for(var i = 0; i < this.line_charts_to_draw.length; i++)
-        this.draw_line_chart(this.line_charts_to_draw[i]);
+    for(var i = 0; i < this.line_charts.length; i++){
+      for(var j = 0; j < this.line_charts_to_draw.length; j++){
+        if(this.line_charts[i].getId() == this.line_charts_to_draw[j])
+          this.draw_line_chart(i);
+      }
+    }
 
-    for(var i = 0; i < this.pie_charts_to_draw.length; i++)
-        this.draw_pie_chart(this.pie_charts_to_draw[i]);
+    for(var i = 0; i < this.pie_charts.length; i++){
+      for(var j = 0; j < this.pie_charts_to_draw.length; j++){
+        if(this.pie_charts[i].getId() == this.pie_charts_to_draw[j])
+          this.draw_pie_chart(i);
+      }
+    }
   }
 }
 
