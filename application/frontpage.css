@@ -64,6 +64,10 @@ body{
 }
 
 aside{
+    /* Width y Height */
+    width: 300px;
+    height: 400px;
+
     /* Margin */
     margin-left: 2.5%;
     margin-top: 1%;
@@ -78,9 +82,6 @@ aside{
 
     /* Colores */
     background-color: beige;
-
-    /* Otros */
-    border-radius: 25px;
 }
 
 /* SECCIÓN DE 'GRÁFICAS' */
@@ -91,6 +92,7 @@ aside{
 
     /* Width y Height */
     width: 120%;
+    height: 50%;
 
     /* Margin */
     margin-top: 1%;
@@ -100,18 +102,19 @@ aside{
 
     /* Colores */
     background-color: beige;
-
-    /* Otros */
-    border-radius: 25px;
 }
 
 .add-graph-button{
-    /* Float */
-    float: left;
+    /* Width y Height */
+    width: 40%;
+    height: 90px;
 
     /* Fuente */
     font-family: sans-serif;
     font-size: 120%;
+
+    /* Margin */
+    margin-left: 30%;
 
     /* Padding */
     padding: 1%;
@@ -133,7 +136,7 @@ aside{
     text-align: center;
 
     /* Margin */
-    margin-top: 6%;
+    margin-top: 3%;
 
     /* Padding */
     padding: 2%;
@@ -145,24 +148,22 @@ aside{
     border-radius: 15px;
 }
 
-.div-charts{
+.whole-chart-content{
     /* Float */
     float: left;
 
     /* Width y Height */
-    width: 97.5%;
-    height: 1000px;
+    width: 92%;
 
     /* Fuente */
     font-family: sans-serif;
     text-align: left;
 
     /* Margin */
-    margin-top: 1%;
+    margin-top: 3%;
 
     /* Padding */
-    padding: 1%;
-    padding-left: 1%;
+    padding: 4%;
 
     /* Colores */
     background-color:#f0ffff;
@@ -205,7 +206,7 @@ aside{
     text-align: center;
 }
 
-.charts-button{
+.remove-chart-button{
     /* Float */
     float: right;
 
@@ -263,7 +264,8 @@ aside{
     display: none;
 
     /* Width y Height */
-    width: 100%;
+    width: 120%;
+    height: 50%;
 
     /* Margin */
     margin-top: 1%;
@@ -273,6 +275,42 @@ aside{
 
     /* Colores */
     background-color: beige;
+}
+
+.data-selection{
+    /* Fuente */
+    font-family: sans-serif;
+    font-size: 120%;
+    text-align: center;
+
+    /* Padding */
+    padding: 4%;
+
+    /* Colores */
+    background-color:#f0ffff;
+
+    /* Otros */
+    border-radius: 25px;   
+}
+
+.data-serie-content{
+    /* Width y Height */
+    width: 92%;
+    height: 50%;
+
+    /* Fuente */
+    font-size: 17.5px;
+    font-family: sans-serif;
+    text-align: left;
+
+    /* Margin */
+    margin-top: 3%;
+
+    /* Padding */
+    padding: 4%;
+
+    /* Colores */
+    background-color:#f0ffff;
 
     /* Otros */
     border-radius: 25px;
@@ -313,31 +351,12 @@ aside{
     display: none;
 }
 
-.header-container{
-    /* Margin */
-    margin: 1%;
-
-    /* Fuente */
-    font-family: sans-serif;
-    font-size: 20px;
-    text-align: center;
-
-    /* Padding */
-    padding: 15px;
-
-    /* Colores */
-    background-color:#f0ffff;
-
-    /* Otros */
-    border-radius: 25px;   
-}
-
 #submit-file{
     /* Display */
     display: none;
 }
 
-#content{
+#data-series{
     /* Width y Height */
     height: 90%;
 
@@ -356,31 +375,6 @@ aside{
      border-radius: 25px;   
 }
 
-.chart_data{
-     /* Width y Height */
-     width: 100%;
-     height: 50%;
-
-    /* Fuente */
-    font-size: 17.5px;
-    font-family: sans-serif;
-    text-align: left;
-
-    /* Margin */
-    margin-top: 2%;
-
-    /* Padding */
-    padding: 0.005%;
-    padding-left: 2%;
-    padding-right: 1%;
-
-    /* Colores */
-    background-color:#f0ffff;
-
-    /* Otros */
-    border-radius: 25px;
-}
-
 
 #title-textbox{
     /* Display */
@@ -397,9 +391,7 @@ aside{
     /* Fuente */
     font-family: sans-serif;
     font-size: 80%;
-
-    /* Margin */
-    margin-top: 2%;
+    font-weight: bold;
 
     /* Padding */
     padding: 1%;
@@ -421,6 +413,7 @@ aside{
 
     /* Width y Height */
     width: 120%;
+    height: 50%;
 
     /* Margin */
     margin-top: 1%;
@@ -430,9 +423,6 @@ aside{
 
     /* Colores */
     background-color: beige;
-
-    /* Otros */
-    border-radius: 25px;
 }
 
 /* SECCIÓN DE 'CONTACTO' */
@@ -443,6 +433,7 @@ aside{
 
     /* Width y Height */
     width: 120%;
+    height: 50%;
 
     /* Margin */
     margin-top: 1%;
@@ -452,9 +443,6 @@ aside{
 
     /* Colores */
     background-color: beige;
-
-    /* Otros */
-    border-radius: 25px;
 }
 
 .personal-file{
