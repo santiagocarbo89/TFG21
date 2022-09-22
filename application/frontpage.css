@@ -204,9 +204,6 @@ aside{
     /* Float */
     float: left;
 
-    /* Margin */
-    margin-right: 2%;
-
     /* Fuente */
     text-align: center;
 }
@@ -257,6 +254,11 @@ aside{
 
     /* Otros */
     cursor: pointer;
+}
+
+.range-style{
+    /* Width y Height */
+    width: 50%;
 }
 
 /* SECCIÓN DE 'DATOS' */
@@ -427,6 +429,23 @@ aside{
     background-color: beige;
 }
 
+.information-content{
+    /* Width y Height */
+    height: 120px;
+
+    /* Padding */
+    padding: 2%;
+
+    /* Fuente */
+    font-family: sans-serif;
+
+    /* Colores */
+    background-color:#f0ffff;
+
+    /* Otros */
+    border-radius: 25px;
+}
+
 /* SECCIÓN DE 'CONTACTO' */
 
 #contact{
@@ -435,6 +454,7 @@ aside{
 
     /* Width y Height */
     width: 120%;
+    height: 250px;
 
     /* Margin */
     margin-top: 1%;

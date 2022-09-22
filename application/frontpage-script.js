@@ -1238,7 +1238,7 @@ class Chart{
         // BarChart: 'Opciones de LineWidth'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Grosor de línea</h5>\n";
-        new_content += "   <input type=\"range\" id=\"bar-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"bar-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
         + "onchange=\"application.changeLineWidthBarChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
@@ -1252,6 +1252,13 @@ class Chart{
         new_content += "   </select>\n";
         new_content += "  </div>\n";
 
+        // BarChart: 'Opciones de Transparency'
+        new_content += "  <div class=\"options-panel-chart-section\">\n";
+        new_content += "   <h5>Opacidad</h5>\n";
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"bar-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        + "value=\"1.0\" onchange=\"application.changeTransparencyBarChart(this.id, this.value)\">\n";
+        new_content += "  </div>\n";
+
         // BarChart: 'Opciones de Shadows'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Sombras</h5>\n";
@@ -1259,17 +1266,10 @@ class Chart{
         + "onchange=\"application.changeShadowsBarChart(this.id)\">\n";
         new_content += "  </div>\n";
 
-        // BarChart: 'Opciones de Transparency'
-        new_content += "  <div class=\"options-panel-chart-section\">\n";
-        new_content += "   <h5>Opacidad</h5>\n";
-        new_content += "   <input type=\"range\" id=\"bar-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
-        + "value=\"1.0\" onchange=\"application.changeTransparencyBarChart(this.id, this.value)\">\n";
-        new_content += "  </div>\n";
-
         // BarChart: 'Opciones de Gradiente'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Gradiente</h5>\n";
-        new_content += "   <input type=\"range\" id=\"bar-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"bar-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
         + "value=\"0.0\" onchange=\"application.changeGradientBarChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
@@ -1290,7 +1290,7 @@ class Chart{
         // LineChart: 'Opciones de LineWidth'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Grosor de línea</h5>\n";
-        new_content += "   <input type=\"range\" id=\"line-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"line-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
         + "onchange=\"application.changeLineWidthLineChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
@@ -1304,18 +1304,18 @@ class Chart{
         new_content += "   </select>\n";
         new_content += "  </div>\n";
 
+        // LineChart: 'Opciones de Transparency'
+        new_content += "  <div class=\"options-panel-chart-section\">\n";
+        new_content += "   <h5>Opacidad</h5>\n";
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"line-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        + "value=\"1.0\" onchange=\"application.changeTransparencyLineChart(this.id, this.value)\">\n";
+        new_content += "  </div>\n";
+
         // LineChart: 'Opciones de Shadows'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Sombras</h5>\n";
         new_content += "    <input type=\"checkbox\" id=\"line-shadows-" + this.getId() + "\""
         + "onchange=\"application.changeShadowsLineChart(this.id)\">\n";
-        new_content += "  </div>\n";
-
-        // LineChart: 'Opciones de Transparency'
-        new_content += "  <div class=\"options-panel-chart-section\">\n";
-        new_content += "   <h5>Opacidad</h5>\n";
-        new_content += "   <input type=\"range\" id=\"line-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
-        + "value=\"1.0\" onchange=\"application.changeTransparencyLineChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
         new_content += " </div>\n";
 
@@ -1328,28 +1328,29 @@ class Chart{
         // PieChart: 'Opciones de LineWidth'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Grosor de línea</h5>\n";
-        new_content += "   <input type=\"range\" id=\"pie-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"pie-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
         + "onchange=\"application.changeLineWidthPieChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
-        // PieChart: 'Opciones de Shadows'
-        new_content += "  <div class=\"options-panel-chart-section\">\n";
-        new_content += "   <h5>Sombras</h5>\n";
-        new_content += "   <input type=\"checkbox\" id=\"pie-shadows-" + this.getId() + "\""
-        + "onchange=\"application.changeShadowsPieChart(this.id)\">\n";
-        new_content += "  </div>\n";
 
         // PieChart: 'Opciones de Transparency'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Opacidad</h5>\n";
-        new_content += "   <input type=\"range\" id=\"pie-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"pie-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
         + "value=\"1.0\" onchange=\"application.changeTransparencyPieChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
+
+         // PieChart: 'Opciones de Shadows'
+         new_content += "  <div class=\"options-panel-chart-section\">\n";
+         new_content += "   <h5>Sombras</h5>\n";
+         new_content += "   <input type=\"checkbox\" id=\"pie-shadows-" + this.getId() + "\""
+         + "onchange=\"application.changeShadowsPieChart(this.id)\">\n";
+         new_content += "  </div>\n";
 
         // PieChart: 'Opciones de Gradiente'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Gradiente</h5>\n";
-        new_content += "   <input type=\"range\" id=\"pie-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"pie-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
         + "value=\"0.0\" onchange=\"application.changeGradientPieChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
