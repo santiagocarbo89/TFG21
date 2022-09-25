@@ -1,8 +1,17 @@
 class CanvasAPIApplication {
+  /* ATRIBUTOS DE CLASE */
+  static URL_BASE = 'https://servicios.ine.es/wstempus/js/ES/SERIE/ODS';
+  static MAX_ID_SERIE = 333;
+
   constructor(){
     // Variables Canvas API
     this.canvas;
     this.ctx;
+
+    // API JSON del INE
+    this.request = new XMLHttpRequest();;
+
+    this.structure_data_titles = [];
 
     // Variables para lectura de archivos
     this.fileReader = new FileReader();
@@ -21,6 +30,53 @@ class CanvasAPIApplication {
   }
 
   /* Métodos */
+  start(){
+    this.draw_logo();
+    this.structureDataAPIINE();
+  }
+
+  structureDataAPIINE(){
+    var data = [];
+    var subindicator;
+    var indicator_type;
+
+   //for(var i = 0; i <= CanvasAPIApplication.MAX_ID_SERIE; i++){
+      var URL = CanvasAPIApplication.URL_BASE + '223';
+
+      this.request.open('GET', URL);
+
+      this.request.onreadystatechange = function(){
+        if (this.readyState == 4 && this.status == 200){
+          data = JSON.parse(this.responseText);
+
+          subindicator = "";
+
+          // El indicador puede aparecer al inicio del 'Nombre', seguido de un guión
+          if(data["Nombre"].substring(0, data["Nombre"].search("-") - 1) == "ODS"){
+            subindicator = data["Nombre"].substring(data["Nombre"].search("-") + 2);
+            subindicator = subindicator.substring(0, subindicator.search(" "));
+            console.log(subindicator);
+            
+          // O al final del 'Nombre'
+          } else {
+            subindicator = data["Nombre"];
+            console.log(subindicator)
+
+            while(subindicator.search("(") != -1){
+              subindicator = subindicator.substring(subindicator.search("("), subindicator.search(")") + 1);
+              subindicator.slice(subindicator.search("("), subindicator.search("("));
+              subindicator.slice(subindicator.search(")"), subindicator.search(")"));
+            }
+          }
+        }
+      };
+
+      this.request.send();
+
+    //}
+  }
+
+
   showHome(){
     //var select = document.getElementById('select-graph');
     //select.selectedIndex = 0; // En 'Home' siempre dejamos que el índice elegido sea el 0
@@ -38,6 +94,16 @@ class CanvasAPIApplication {
     document.getElementById("data").style.display = "block";
     document.getElementById("contact").style.display = "none";
     document.getElementById("about").style.display = "none";
+  }
+
+  showDataSelectInformation(){
+    document.getElementById("local-data").style.display = "none";
+    document.getElementById("cross-origin-data").style.display = "block";
+  }
+
+  showDataLocalFile(){
+    document.getElementById("cross-origin-data").style.display = "none";
+    document.getElementById("local-data").style.display = "block";
   }
 
   showContact(){

@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="frontpage.css">
         <script src="frontpage-script.js" defer></script>
     </head>
-    <body onload="application.draw_logo();">
+    <body onload="application.start();">
         <header><canvas id="logo"></canvas> Visualización de datos de los Objetivos de Desarrollo Sostenible</header>
         <nav>
             <ul>
@@ -38,7 +38,14 @@
                 <div id="charts-content"></div>
             </div>
             <div id="data">
-                <div class="data-selection" ondrop="application.dropManager(event)" ondragover="application.dragoverManager(event)">
+                <ul class="data-type">
+                    <li class="data-type-section" onclick="application.showDataSelectInformation();">Ficheros predeterminados</li>
+                    <li class="data-type-section" onclick="application.showDataLocalFile();">Fichero local</li>
+                </ul>
+                <div class="data-selection" id="cross-origin-data">
+                    
+                </div>
+                <div class="data-selection" id="local-data" ondrop="application.dropManager(event)" ondragover="application.dragoverManager(event)">
                     <h3>Suelte un archivo o seleccionelo</h3>
                     <a href="javascript:application.selectFile()"><p class="select-file">Selecione un archivo .csv</p></a>
                     <p id="file-loaded">¡Archivo cargado!</p>
