@@ -9,7 +9,7 @@ class CanvasAPIApplication {
     this.ctx;
 
     // API JSON del INE
-    this.request = new XMLHttpRequest();;
+    this.request;
 
     this.structure_data_titles = [];
 
@@ -32,7 +32,7 @@ class CanvasAPIApplication {
   /* Métodos */
   start(){
     this.draw_logo();
-    this.structureDataAPIINE();
+    //this.structureDataAPIINE();
   }
 
   structureDataAPIINE(){
@@ -40,40 +40,45 @@ class CanvasAPIApplication {
     var subindicator;
     var indicator_type;
 
-   //for(var i = 0; i <= CanvasAPIApplication.MAX_ID_SERIE; i++){
-      var URL = CanvasAPIApplication.URL_BASE + '223';
+   for(var i = 0; i <= CanvasAPIApplication.MAX_ID_SERIE; i++){
+      
+      this.request = new XMLHttpRequest();
+
+      var URL = CanvasAPIApplication.URL_BASE + i.toString();
 
       this.request.open('GET', URL);
+
+      var that = this;
 
       this.request.onreadystatechange = function(){
         if (this.readyState == 4 && this.status == 200){
           data = JSON.parse(this.responseText);
 
-          subindicator = "";
+          subindicator = data["Nombre"];
 
           // El indicador puede aparecer al inicio del 'Nombre', seguido de un guión
-          if(data["Nombre"].substring(0, data["Nombre"].search("-") - 1) == "ODS"){
-            subindicator = data["Nombre"].substring(data["Nombre"].search("-") + 2);
-            subindicator = subindicator.substring(0, subindicator.search(" "));
-            console.log(subindicator);
+          if(data["Nombre"].substring(0, 3) == "ODS"){
+            subindicator = data["Nombre"].substring(data["Nombre"].indexOf("(") + 2);
+            subindicator = subindicator.substring(0, subindicator.indexOf("("));
             
           // O al final del 'Nombre'
           } else {
-            subindicator = data["Nombre"];
-            console.log(subindicator)
 
-            while(subindicator.search("(") != -1){
-              subindicator = subindicator.substring(subindicator.search("("), subindicator.search(")") + 1);
-              subindicator.slice(subindicator.search("("), subindicator.search("("));
-              subindicator.slice(subindicator.search(")"), subindicator.search(")"));
+            while(subindicator.indexOf("(") != -1){
+              subindicator = subindicator.substring(subindicator.indexOf("("), subindicator.indexOf("(") + 1);
+              subindicator.slice(subindicator.indexOf("("), subindicator.indexOf("("));
+              subindicator.slice(subindicator.indexOf("("), subindicator.indexOf("("));
             }
           }
+
+          that.structure_data_titles.push(data["Nombre"]);
         }
       };
 
       this.request.send();
+    }
 
-    //}
+    //console.log(that.structure_data_titles);
   }
 
 
@@ -133,7 +138,7 @@ class CanvasAPIApplication {
   }
 
   showOptions(id){
-    var real_id = id.substring(0, id.search("-")) + "-chart-options-" + id.substring(id.length - 1);
+    var real_id = id.substring(0, id.indexOf("(")) + "-chart-options-" + id.substring(id.length - 1);
     var options_button = document.getElementById(real_id);
     var options_button_display = window.getComputedStyle(options_button).display;
 
@@ -684,8 +689,8 @@ class CanvasAPIApplication {
 
   removeChart(id){
     var real_id = id.substring(id.length - 1);
-    var aux_string = id.substring(id.search("-") + 1);
-    var chart_type = aux_string.substring(0, aux_string.search("-"));
+    var aux_string = id.substring(id.indexOf("(") + 1);
+    var chart_type = aux_string.substring(0, aux_string.indexOf("("));
     var select_charts = document.getElementById("charts-" + real_id);
     var charts_vector;
     var charts_vector_to_draw;
