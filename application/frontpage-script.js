@@ -1,15 +1,11 @@
 class CanvasAPIApplication {
-  /* ATRIBUTOS DE CLASE */
-  static URL_BASE = 'https://servicios.ine.es/wstempus/js/ES/SERIE/ODS';
-  static MAX_ID_SERIE = 333;
-
   constructor(){
     // Variables Canvas API
     this.canvas;
     this.ctx;
 
     // API JSON del INE
-    this.request;
+    this.request = new XMLHttpRequest();
 
     this.structure_data_titles = [];
 
@@ -32,60 +28,9 @@ class CanvasAPIApplication {
   /* Métodos */
   start(){
     this.draw_logo();
-    //this.structureDataAPIINE();
   }
-
-  structureDataAPIINE(){
-    var data = [];
-    var subindicator;
-    var indicator_type;
-
-   for(var i = 0; i <= CanvasAPIApplication.MAX_ID_SERIE; i++){
-      
-      this.request = new XMLHttpRequest();
-
-      var URL = CanvasAPIApplication.URL_BASE + i.toString();
-
-      this.request.open('GET', URL);
-
-      var that = this;
-
-      this.request.onreadystatechange = function(){
-        if (this.readyState == 4 && this.status == 200){
-          data = JSON.parse(this.responseText);
-
-          subindicator = data["Nombre"];
-
-          // El indicador puede aparecer al inicio del 'Nombre', seguido de un guión
-          if(data["Nombre"].substring(0, 3) == "ODS"){
-            subindicator = data["Nombre"].substring(data["Nombre"].indexOf("(") + 2);
-            subindicator = subindicator.substring(0, subindicator.indexOf("("));
-            
-          // O al final del 'Nombre'
-          } else {
-
-            while(subindicator.indexOf("(") != -1){
-              subindicator = subindicator.substring(subindicator.indexOf("("), subindicator.indexOf("(") + 1);
-              subindicator.slice(subindicator.indexOf("("), subindicator.indexOf("("));
-              subindicator.slice(subindicator.indexOf("("), subindicator.indexOf("("));
-            }
-          }
-
-          that.structure_data_titles.push(data["Nombre"]);
-        }
-      };
-
-      this.request.send();
-    }
-
-    //console.log(that.structure_data_titles);
-  }
-
 
   showHome(){
-    //var select = document.getElementById('select-graph');
-    //select.selectedIndex = 0; // En 'Home' siempre dejamos que el índice elegido sea el 0
-
     document.getElementById("home").style.display = "block";
     document.getElementById("add-graph-menu").style.display = "none";
     document.getElementById("data").style.display = "none";
@@ -99,16 +44,6 @@ class CanvasAPIApplication {
     document.getElementById("data").style.display = "block";
     document.getElementById("contact").style.display = "none";
     document.getElementById("about").style.display = "none";
-  }
-
-  showDataSelectInformation(){
-    document.getElementById("local-data").style.display = "none";
-    document.getElementById("cross-origin-data").style.display = "block";
-  }
-
-  showDataLocalFile(){
-    document.getElementById("cross-origin-data").style.display = "none";
-    document.getElementById("local-data").style.display = "block";
   }
 
   showContact(){
@@ -138,7 +73,7 @@ class CanvasAPIApplication {
   }
 
   showOptions(id){
-    var real_id = id.substring(0, id.indexOf("(")) + "-chart-options-" + id.substring(id.length - 1);
+    var real_id = id.substring(0, id.indexOf("-")) + "-chart-options-" + id.substring(id.length - 1);
     var options_button = document.getElementById(real_id);
     var options_button_display = window.getComputedStyle(options_button).display;
 
@@ -325,6 +260,7 @@ class CanvasAPIApplication {
     this.ctx.lineTo(bar_chart.getWidth() - BarChart.PADDING_RIGHT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
     this.ctx.stroke();
 
+
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var value = data_serie.getStructuredDataValues()[j];
       var x0 = BarChart.PADDING_LEFT + BarChart.BARS_MARGIN + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j;
@@ -337,36 +273,77 @@ class CanvasAPIApplication {
       gradient.addColorStop(1, bar_chart.getGradientColor());
       this.ctx.fillStyle = gradient;
 
+      //Efecto 3D
+      if(bar_chart.getThreedEffect()){
+        this.ctx.beginPath();
+
+        this.ctx.moveTo(x0, y0);
+        this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT, y0 - BarChart.THREE_D_Y_DISPLACEMENT);
+        this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT + bar_chart.bar_width, y0 - BarChart.THREE_D_Y_DISPLACEMENT);
+        this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT + bar_chart.bar_width, y1);
+        this.ctx.lineTo(x0, y1);
+
+        // Sombras
+        if(bar_chart.getShadows()){
+          this.ctx.shadowOffsetX = 5;
+          this.ctx.shadowOffsetY = 2;
+          this.ctx.shadowBlur = 4;
+          this.ctx.shadowColor = 'black';
+        }
+
+        this.ctx.fill();
+
+        if(bar_chart.getShadows()){
+          this.ctx.shadowOffsetX = 0;
+          this.ctx.shadowOffsetY = 0;
+          this.ctx.shadowBlur = 0;
+        }
+      
+        this.ctx.moveTo(x1, y0);
+        this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT + bar_chart.bar_width, y0 - BarChart.THREE_D_Y_DISPLACEMENT);
+
+        this.ctx.stroke();
+      }
+
       //Shadows
-      if(bar_chart.getShadows()){
+      if(bar_chart.getShadows() && !bar_chart.getThreedEffect()){
         this.ctx.shadowOffsetX = 5;
         this.ctx.shadowOffsetY = 2;
         this.ctx.shadowBlur = 4;
         this.ctx.shadowColor = 'black';
-      } else {
-        this.ctx.shadowOffsetX = 0;
-        this.ctx.shadowOffsetY = 0;
-        this.ctx.shadowBlur = 0;
       }
 
       this.ctx.fillRect(x0, y0, bar_chart.bar_width, bar_chart.getScaleFactorY()*value); //Rellenar los rectángulos de la gráfica
 
       // Las sombras solo afectan a los rectángulos
-      this.ctx.shadowOffsetX = 0;
-      this.ctx.shadowOffsetY = 0;
-      this.ctx.shadowBlur = 0;
+      if(bar_chart.getShadows() && !bar_chart.getThreedEffect()){
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
+        this.ctx.shadowBlur = 0;
+      }
 
       this.ctx.strokeRect(x0, y0, bar_chart.bar_width, bar_chart.getScaleFactorY()*value); // El contorno de los rectángulos
 
       this.ctx.fillStyle = "black";
 
+      
+
       this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
         (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j, 
-          Chart.HEIGHT - BarChart.PADDING_BOTTOM + BarChart.LETTERS_MARGIN_TOP); // Tags
+          Chart.HEIGHT - BarChart.PADDING_BOTTOM + BarChart.LETTERS_MARGIN_TOP); // Etiquetas
+
+      // Valores
+      if(bar_chart.getThreedEffect()){
+        this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+          (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j + BarChart.THREE_D_X_DISPLACEMENT, 
+            Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getScaleFactorY()*data_serie.getStructuredDataValues()[j] - BarChart.LETTERS_MARGIN_BOTTOM - BarChart.THREE_D_Y_DISPLACEMENT);
+      } else {
+        this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+          (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j, 
+            Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getScaleFactorY()*data_serie.getStructuredDataValues()[j] - BarChart.LETTERS_MARGIN_BOTTOM);
+      }
       
-      this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
-        (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j, 
-          Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getScaleFactorY()*data_serie.getStructuredDataValues()[j] - BarChart.LETTERS_MARGIN_BOTTOM); // Values
+      
     }
   }
 
@@ -512,25 +489,62 @@ class CanvasAPIApplication {
     }
 
     var lastAngle = 0; // El ángulo inicial es 0
+
+    //Shadows
+    if(pie_chart.getShadows()){
+      this.ctx.shadowOffsetX = 5;
+      this.ctx.shadowOffsetY = 2;
+      this.ctx.shadowBlur = 4;
+      this.ctx.shadowColor = 'black';
+    }
+
+    this.ctx.beginPath();
+
+    for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
+      var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
+      var currentAngle = lastAngle + 2*Math.PI*dataPart;
+      
+      this.ctx.moveTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
+
+      this.ctx.arc(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
+        PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, 
+          PieChart.RADIO, lastAngle, currentAngle, false);
+      
+      lastAngle = currentAngle;
+    }
+
+    this.ctx.fill();
+
+    lastAngle = 0;
+
+    if(pie_chart.getShadows()){
+      this.ctx.shadowOffsetX = 0;
+      this.ctx.shadowOffsetY = 0;
+      this.ctx.shadowBlur = 0;
+    }
+
+    //if(pie_chart.getThreedEffect()){
+      this.ctx.beginPath();
+
+      this.ctx.moveTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM + PieChart.RADIO);
+      this.ctx.lineTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + 70, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM + PieChart.RADIO);
+
+      this.ctx.moveTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM - PieChart.RADIO);
+      this.ctx.lineTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + 70, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM - PieChart.RADIO);
+      
+      this.ctx.arcTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + 350, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + 70, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM + PieChart.RADIO, 137);
+
+      //this.ctx.fill();
+      this.ctx.stroke();
+    //}
       
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
       
       this.ctx.beginPath();
+      
       this.ctx.moveTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
-
-      //Shadows
-      if(pie_chart.getShadows()){
-        this.ctx.shadowOffsetX = 5;
-        this.ctx.shadowOffsetY = 2;
-        this.ctx.shadowBlur = 4;
-        this.ctx.shadowColor = 'black';
-      } else {
-        this.ctx.shadowOffsetX = 0;
-        this.ctx.shadowOffsetY = 0;
-        this.ctx.shadowBlur = 0;
-      }
 
       /* Crea arcos de una circunferencia de centro (300, 300) y de radio 200
       en el sentido de las agujas del reloj, creando un ángulo de (currentAngle-lastAngle) radianes */
@@ -544,20 +558,20 @@ class CanvasAPIApplication {
       var gradient = this.ctx.createRadialGradient(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.SMALL_GRADIENT_RADIO*pie_chart.getGradient(), 
       PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.RADIO);
       
-      gradient.addColorStop(0, pie_chart.getGradientColor());
-      gradient.addColorStop(1, pie_chart.getColors()[j]);
-      this.ctx.fillStyle = gradient;
+      if(pie_chart.getGradientActivated()){
+        gradient.addColorStop(0, pie_chart.getGradientColor());
+        gradient.addColorStop(1, pie_chart.getColors()[j]);
+        this.ctx.fillStyle = gradient;
+      }
+      else
+      this.ctx.fillStyle = pie_chart.getColors()[j];
 
       this.ctx.fill();
+
       this.ctx.stroke();
       
       lastAngle = currentAngle;
     }
-
-    // Las sombras solo afectan a las líneas
-    this.ctx.shadowOffsetX = 0;
-    this.ctx.shadowOffsetY = 0;
-    this.ctx.shadowBlur = 0;
     
     this.ctx.fillStyle = "black";
     lastAngle = 0; // Volvemos a establecer como ángulo inicial 0
@@ -566,14 +580,21 @@ class CanvasAPIApplication {
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
+      var position_corrector = 1;
+
+      if(currentAngle < Math.PI)// && currentAngle < 3*Math.PI/2)
+        position_corrector = currentAngle/(2*Math.PI);
+      //else
+        //position_corrector = currentAngle/(2*Math.PI);
+
 
       this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
-      PieChart.BIG_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
-        PieChart.BIG_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
+      PieChart.BIG_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)*position_corrector)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
+        PieChart.BIG_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)*position_corrector)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
       
       this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
-      PieChart.SMALL_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
-        PieChart.SMALL_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
+      PieChart.SMALL_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)*position_corrector)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
+        PieChart.SMALL_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)*position_corrector)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
       
       lastAngle = currentAngle;
     }
@@ -619,6 +640,13 @@ class CanvasAPIApplication {
     var real_id = id.substring(id.length - 1);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setGradientColor(value);
+    this.draw_bar_chart(real_id);
+  }
+
+  changeThreedEffectBarChart(id){
+    var real_id = id.substring(id.length - 1);
+    var bar_chart = this.bar_charts[real_id];
+    bar_chart.setThreedEffect();
     this.draw_bar_chart(real_id);
   }
 
@@ -689,8 +717,8 @@ class CanvasAPIApplication {
 
   removeChart(id){
     var real_id = id.substring(id.length - 1);
-    var aux_string = id.substring(id.indexOf("(") + 1);
-    var chart_type = aux_string.substring(0, aux_string.indexOf("("));
+    var aux_string = id.substring(id.indexOf("-") + 1);
+    var chart_type = aux_string.substring(0, aux_string.indexOf("-"));
     var select_charts = document.getElementById("charts-" + real_id);
     var charts_vector;
     var charts_vector_to_draw;
@@ -1139,6 +1167,8 @@ class Chart{
     this.transparency = 1.0;
     this.gradient = 0.0;
     this.gradientColor = '#ffffff';
+    this.gradientActivated = false;
+    this.threedEffect = false;
   }
 
   /* Métodos */
@@ -1187,6 +1217,14 @@ class Chart{
     return this.gradientColor;
   }
 
+  getGradientActivated(){
+    return this.gradientActivated;
+  }
+
+  getThreedEffect(){
+    return this.threedEffect;
+  }
+
   setColors(){
     for(var i = 0; i < this.data_serie.getStructuredDataValues().length; i++)
       this.colors[i] = this.getSectionColor();
@@ -1214,10 +1252,19 @@ class Chart{
 
   setGradient(gradient){
     this.gradient = gradient;
+
+    if(gradient != 0)
+      this.gradientActivated = true;
+    else
+      this.gradientActivated = false;
   }
 
   setGradientColor(value){
     this.gradientColor = value;
+  }
+
+  setThreedEffect(){
+    this.threedEffect = !this.threedEffect;
   }
 
   // Función para obtener un color pastel aleatorio que no sea igual al anterior
@@ -1323,14 +1370,14 @@ class Chart{
         new_content += "   </select>\n";
         new_content += "  </div>\n";
 
-        // BarChart: 'Opciones de Transparency'
+        // BarChart: 'Opciones de Opacidad'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Opacidad</h5>\n";
         new_content += "   <input type=\"range\" class=\"range-style\" id=\"bar-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
         + "value=\"1.0\" onchange=\"application.changeTransparencyBarChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
-        // BarChart: 'Opciones de Shadows'
+        // BarChart: 'Opciones de Sombras'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Sombras</h5>\n";
         new_content += "   <input type=\"checkbox\" id=\"bar-shadows-" + this.getId() + "\""
@@ -1349,6 +1396,13 @@ class Chart{
         new_content += "   <h5>Color del gradiente</h5>\n";
         new_content += "   <input type=\"color\" id=\"bar-color-gradient-" + this.getId() + "\" "
         + "value=\"#ffffff\" onchange=\"application.changeGradientColorBarChart(this.id, this.value)\">\n";
+        new_content += "  </div>\n";
+
+        // BarChart: 'Opciones de Efecto 3D'
+        new_content += "  <div class=\"options-panel-chart-section\">\n";
+        new_content += "   <h5>Efecto 3D</h5>\n";
+        new_content += "   <input type=\"checkbox\" id=\"bar-threed-" + this.getId() + "\""
+        + "onchange=\"application.changeThreedEffectBarChart(this.id)\">\n";
         new_content += "  </div>\n";
         new_content += " </div>\n";
 
@@ -1462,6 +1516,9 @@ class BarChart extends Chart{
   static LETTERS_MARGIN_TOP = 15;
   static LETTERS_MARGIN_BOTTOM = 5;
   static LETTER_BAR_WIDTH_FACTOR = 1.25;
+
+  static THREE_D_X_DISPLACEMENT = 15;
+  static THREE_D_Y_DISPLACEMENT = 10;
 
   /* Atributos de instancia */
   constructor(id, data_serie, letter_font, letter_value_size, letter_tag_size, strokeStyle, lineWidth) {
@@ -1621,8 +1678,10 @@ class PieChart extends Chart{
   static Y_CENTER = 225;
   static BIG_RADIO = 175;
   static RADIO = 125;
-  static SMALL_RADIO = 75;
+  static SMALL_RADIO = 90;
   static SMALL_GRADIENT_RADIO = 50;
+
+  static THREED_RADIO = 300;
 
   /* Atributos de instancia */
   constructor(id, data_serie, letter_font, strokeStyle, lineWidth) {

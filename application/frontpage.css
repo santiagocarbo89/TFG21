@@ -204,6 +204,9 @@ aside{
     /* Float */
     float: left;
 
+    /* Width y Height */
+    width: 13.2%;
+
     /* Fuente */
     text-align: center;
 }
@@ -279,47 +282,6 @@ aside{
 
     /* Colores */
     background-color: beige;
-}
-
-.data-type{
-    /* Padding */
-    padding: 0;
- 
-    /* Colores */
-    background-color:  #d5f9d6;
- 
-    /* Otros */
-    overflow: hidden;
-    list-style-type: none;
-    outline: ridge;
-}
-
-.data-type-section{
-    /* Float */
-    float: left;
-
-    /* Width y Height */
-    width: 408.2px;
-
-    /* Fuente */
-    font-family: sans-serif;
-    text-align: center;
-
-    /* Padding */
-    padding: 32px;
-}
-
-.data-type-section:hover {
-    /* Colores */
-    background-color: #f0ffff;
-
-    /* Otros */
-    cursor: pointer;
-}
-
-#local-data{
-    /* Display */
-    display: none;
 }
 
 .data-selection{
