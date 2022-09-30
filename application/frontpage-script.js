@@ -498,15 +498,20 @@ class CanvasAPIApplication {
       this.ctx.shadowColor = 'black';
     }
 
+    if(pie_chart.getThreedEffect())
+      var center_x = PieChart.X_CENTER + PieChart.THREED_SHADOW_CORRECTOR;
+    else
+      var center_x = PieChart.X_CENTER;
+
     this.ctx.beginPath();
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
       
-      this.ctx.moveTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
+      this.ctx.moveTo(center_x + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
 
-      this.ctx.arc(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
+      this.ctx.arc(center_x + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
         PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, 
           PieChart.RADIO, lastAngle, currentAngle, false);
       
@@ -560,7 +565,7 @@ class CanvasAPIApplication {
       
       var gradient = this.ctx.createRadialGradient(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.SMALL_GRADIENT_RADIO*pie_chart.getGradient(), 
       PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.RADIO);
-      
+
       if(pie_chart.getGradientActivated()){
         gradient.addColorStop(0, pie_chart.getGradientColor());
         gradient.addColorStop(1, pie_chart.getColors()[j]);
@@ -583,21 +588,14 @@ class CanvasAPIApplication {
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
-      var position_corrector = 1;
-
-      if(currentAngle < Math.PI)// && currentAngle < 3*Math.PI/2)
-        position_corrector = currentAngle/(2*Math.PI);
-      //else
-        //position_corrector = currentAngle/(2*Math.PI);
-
 
       this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
-      PieChart.BIG_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)*position_corrector)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
-        PieChart.BIG_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)*position_corrector)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
+      PieChart.BIG_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
+        PieChart.BIG_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
       
       this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
-      PieChart.SMALL_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)*position_corrector)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
-        PieChart.SMALL_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)*position_corrector)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
+      PieChart.SMALL_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
+        PieChart.SMALL_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
       
       lastAngle = currentAngle;
     }
@@ -1407,7 +1405,7 @@ class Chart{
         new_content += "   <input type=\"color\" id=\"bar-color-gradient-" + this.getId() + "\" "
         + "value=\"#ffffff\" onchange=\"application.changeGradientColorBarChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
-
+        
         // BarChart: 'Opciones de Efecto 3D'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Efecto 3D</h5>\n";
@@ -1702,6 +1700,7 @@ class PieChart extends Chart{
   static THREED_DEPTH = 60;
   static THREED_REFERENCE_X_POINT = 350;
   static THREED_REFERENCE_RADIO = 136;
+  static THREED_SHADOW_CORRECTOR = PieChart.THREED_REFERENCE_RADIO - PieChart.RADIO + 7;
 
   /* Atributos de instancia */
   constructor(id, data_serie, letter_font, strokeStyle, lineWidth) {
@@ -1719,6 +1718,3 @@ class PieChart extends Chart{
     return this.width;
   }
 }
-
-
-
