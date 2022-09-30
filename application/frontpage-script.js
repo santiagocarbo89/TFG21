@@ -523,20 +523,23 @@ class CanvasAPIApplication {
       this.ctx.shadowBlur = 0;
     }
 
-    //if(pie_chart.getThreedEffect()){
+    if(pie_chart.getThreedEffect()){
+      this.ctx.fillStyle = "#e5e4e2";
+
       this.ctx.beginPath();
 
-      this.ctx.moveTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM + PieChart.RADIO);
-      this.ctx.lineTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + 70, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM + PieChart.RADIO);
-
       this.ctx.moveTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM - PieChart.RADIO);
-      this.ctx.lineTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + 70, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM - PieChart.RADIO);
+      this.ctx.lineTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + PieChart.THREED_DEPTH, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM - PieChart.RADIO);
       
-      this.ctx.arcTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + 350, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + 70, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM + PieChart.RADIO, 137);
+      this.ctx.arcTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + PieChart.THREED_REFERENCE_X_POINT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM, PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT + PieChart.THREED_DEPTH, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM + PieChart.RADIO, PieChart.THREED_REFERENCE_RADIO);
 
-      //this.ctx.fill();
+      this.ctx.lineTo(PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM + PieChart.RADIO);
+
+      this.ctx.fill();
       this.ctx.stroke();
-    //}
+
+      this.ctx.fillStyle = "black";
+    }
       
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
@@ -712,6 +715,13 @@ class CanvasAPIApplication {
     var real_id = id.substring(id.length - 1);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setGradientColor(value);
+    this.draw_pie_chart(real_id);
+  }
+
+  changeThreedEffectPieChart(id){
+    var real_id = id.substring(id.length - 1);
+    var pie_chart = this.pie_charts[real_id];
+    pie_chart.setThreedEffect();
     this.draw_pie_chart(real_id);
   }
 
@@ -1485,6 +1495,13 @@ class Chart{
         new_content += "   <input type=\"color\" id=\"pie-color-gradient-" + this.getId() + "\" "
         + "value=\"#ffffff\" onchange=\"application.changeGradientColorPieChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
+
+        // PieChart: 'Opciones de Efecto 3D'
+        new_content += "  <div class=\"options-panel-chart-section\">\n";
+        new_content += "   <h5>Efecto 3D</h5>\n";
+        new_content += "   <input type=\"checkbox\" id=\"pie-threed-" + this.getId() + "\""
+        + "onchange=\"application.changeThreedEffectPieChart(this.id)\">\n";
+        new_content += "  </div>\n";
         new_content += " </div>\n";
       }
 
@@ -1682,6 +1699,9 @@ class PieChart extends Chart{
   static SMALL_GRADIENT_RADIO = 50;
 
   static THREED_RADIO = 300;
+  static THREED_DEPTH = 60;
+  static THREED_REFERENCE_X_POINT = 350;
+  static THREED_REFERENCE_RADIO = 136;
 
   /* Atributos de instancia */
   constructor(id, data_serie, letter_font, strokeStyle, lineWidth) {
