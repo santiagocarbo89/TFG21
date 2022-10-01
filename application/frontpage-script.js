@@ -18,6 +18,15 @@ class CanvasAPIApplication {
     this.line_charts_to_draw = []; // Vector de gráficos de líneas que hay que dibujar
     this.pie_charts = []; // Vector de gráficos circulares
     this.pie_charts_to_draw = []; // Vector de gráficos circulares que hay que dibujar
+
+    this.data_serie_next_id = 0;
+    this.bar_chart_next_id = 0;
+    this.line_chart_next_id = 0;
+    this.pie_chart_next_id = 0;
+  }
+
+  get(){
+    return this.line_charts_to_draw;
   }
 
   /* Métodos */
@@ -132,9 +141,9 @@ class CanvasAPIApplication {
       var data_series = document.getElementById("data-series");
 
       if(data_series === null)
-        document.getElementById("data").innerHTML += "<div id=\"data-series\"></div>"
+        document.getElementById("data").insertAdjacentHTML("beforeend", "<div id=\"data-series\"></div>");
 
-      var chart_data = new DataSeries(this.data_series.length);
+      var chart_data = new DataSeries(this.data_serie_next_id++);
       chart_data.setTitle(title);
       chart_data.setUnstructuredData(file);
       chart_data.structure_data();
@@ -156,7 +165,7 @@ class CanvasAPIApplication {
       }
   
       new_content += "</div>";
-      document.getElementById("data-series").innerHTML += new_content;
+      document.getElementById("data-series").insertAdjacentHTML("beforeend", new_content);
 
       var select_data_serie = document.getElementById("select-data-serie");
       var option = document.createElement("option");
@@ -244,7 +253,7 @@ class CanvasAPIApplication {
       }
 
       if(select_chart_type.value == "bar"){ // Gráfico de barras
-        var bar_chart = new BarChart(chart_data.getId(), chart_data, '10pt Times New Roman', 
+        var bar_chart = new BarChart(this.bar_chart_next_id++, chart_data, '10pt Times New Roman', 
           this.ctx.measureText(chart_data.getMaxSerieValue().toString()).width, 
           this.ctx.measureText(chart_data.getStructuredDataTags()[0]).width,'black', 2.0);
 
@@ -259,7 +268,7 @@ class CanvasAPIApplication {
           alert("La gráfica seleccionada ya existe.");
         
       } else if(select_chart_type.value == "line"){
-        var line_chart = new LineChart(chart_data.getId(), chart_data, '10pt Times New Roman', 'black', 2.0);
+        var line_chart = new LineChart(this.line_chart_next_id++, chart_data, '10pt Times New Roman', 'black', 2.0);
 
         if(!same_option){
           this.line_charts.push(line_chart);
@@ -270,7 +279,7 @@ class CanvasAPIApplication {
         } else
           alert("La gráfica seleccionada ya existe.");
       } else if(select_chart_type.value == "pie"){
-        var pie_chart = new PieChart(chart_data.getId(), chart_data, '10pt Times New Roman', 'black', 2.0);
+        var pie_chart = new PieChart(this.pie_chart_next_id++, chart_data, '10pt Times New Roman', 'black', 2.0);
 
         pie_chart.setColors();
 
@@ -357,14 +366,14 @@ class CanvasAPIApplication {
 
 
     for(var i = 0; i < array_in.length; i++){
-      if(array_in[i].getId() == id_data_serie)
+      if(array_in[i].getDataSerie().getId() == id_data_serie)
         array_in_to_draw.push(array_in[i].getId());
     }
 
     for(var i = 0; i < array_out1.length; i++){
       for(var j = 0; j < array_out1_to_draw.length; j++){
         if(array_out1[i].getId() == array_out1_to_draw[j] 
-        && array_out1[i].getId() == id_data_serie)
+        && array_out1[i].getDataSerie().getId() == id_data_serie)
           array_out1_to_draw.splice(j, 1);
       }
     }
@@ -372,7 +381,7 @@ class CanvasAPIApplication {
     for(var i = 0; i < array_out2.length; i++){
       for(var j = 0; j < array_out2_to_draw.length; j++){
         if(array_out2[i].getId() == array_out2_to_draw[j] 
-        && array_out2[i].getId() == id_data_serie)
+        && array_out2[i].getDataSerie().getId() == id_data_serie)
           array_out2_to_draw.splice(j, 1);
       }
     }
@@ -506,7 +515,7 @@ class CanvasAPIApplication {
 
   draw_bar_chart(id){
     var bar_chart = this.bar_charts[id];
-    var chart_id = "bar-chart-" + bar_chart.getId();
+    var chart_id = "bar-chart-" + bar_chart.getDataSerie().getId();
     this.canvas = document.getElementById(chart_id);
   
     if(this.canvas.getContext) {
@@ -656,7 +665,7 @@ class CanvasAPIApplication {
 
   draw_line_chart(id) {
     var line_chart = this.line_charts[id];
-    var chart_id = "line-chart-" + line_chart.getId();
+    var chart_id = "line-chart-" + line_chart.getDataSerie().getId();
     this.canvas = document.getElementById(chart_id);
   
     if(this.canvas.getContext) {
@@ -770,7 +779,7 @@ class CanvasAPIApplication {
 
   draw_pie_chart(id) {
     var pie_chart = this.pie_charts[id];
-    var chart_id = "pie-chart-" + pie_chart.getId();
+    var chart_id = "pie-chart-" + pie_chart.getDataSerie().getId();
     this.canvas = document.getElementById(chart_id);
   
     if(this.canvas.getContext) {
@@ -906,51 +915,92 @@ class CanvasAPIApplication {
     }
   }
 
+  barChartIdFromDataSerie(data_serie_id){
+    var bar_id = null;
+
+    for(var i = 0; i < this.bar_charts.length; i++){
+      if(this.bar_charts[i].getDataSerie().getId() == data_serie_id)
+        bar_id = this.bar_charts[i].getId();
+    }
+
+    return bar_id;
+  }
+
+  lineChartIdFromDataSerie(data_serie_id){
+    var line_id = null;
+
+    for(var i = 0; i < this.line_charts.length; i++){
+      if(this.line_charts[i].getDataSerie().getId() == data_serie_id)
+        line_id = this.line_charts[i].getId();
+    }
+
+    return line_id;
+  }
+
+  pieChartIdFromDataSerie(data_serie_id){
+    var pie_id = null;
+
+    for(var i = 0; i < this.pie_charts.length; i++){
+      if(this.pie_charts[i].getDataSerie().getId() == data_serie_id)
+        pie_id = this.pie_charts[i].getId();
+    }
+
+    return pie_id;
+  }
+  
+
   /* Métodos relacionados con el cambio de atributos de 'BarChart' */
   changeLineWidthBarChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setLineWidth(value);
     this.draw_bar_chart(real_id);
   }
 
   changeShadowsBarChart(id){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setShadows();
     this.draw_bar_chart(real_id);
   }
 
   changeTransparencyBarChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setTransparency(value);
     this.draw_bar_chart(real_id);
   }
 
   changeLineCapBarChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setLineCap(value);
     this.draw_bar_chart(real_id);
   }
 
   changeGradientBarChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setGradient(value);
     this.draw_bar_chart(real_id);
   }
 
   changeGradientColorBarChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setGradientColor(value);
     this.draw_bar_chart(real_id);
   }
 
   changeThreedEffectBarChart(id){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setThreedEffect();
     this.draw_bar_chart(real_id);
@@ -958,28 +1008,32 @@ class CanvasAPIApplication {
 
   /* Métodos relacionados con el cambio de atributos de 'LineChart' */
   changeLineWidthLineChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.lineChartIdFromDataSerie(data_serie_id);
     var line_chart = this.line_charts[real_id];
     line_chart.setLineWidth(value);
     this.draw_line_chart(real_id);
   }
 
   changeShadowsLineChart(id){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.lineChartIdFromDataSerie(data_serie_id);
     var line_chart = this.line_charts[real_id];
     line_chart.setShadows();
     this.draw_line_chart(real_id);
   }
 
   changeTransparencyLineChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.lineChartIdFromDataSerie(data_serie_id);
     var line_chart = this.line_charts[real_id];
     line_chart.setTransparency(value);
     this.draw_line_chart(real_id);
   }
 
   changeLineCapLineChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.lineChartIdFromDataSerie(data_serie_id);
     var line_chart = this.line_charts[real_id];
     line_chart.setLineCap(value);
     this.draw_line_chart(real_id);
@@ -987,42 +1041,48 @@ class CanvasAPIApplication {
 
   /* Métodos relacionados con el cambio de atributos de 'PieChart' */
   changeLineWidthPieChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setLineWidth(value);
     this.draw_pie_chart(real_id);
   }
 
   changeShadowsPieChart(id){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setShadows();
     this.draw_pie_chart(real_id);
   }
 
   changeTransparencyPieChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setTransparency(value);
     this.draw_pie_chart(real_id);
   }
 
   changeGradientPieChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setGradient(value);
     this.draw_pie_chart(real_id);
   }
 
   changeGradientColorPieChart(id, value){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setGradientColor(value);
     this.draw_pie_chart(real_id);
   }
 
   changeThreedEffectPieChart(id){
-    var real_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.length - 1);
+    var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setThreedEffect();
     this.draw_pie_chart(real_id);
@@ -1143,7 +1203,7 @@ class DataSeries{
 // Clase 'Chart'
 class Chart{
   /* Atributos de instancia */
-  static MAX_NORMAL_WIDTH = 700;
+  static MAX_NORMAL_WIDTH = 850;
   static HEIGHT = 400;
 
   /* Atributos de instancia */
@@ -1291,11 +1351,11 @@ class Chart{
 
       check_select.add(option);
 
-      document.getElementById("canvas-" + this.data_serie.getId()).innerHTML += "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>";
+      document.getElementById("canvas-" + this.data_serie.getId()).insertAdjacentHTML("beforeend", "<canvas id=\"" + this.getChartType()  + "-chart-" + this.data_serie.getId() + "\"></canvas>");
       document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).style.display = "none";
-      document.getElementById("remove-buttons-" + this.data_serie.getId()).innerHTML += "     <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>";
+      document.getElementById("remove-buttons-" + this.data_serie.getId()).insertAdjacentHTML("beforeend", "     <button class=\"remove-chart-button\" id=\"remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId() + "\" onclick=\"application.removeChart(this.id)\">Eliminar gráfica</button>");
       document.getElementById("remove-" + this.getChartType() + "-chart-button-" + this.data_serie.getId()).style.display = "none";
-      document.getElementById("options-buttons-" + this.data_serie.getId()).innerHTML += "<button class=\"show-options-button\" id=\"" + this.getChartType() + "-options-buttons-" + this.data_serie.getId() + "\" onclick=\"application.showOptions(this.id)\">Mostrar opciones</button>";
+      document.getElementById("options-buttons-" + this.data_serie.getId()).insertAdjacentHTML("beforeend", "<button class=\"show-options-button\" id=\"" + this.getChartType() + "-options-buttons-" + this.data_serie.getId() + "\" onclick=\"application.showOptions(this.id)\">Mostrar opciones</button>");
       document.getElementById(this.getChartType() + "-options-buttons-" + this.data_serie.getId()).style.display = "none";
     } else{
         new_content = 
@@ -1336,7 +1396,7 @@ class Chart{
 
         new_content += " <div id=\"options-" + this.data_serie.getId() + "\"></div>\n";
   
-        document.getElementById("charts-content").innerHTML += new_content;
+        document.getElementById("charts-content").insertAdjacentHTML("beforeend", new_content);
       }
 
       new_content = "";
@@ -1350,14 +1410,14 @@ class Chart{
         // BarChart: 'Opciones de LineWidth'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Grosor de línea</h5>\n";
-        new_content += "   <input type=\"range\" class=\"range-style\" id=\"bar-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"bar-linewidth-" + this.data_serie.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
         + "onchange=\"application.changeLineWidthBarChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
         // BarChart: 'Opciones de LineCap'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Revestimiento de línea</h5>\n";
-        new_content += "   <select id=\"bar-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapBarChart(this.id, this.value)\">\n";
+        new_content += "   <select id=\"bar-linecap-" + this.data_serie.getId() + "\" onchange=\"application.changeLineCapBarChart(this.id, this.value)\">\n";
         new_content += "    <option value=\"butt\" selected>Normal</option>\n";
         new_content += "    <option value=\"round\">Curvada</option>\n";
         new_content += "    <option value=\"square\">Cuadrada</option>\n";
@@ -1367,35 +1427,35 @@ class Chart{
         // BarChart: 'Opciones de Opacidad'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Opacidad</h5>\n";
-        new_content += "   <input type=\"range\" class=\"range-style\" id=\"bar-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"bar-transparency-" + this.data_serie.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
         + "value=\"1.0\" onchange=\"application.changeTransparencyBarChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
         // BarChart: 'Opciones de Sombras'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Sombras</h5>\n";
-        new_content += "   <input type=\"checkbox\" id=\"bar-shadows-" + this.getId() + "\""
+        new_content += "   <input type=\"checkbox\" id=\"bar-shadows-" + this.data_serie.getId() + "\""
         + "onchange=\"application.changeShadowsBarChart(this.id)\">\n";
         new_content += "  </div>\n";
 
         // BarChart: 'Opciones de Gradiente'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Gradiente</h5>\n";
-        new_content += "   <input type=\"range\" class=\"range-style\" id=\"bar-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"bar-gradient-" + this.data_serie.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
         + "value=\"0.0\" onchange=\"application.changeGradientBarChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
         // BarChart: 'Opciones de Color del Gradiente'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Color del gradiente</h5>\n";
-        new_content += "   <input type=\"color\" id=\"bar-color-gradient-" + this.getId() + "\" "
+        new_content += "   <input type=\"color\" id=\"bar-color-gradient-" + this.data_serie.getId() + "\" "
         + "value=\"#ffffff\" onchange=\"application.changeGradientColorBarChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
         
         // BarChart: 'Opciones de Efecto 3D'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Efecto 3D</h5>\n";
-        new_content += "   <input type=\"checkbox\" id=\"bar-threed-" + this.getId() + "\""
+        new_content += "   <input type=\"checkbox\" id=\"bar-threed-" + this.data_serie.getId() + "\""
         + "onchange=\"application.changeThreedEffectBarChart(this.id)\">\n";
         new_content += "  </div>\n";
         new_content += " </div>\n";
@@ -1409,14 +1469,14 @@ class Chart{
         // LineChart: 'Opciones de LineWidth'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Grosor de línea</h5>\n";
-        new_content += "   <input type=\"range\" class=\"range-style\" id=\"line-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"line-linewidth-" + this.data_serie.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
         + "onchange=\"application.changeLineWidthLineChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
         // LineChart: 'Opciones de LineCap'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Revestimiento de línea</h5>\n";
-        new_content += "   <select id=\"line-linecap-" + this.getId() + "\" onchange=\"application.changeLineCapLineChart(this.id, this.value)\">\n";
+        new_content += "   <select id=\"line-linecap-" + this.data_serie.getId() + "\" onchange=\"application.changeLineCapLineChart(this.id, this.value)\">\n";
         new_content += "    <option value=\"butt\" selected>Normal</option>\n";
         new_content += "    <option value=\"round\">Curvada</option>\n";
         new_content += "    <option value=\"square\">Cuadrada</option>\n";
@@ -1426,14 +1486,14 @@ class Chart{
         // LineChart: 'Opciones de Transparency'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Opacidad</h5>\n";
-        new_content += "   <input type=\"range\" class=\"range-style\" id=\"line-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"line-transparency-" + this.data_serie.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
         + "value=\"1.0\" onchange=\"application.changeTransparencyLineChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
         // LineChart: 'Opciones de Shadows'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Sombras</h5>\n";
-        new_content += "    <input type=\"checkbox\" id=\"line-shadows-" + this.getId() + "\""
+        new_content += "    <input type=\"checkbox\" id=\"line-shadows-" + this.data_serie.getId() + "\""
         + "onchange=\"application.changeShadowsLineChart(this.id)\">\n";
         new_content += "  </div>\n";
         new_content += " </div>\n";
@@ -1447,7 +1507,7 @@ class Chart{
         // PieChart: 'Opciones de LineWidth'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Grosor de línea</h5>\n";
-        new_content += "   <input type=\"range\" class=\"range-style\" id=\"pie-linewidth-" + this.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"pie-linewidth-" + this.data_serie.getId() + "\" min=\"1.0\" max=\"3.0\" step=\"0.1\""
         + "onchange=\"application.changeLineWidthPieChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
@@ -1455,42 +1515,42 @@ class Chart{
         // PieChart: 'Opciones de Transparency'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Opacidad</h5>\n";
-        new_content += "   <input type=\"range\" class=\"range-style\" id=\"pie-transparency-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"pie-transparency-" + this.data_serie.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
         + "value=\"1.0\" onchange=\"application.changeTransparencyPieChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
          // PieChart: 'Opciones de Shadows'
          new_content += "  <div class=\"options-panel-chart-section\">\n";
          new_content += "   <h5>Sombras</h5>\n";
-         new_content += "   <input type=\"checkbox\" id=\"pie-shadows-" + this.getId() + "\""
+         new_content += "   <input type=\"checkbox\" id=\"pie-shadows-" + this.data_serie.getId() + "\""
          + "onchange=\"application.changeShadowsPieChart(this.id)\">\n";
          new_content += "  </div>\n";
 
         // PieChart: 'Opciones de Gradiente'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Gradiente</h5>\n";
-        new_content += "   <input type=\"range\" class=\"range-style\" id=\"pie-gradient-" + this.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
+        new_content += "   <input type=\"range\" class=\"range-style\" id=\"pie-gradient-" + this.data_serie.getId() + "\" min=\"0.0\" max=\"1.0\" step=\"0.1\""
         + "value=\"0.0\" onchange=\"application.changeGradientPieChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
         // PieChart: 'Opciones de Color del Gradiente'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Color del gradiente</h5>\n";
-        new_content += "   <input type=\"color\" id=\"pie-color-gradient-" + this.getId() + "\" "
+        new_content += "   <input type=\"color\" id=\"pie-color-gradient-" + this.data_serie.getId() + "\" "
         + "value=\"#ffffff\" onchange=\"application.changeGradientColorPieChart(this.id, this.value)\">\n";
         new_content += "  </div>\n";
 
         // PieChart: 'Opciones de Efecto 3D'
         new_content += "  <div class=\"options-panel-chart-section\">\n";
         new_content += "   <h5>Efecto 3D</h5>\n";
-        new_content += "   <input type=\"checkbox\" id=\"pie-threed-" + this.getId() + "\""
+        new_content += "   <input type=\"checkbox\" id=\"pie-threed-" + this.data_serie.getId() + "\""
         + "onchange=\"application.changeThreedEffectPieChart(this.id)\">\n";
         new_content += "  </div>\n";
         new_content += " </div>\n";
       }
 
       document.getElementById("options-" + this.data_serie.getId()).insertAdjacentHTML("beforeend", new_content);
-      document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).width = this.getWidth().toString();
+      document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).width = Chart.MAX_NORMAL_WIDTH.toString();
       document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).height = Chart.HEIGHT.toString();
 
       return (check_select === null);
