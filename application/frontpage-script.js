@@ -4,11 +4,6 @@ class CanvasAPIApplication {
     this.canvas;
     this.ctx;
 
-    // API JSON del INE
-    this.request = new XMLHttpRequest();
-
-    this.structure_data_titles = [];
-
     // Variables para lectura de archivos
     this.fileReader = new FileReader();
 
@@ -26,10 +21,12 @@ class CanvasAPIApplication {
   }
 
   /* Métodos */
+
   start(){
     this.draw_logo();
   }
 
+  /* Métodos para ocultación y visualizado de elementos */
   showHome(){
     document.getElementById("home").style.display = "block";
     document.getElementById("add-graph-menu").style.display = "none";
@@ -83,6 +80,7 @@ class CanvasAPIApplication {
       options_button.style.display = "none";
   }
 
+  /* Métodos acceso a los ficheros */
   selectFile(){
     var insert_file = document.getElementById("insert-file");
   
@@ -116,7 +114,7 @@ class CanvasAPIApplication {
     event.preventDefault();
   }
 
-
+  /* Métodos relacionados con series de datos */
   submitDataSerie(event){
     event.preventDefault();
 
@@ -168,7 +166,294 @@ class CanvasAPIApplication {
     } else
       alert("El título ya existe. Por favor, escoja otro.");
   }
+
+  dataSerieHasAssociatedCharts(real_id){
+    var associated_charts = false;
+
+    for(var i = 0; i < this.bar_charts.length && !associated_charts; i++){
+      if(this.bar_charts[i].getId() == real_id)
+        associated_charts = true;
+    }
+
+    for(var i = 0; i < this.line_charts.length && !associated_charts; i++){
+      if(this.line_charts[i].getId() == real_id)
+        associated_charts = true;
+    }
+
+    for(var i = 0; i < this.pie_charts.length && !associated_charts; i++){
+      if(this.pie_charts[i].getId() == real_id)
+        associated_charts = true;
+    }
+
+    return associated_charts;
+  }
+
+  removeDataSerie(id){
+    var real_id = id.substring(id.length - 1);
+
+    if(!this.dataSerieHasAssociatedCharts(real_id)){
+
+      var select_data_serie = document.getElementById("select-data-serie");
+      var loop = true;
+
+      for(var i = 0; i < select_data_serie.options.length && loop; i++){
+        for(var j = 0; j < this.data_series.length; j++){
+          if(select_data_serie.options[i].text == this.data_series[j].getTitle()){
+            select_data_serie.remove(i);
+            document.getElementById("data-serie-" + this.data_series[j].getId()).remove();
+            this.data_series.splice(j, 1);
+            loop = false;
+          }
+        }
+      }
+    } else
+      alert("Existen gráficas asociadas con la serie de datos. Por favor, elimine previamente las gráficas.");
+
+    if(this.data_series.length == 0)
+      document.getElementById("data-series").remove();
+  }
+
+  /* Métodos relacionados con gráficas */
+  submitChart(){
+    var select_data_serie = document.getElementById("select-data-serie");
+    var select_chart_type = document.getElementById("select-chart-type");
+
+    if(select_data_serie.value == "none" && select_chart_type.value == "none"){
+      alert("Seleccione una serie datos, por favor.");
+    } else if(select_chart_type.value == "none"){
+      alert("Seleccione un tipo de gráfica, por favor");
+    } else if(select_data_serie.value == "none"){
+      alert("Seleccione una serie de datos y un tipo de gráfica, por favor");
+    } else{
+
+      var chart_data;
+
+      for(var i = 0; i < this.data_series.length; i++){
+        if(this.data_series[i].getTitle() == select_data_serie.options[select_data_serie.selectedIndex].text)
+          chart_data = this.data_series[i];
+      }
+
+      var check_select = document.getElementById("charts-" + chart_data.getId());
+      var same_option = false;
+
+      if(check_select !== null){
+        for(var i = 0; i < check_select.options.length; i++){
+          if(check_select.options[i].value == select_chart_type.options[select_chart_type.selectedIndex].value)
+            same_option = true;
+        }
+      }
+
+      if(select_chart_type.value == "bar"){ // Gráfico de barras
+        var bar_chart = new BarChart(chart_data.getId(), chart_data, '10pt Times New Roman', 
+          this.ctx.measureText(chart_data.getMaxSerieValue().toString()).width, 
+          this.ctx.measureText(chart_data.getStructuredDataTags()[0]).width,'black', 2.0);
+
+        bar_chart.setColors();
+
+        if(!same_option){
+          this.bar_charts.push(bar_chart);
+
+          if(bar_chart.insertChartData())
+            this.bar_charts_to_draw.push(bar_chart.getId());
+        } else
+          alert("La gráfica seleccionada ya existe.");
+        
+      } else if(select_chart_type.value == "line"){
+        var line_chart = new LineChart(chart_data.getId(), chart_data, '10pt Times New Roman', 'black', 2.0);
+
+        if(!same_option){
+          this.line_charts.push(line_chart);
+
+          if(line_chart.insertChartData())
+            this.line_charts_to_draw.push(line_chart.getId());
+
+        } else
+          alert("La gráfica seleccionada ya existe.");
+      } else if(select_chart_type.value == "pie"){
+        var pie_chart = new PieChart(chart_data.getId(), chart_data, '10pt Times New Roman', 'black', 2.0);
+
+        pie_chart.setColors();
+
+        if(!same_option){
+          this.pie_charts.push(pie_chart);
+
+          if(pie_chart.insertChartData())
+            this.pie_charts_to_draw.push(pie_chart.getId());
+        } else
+          alert("La gráfica seleccionada ya existe.");
+      }
+    }
+
+    document.getElementById("add-graph-menu").style.display = "none";
+    this.draw_charts();
+  }
+
+  changeChartVisualized(id, value){
+    var id_data_serie = id.substring(id.length - 1);
+
+    var array_in;
+    var array_in_to_draw;
+    var array_out1;
+    var array_out1_to_draw;
+    var array_out2;
+    var array_out2_to_draw;
+    var another_chart1;
+    var another_chart2;
+    var another_buttom1;
+    var another_buttom2;
+    var another_options1;
+    var another_options2;
+    var another_options_button1;
+    var another_options_button2;
+
+    if(value == "bar"){
+      array_in = this.bar_charts;
+      array_in_to_draw = this.bar_charts_to_draw;
+      array_out1 = this.line_charts;
+      array_out1_to_draw = this.line_charts_to_draw;
+      array_out2 = this.pie_charts;
+      array_out2_to_draw = this.pie_charts_to_draw;
+      another_chart1 = document.getElementById("line-chart-" + id_data_serie);
+      another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
+      another_buttom1 = document.getElementById("remove-line-chart-button-" + id_data_serie);
+      another_buttom2 = document.getElementById("remove-pie-chart-button-" + id_data_serie);
+      another_options1 = document.getElementById("line-chart-options-" + id_data_serie);
+      another_options2 = document.getElementById("pie-chart-options-" + id_data_serie);
+      another_options_button1 = document.getElementById("line-options-buttons-" + id_data_serie);
+      another_options_button2 = document.getElementById("pie-options-buttons-" + id_data_serie);
+      
+    } else if(value == "line"){
+      array_in = this.line_charts;
+      array_in_to_draw = this.line_charts_to_draw;
+      array_out1 = this.bar_charts;
+      array_out1_to_draw = this.bar_charts_to_draw;
+      array_out2 = this.pie_charts;
+      array_out2_to_draw = this.pie_charts_to_draw;
+      another_chart1 = document.getElementById("bar-chart-" + id_data_serie);
+      another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
+      another_buttom1 = document.getElementById("remove-bar-chart-button-" + id_data_serie);
+      another_buttom2 = document.getElementById("remove-pie-chart-button-" + id_data_serie);
+      another_options1 = document.getElementById("bar-chart-options-" + id_data_serie);
+      another_options2 = document.getElementById("pie-chart-options-" + id_data_serie);
+      another_options_button1 = document.getElementById("bar-options-buttons-" + id_data_serie);
+      another_options_button2 = document.getElementById("pie-options-buttons-" + id_data_serie);
+
+    } else if(value == "pie"){
+      array_in = this.pie_charts;
+      array_in_to_draw = this.pie_charts_to_draw;
+      array_out1 = this.line_charts;
+      array_out1_to_draw = this.line_charts_to_draw;
+      array_out2 = this.bar_charts;
+      array_out2_to_draw = this.bar_charts_to_draw;
+      another_chart1 = document.getElementById("line-chart-" + id_data_serie);
+      another_chart2 = document.getElementById("bar-chart-" + id_data_serie);
+      another_buttom1 = document.getElementById("remove-bar-chart-button-" + id_data_serie);
+      another_buttom2 = document.getElementById("remove-line-chart-button-" + id_data_serie);
+      another_options1 = document.getElementById("bar-chart-options-" + id_data_serie);
+      another_options2 = document.getElementById("line-chart-options-" + id_data_serie);
+      another_options_button1 = document.getElementById("bar-options-buttons-" + id_data_serie);
+      another_options_button2 = document.getElementById("line-options-buttons-" + id_data_serie);
+    }
+
+
+    for(var i = 0; i < array_in.length; i++){
+      if(array_in[i].getId() == id_data_serie)
+        array_in_to_draw.push(array_in[i].getId());
+    }
+
+    for(var i = 0; i < array_out1.length; i++){
+      for(var j = 0; j < array_out1_to_draw.length; j++){
+        if(array_out1[i].getId() == array_out1_to_draw[j] 
+        && array_out1[i].getId() == id_data_serie)
+          array_out1_to_draw.splice(j, 1);
+      }
+    }
+
+    for(var i = 0; i < array_out2.length; i++){
+      for(var j = 0; j < array_out2_to_draw.length; j++){
+        if(array_out2[i].getId() == array_out2_to_draw[j] 
+        && array_out2[i].getId() == id_data_serie)
+          array_out2_to_draw.splice(j, 1);
+      }
+    }
+
+    if(another_chart1 !== null)
+      another_chart1.style.display = "none";
+
+    if(another_chart2 !== null)
+      another_chart2.style.display = "none";
+
+    if(another_buttom1 !== null)
+      another_buttom1.style.display = "none";
+
+    if(another_buttom2 !== null)
+      another_buttom2.style.display = "none";
+
+    if(another_options1 !== null)
+      another_options1.style.display = "none";
+
+    if(another_options2 !== null)
+      another_options2.style.display = "none";
+
+    if(another_options_button1 !== null)
+      another_options_button1.style.display = "none";
+
+    if(another_options_button2 !== null)
+      another_options_button2.style.display = "none";
+
+    document.getElementById(value + "-chart-" + id_data_serie).style.display = "block";
+    document.getElementById("remove-" + value + "-chart-button-" + id_data_serie).style.display = "block";
+    document.getElementById(value + "-chart-options-" + id_data_serie).style.display = "none";
+    document.getElementById(value + "-options-buttons-" + id_data_serie).style.display = "block";
+
+    this.draw_charts();
+  }
+
+  removeChart(id){
+    var real_id = id.substring(id.length - 1);
+    var aux_string = id.substring(id.indexOf("-") + 1);
+    var chart_type = aux_string.substring(0, aux_string.indexOf("-"));
+    var select_charts = document.getElementById("charts-" + real_id);
+    var charts_vector;
+    var charts_vector_to_draw;
+
+    if(chart_type == "bar"){
+      charts_vector = this.bar_charts;
+      charts_vector_to_draw = this.bar_charts_to_draw;
+    }
+    else if(chart_type == "line"){
+      charts_vector = this.line_charts;
+      charts_vector_to_draw = this.line_charts_to_draw;
+    }
+    else if(chart_type == "pie"){
+      charts_vector = this.pie_charts;
+      charts_vector_to_draw = this.pie_charts_to_draw;
+    }
+
+    for(var i = 0; i < charts_vector.length; i++){
+      if(charts_vector[i].getId() == real_id)
+        charts_vector.splice(i, 1);
+    }
+
+    for(var i = 0; i < charts_vector_to_draw.length; i++){
+      if(charts_vector_to_draw[i] == real_id)
+        charts_vector_to_draw.splice(i, 1);
+    }
+
+    if(select_charts.options.length > 1){
+      document.getElementById(chart_type + "-chart-" + real_id).remove();
+      select_charts.remove(select_charts.selectedIndex);
+      document.getElementById("remove-" + chart_type + "-chart-button-" + real_id).remove();
+      document.getElementById(chart_type + "-options-buttons-" + real_id).remove();
+      this.changeChartVisualized("charts-" + real_id, select_charts.options[select_charts.selectedIndex].value);
+    } else {
+      document.getElementById("whole-chart-content-" + real_id).remove();
+    }
+
+    this.draw_charts();
+  }
   
+  /* Métodos relacionados con el dibujo de gráficas con Canvas API */
   draw_logo(){
     this.canvas = document.getElementById('logo');
 
@@ -196,7 +481,29 @@ class CanvasAPIApplication {
     this.ctx.stroke();
   }
 
-  // Gráficos de barras
+  draw_charts(){
+    for(var i = 0; i < this.bar_charts.length; i++){
+      for(var j = 0; j < this.bar_charts_to_draw.length; j++){
+        if(this.bar_charts[i].getId() == this.bar_charts_to_draw[j])
+          this.draw_bar_chart(i);
+      }
+    }
+
+    for(var i = 0; i < this.line_charts.length; i++){
+      for(var j = 0; j < this.line_charts_to_draw.length; j++){
+        if(this.line_charts[i].getId() == this.line_charts_to_draw[j])
+          this.draw_line_chart(i);
+      }
+    }
+
+    for(var i = 0; i < this.pie_charts.length; i++){
+      for(var j = 0; j < this.pie_charts_to_draw.length; j++){
+        if(this.pie_charts[i].getId() == this.pie_charts_to_draw[j])
+          this.draw_pie_chart(i);
+      }
+    }
+  }
+
   draw_bar_chart(id){
     var bar_chart = this.bar_charts[id];
     var chart_id = "bar-chart-" + bar_chart.getId();
@@ -347,7 +654,6 @@ class CanvasAPIApplication {
     }
   }
 
-  // Gráficos de líneas
   draw_line_chart(id) {
     var line_chart = this.line_charts[id];
     var chart_id = "line-chart-" + line_chart.getId();
@@ -462,7 +768,6 @@ class CanvasAPIApplication {
     }
   }
 
-  // Gráficos circulares
   draw_pie_chart(id) {
     var pie_chart = this.pie_charts[id];
     var chart_id = "pie-chart-" + pie_chart.getId();
@@ -601,7 +906,7 @@ class CanvasAPIApplication {
     }
   }
 
-  // Gráficos de barras
+  /* Métodos relacionados con el cambio de atributos de 'BarChart' */
   changeLineWidthBarChart(id, value){
     var real_id = id.substring(id.length - 1);
     var bar_chart = this.bar_charts[real_id];
@@ -651,7 +956,7 @@ class CanvasAPIApplication {
     this.draw_bar_chart(real_id);
   }
 
-  // Gráficos de líneas
+  /* Métodos relacionados con el cambio de atributos de 'LineChart' */
   changeLineWidthLineChart(id, value){
     var real_id = id.substring(id.length - 1);
     var line_chart = this.line_charts[real_id];
@@ -680,7 +985,7 @@ class CanvasAPIApplication {
     this.draw_line_chart(real_id);
   }
 
-  // Gráficos circulares
+  /* Métodos relacionados con el cambio de atributos de 'PieChart' */
   changeLineWidthPieChart(id, value){
     var real_id = id.substring(id.length - 1);
     var pie_chart = this.pie_charts[real_id];
@@ -721,324 +1026,6 @@ class CanvasAPIApplication {
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setThreedEffect();
     this.draw_pie_chart(real_id);
-  }
-
-  removeChart(id){
-    var real_id = id.substring(id.length - 1);
-    var aux_string = id.substring(id.indexOf("-") + 1);
-    var chart_type = aux_string.substring(0, aux_string.indexOf("-"));
-    var select_charts = document.getElementById("charts-" + real_id);
-    var charts_vector;
-    var charts_vector_to_draw;
-
-    if(chart_type == "bar"){
-      charts_vector = this.bar_charts;
-      charts_vector_to_draw = this.bar_charts_to_draw;
-    }
-    else if(chart_type == "line"){
-      charts_vector = this.line_charts;
-      charts_vector_to_draw = this.line_charts_to_draw;
-    }
-    else if(chart_type == "pie"){
-      charts_vector = this.pie_charts;
-      charts_vector_to_draw = this.pie_charts_to_draw;
-    }
-
-    for(var i = 0; i < charts_vector.length; i++){
-      if(charts_vector[i].getId() == real_id)
-        charts_vector.splice(i, 1);
-    }
-
-    for(var i = 0; i < charts_vector_to_draw.length; i++){
-      if(charts_vector_to_draw[i] == real_id)
-        charts_vector_to_draw.splice(i, 1);
-    }
-
-    if(select_charts.options.length > 1){
-      document.getElementById(chart_type + "-chart-" + real_id).remove();
-      select_charts.remove(select_charts.selectedIndex);
-      document.getElementById("remove-" + chart_type + "-chart-button-" + real_id).remove();
-      document.getElementById(chart_type + "-options-buttons-" + real_id).remove();
-      this.changeChartVisualized("charts-" + real_id, select_charts.options[select_charts.selectedIndex].value);
-    } else {
-      document.getElementById("whole-chart-content-" + real_id).remove();
-    }
-
-    this.draw_charts();
-  }
-
-
-  // Series de datos
-  removeDataSerie(id){
-    var real_id = id.substring(id.length - 1);
-
-    if(!this.dataSerieHasAssociatedCharts(real_id)){
-
-      var select_data_serie = document.getElementById("select-data-serie");
-      var loop = true;
-
-      for(var i = 0; i < select_data_serie.options.length && loop; i++){
-        for(var j = 0; j < this.data_series.length; j++){
-          if(select_data_serie.options[i].text == this.data_series[j].getTitle()){
-            select_data_serie.remove(i);
-            document.getElementById("data-serie-" + this.data_series[j].getId()).remove();
-            this.data_series.splice(j, 1);
-            loop = false;
-          }
-        }
-      }
-    } else
-      alert("Existen gráficas asociadas con la serie de datos. Por favor, elimine previamente las gráficas.");
-
-    if(this.data_series.length == 0)
-      document.getElementById("data-series").remove();
-  }
-
-  dataSerieHasAssociatedCharts(real_id){
-    var associated_charts = false;
-
-    for(var i = 0; i < this.bar_charts.length && !associated_charts; i++){
-      if(this.bar_charts[i].getId() == real_id)
-        associated_charts = true;
-    }
-
-    for(var i = 0; i < this.line_charts.length && !associated_charts; i++){
-      if(this.line_charts[i].getId() == real_id)
-        associated_charts = true;
-    }
-
-    for(var i = 0; i < this.pie_charts.length && !associated_charts; i++){
-      if(this.pie_charts[i].getId() == real_id)
-        associated_charts = true;
-    }
-
-    return associated_charts;
-  }
-
-  changeChartVisualized(id, value){
-    var id_data_serie = id.substring(id.length - 1);
-
-    var array_in;
-    var array_in_to_draw;
-    var array_out1;
-    var array_out1_to_draw;
-    var array_out2;
-    var array_out2_to_draw;
-    var another_chart1;
-    var another_chart2;
-    var another_buttom1;
-    var another_buttom2;
-    var another_options1;
-    var another_options2;
-    var another_options_button1;
-    var another_options_button2;
-
-
-    // Ocultamos el antiguo
-    if(value == "bar"){
-      array_in = this.bar_charts;
-      array_in_to_draw = this.bar_charts_to_draw;
-      array_out1 = this.line_charts;
-      array_out1_to_draw = this.line_charts_to_draw;
-      array_out2 = this.pie_charts;
-      array_out2_to_draw = this.pie_charts_to_draw;
-      another_chart1 = document.getElementById("line-chart-" + id_data_serie);
-      another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
-      another_buttom1 = document.getElementById("remove-line-chart-button-" + id_data_serie);
-      another_buttom2 = document.getElementById("remove-pie-chart-button-" + id_data_serie);
-      another_options1 = document.getElementById("line-chart-options-" + id_data_serie);
-      another_options2 = document.getElementById("pie-chart-options-" + id_data_serie);
-      another_options_button1 = document.getElementById("line-options-buttons-" + id_data_serie);
-      another_options_button2 = document.getElementById("pie-options-buttons-" + id_data_serie);
-      
-    } else if(value == "line"){
-      array_in = this.line_charts;
-      array_in_to_draw = this.line_charts_to_draw;
-      array_out1 = this.bar_charts;
-      array_out1_to_draw = this.bar_charts_to_draw;
-      array_out2 = this.pie_charts;
-      array_out2_to_draw = this.pie_charts_to_draw;
-      another_chart1 = document.getElementById("bar-chart-" + id_data_serie);
-      another_chart2 = document.getElementById("pie-chart-" + id_data_serie);
-      another_buttom1 = document.getElementById("remove-bar-chart-button-" + id_data_serie);
-      another_buttom2 = document.getElementById("remove-pie-chart-button-" + id_data_serie);
-      another_options1 = document.getElementById("bar-chart-options-" + id_data_serie);
-      another_options2 = document.getElementById("pie-chart-options-" + id_data_serie);
-      another_options_button1 = document.getElementById("bar-options-buttons-" + id_data_serie);
-      another_options_button2 = document.getElementById("pie-options-buttons-" + id_data_serie);
-
-    } else if(value == "pie"){
-      array_in = this.pie_charts;
-      array_in_to_draw = this.pie_charts_to_draw;
-      array_out1 = this.line_charts;
-      array_out1_to_draw = this.line_charts_to_draw;
-      array_out2 = this.bar_charts;
-      array_out2_to_draw = this.bar_charts_to_draw;
-      another_chart1 = document.getElementById("line-chart-" + id_data_serie);
-      another_chart2 = document.getElementById("bar-chart-" + id_data_serie);
-      another_buttom1 = document.getElementById("remove-bar-chart-button-" + id_data_serie);
-      another_buttom2 = document.getElementById("remove-line-chart-button-" + id_data_serie);
-      another_options1 = document.getElementById("bar-chart-options-" + id_data_serie);
-      another_options2 = document.getElementById("line-chart-options-" + id_data_serie);
-      another_options_button1 = document.getElementById("bar-options-buttons-" + id_data_serie);
-      another_options_button2 = document.getElementById("line-options-buttons-" + id_data_serie);
-    }
-
-
-    for(var i = 0; i < array_in.length; i++){
-      if(array_in[i].getId() == id_data_serie)
-        array_in_to_draw.push(array_in[i].getId());
-    }
-
-    for(var i = 0; i < array_out1.length; i++){
-      for(var j = 0; j < array_out1_to_draw.length; j++){
-        if(array_out1[i].getId() == array_out1_to_draw[j] 
-        && array_out1[i].getId() == id_data_serie)
-          array_out1_to_draw.splice(j, 1);
-      }
-    }
-
-    for(var i = 0; i < array_out2.length; i++){
-      for(var j = 0; j < array_out2_to_draw.length; j++){
-        if(array_out2[i].getId() == array_out2_to_draw[j] 
-        && array_out2[i].getId() == id_data_serie)
-          array_out2_to_draw.splice(j, 1);
-      }
-    }
-
-    if(another_chart1 !== null)
-      another_chart1.style.display = "none";
-
-    if(another_chart2 !== null)
-      another_chart2.style.display = "none";
-
-    if(another_buttom1 !== null)
-      another_buttom1.style.display = "none";
-
-    if(another_buttom2 !== null)
-      another_buttom2.style.display = "none";
-
-    if(another_options1 !== null)
-      another_options1.style.display = "none";
-
-    if(another_options2 !== null)
-      another_options2.style.display = "none";
-
-    if(another_options_button1 !== null)
-      another_options_button1.style.display = "none";
-
-    if(another_options_button2 !== null)
-      another_options_button2.style.display = "none";
-
-    // Mostramos nuevo canvas
-    document.getElementById(value + "-chart-" + id_data_serie).style.display = "block";
-
-    // Mostramos nuevo botón
-    document.getElementById("remove-" + value + "-chart-button-" + id_data_serie).style.display = "block";
-
-    // Mostramos nuevas opciones
-    document.getElementById(value + "-chart-options-" + id_data_serie).style.display = "none";
-    document.getElementById(value + "-options-buttons-" + id_data_serie).style.display = "block";
-
-    this.draw_charts();
-  }
-
-  // Nueva gráfica
-  submitChart(){
-    var select_data_serie = document.getElementById("select-data-serie");
-    var select_chart_type = document.getElementById("select-chart-type");
-
-    if(select_data_serie.value == "none" && select_chart_type.value == "none"){
-      alert("Seleccione una serie datos, por favor.");
-    } else if(select_chart_type.value == "none"){
-      alert("Seleccione un tipo de gráfica, por favor");
-    } else if(select_data_serie.value == "none"){
-      alert("Seleccione una serie de datos y un tipo de gráfica, por favor");
-    } else{
-
-      var chart_data;
-
-      for(var i = 0; i < this.data_series.length; i++){
-        if(this.data_series[i].getTitle() == select_data_serie.options[select_data_serie.selectedIndex].text)
-          chart_data = this.data_series[i];
-      }
-
-      var check_select = document.getElementById("charts-" + chart_data.getId());
-      var same_option = false;
-
-      if(check_select !== null){
-        for(var i = 0; i < check_select.options.length; i++){
-          if(check_select.options[i].value == select_chart_type.options[select_chart_type.selectedIndex].value)
-            same_option = true;
-        }
-      }
-
-      if(select_chart_type.value == "bar"){ // Gráfico de barras
-        var bar_chart = new BarChart(chart_data.getId(), chart_data, '10pt Times New Roman', 
-          this.ctx.measureText(chart_data.getMaxSerieValue().toString()).width, 
-          this.ctx.measureText(chart_data.getStructuredDataTags()[0]).width,'black', 2.0);
-
-        bar_chart.setColors();
-
-        if(!same_option){
-          this.bar_charts.push(bar_chart);
-
-          if(bar_chart.insertChartData())
-            this.bar_charts_to_draw.push(bar_chart.getId());
-        } else
-          alert("La gráfica seleccionada ya existe.");
-        
-      } else if(select_chart_type.value == "line"){ // Gráfico de líneas
-        var line_chart = new LineChart(chart_data.getId(), chart_data, '10pt Times New Roman', 'black', 2.0);
-
-        if(!same_option){
-          this.line_charts.push(line_chart);
-
-          if(line_chart.insertChartData())
-            this.line_charts_to_draw.push(line_chart.getId());
-
-        } else
-          alert("La gráfica seleccionada ya existe.");
-      } else if(select_chart_type.value == "pie"){ // Gráfico circular
-        var pie_chart = new PieChart(chart_data.getId(), chart_data, '10pt Times New Roman', 'black', 2.0);
-
-        pie_chart.setColors();
-
-        if(!same_option){
-          this.pie_charts.push(pie_chart);
-
-          if(pie_chart.insertChartData())
-            this.pie_charts_to_draw.push(pie_chart.getId());
-        } else
-          alert("La gráfica seleccionada ya existe.");
-      }
-    }
-
-    document.getElementById("add-graph-menu").style.display = "none";
-    this.draw_charts();
-  }
-
-  draw_charts(){
-    for(var i = 0; i < this.bar_charts.length; i++){
-      for(var j = 0; j < this.bar_charts_to_draw.length; j++){
-        if(this.bar_charts[i].getId() == this.bar_charts_to_draw[j])
-          this.draw_bar_chart(i);
-      }
-    }
-
-    for(var i = 0; i < this.line_charts.length; i++){
-      for(var j = 0; j < this.line_charts_to_draw.length; j++){
-        if(this.line_charts[i].getId() == this.line_charts_to_draw[j])
-          this.draw_line_chart(i);
-      }
-    }
-
-    for(var i = 0; i < this.pie_charts.length; i++){
-      for(var j = 0; j < this.pie_charts_to_draw.length; j++){
-        if(this.pie_charts[i].getId() == this.pie_charts_to_draw[j])
-          this.draw_pie_chart(i);
-      }
-    }
   }
 }
 
@@ -1148,7 +1135,6 @@ class DataSeries{
     }
   }
 
-  // Funciones auxiliares para gráficas
   getMaxSerieValue() {
     return Math.max.apply(null, this.getStructuredDataValues());
   }
@@ -1503,7 +1489,7 @@ class Chart{
         new_content += " </div>\n";
       }
 
-      document.getElementById("options-" + this.data_serie.getId()).innerHTML += new_content;
+      document.getElementById("options-" + this.data_serie.getId()).insertAdjacentHTML("beforeend", new_content);
       document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).width = this.getWidth().toString();
       document.getElementById(this.getChartType()  + "-chart-" + this.data_serie.getId()).height = Chart.HEIGHT.toString();
 
