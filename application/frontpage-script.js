@@ -25,10 +25,6 @@ class CanvasAPIApplication {
     this.pie_chart_next_id = 0;
   }
 
-  get(){
-    return this.line_charts_to_draw;
-  }
-
   /* Métodos */
 
   start(){
@@ -555,7 +551,7 @@ class CanvasAPIApplication {
       this.ctx.moveTo(BarChart.PADDING_LEFT, 
         BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
 
-      this.ctx.lineTo(bar_chart.getWidth() - BarChart.PADDING_RIGHT,
+      this.ctx.lineTo(BarChart.MAX_BARCHART_WIDTH - BarChart.PADDING_RIGHT,
           BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
 
       this.ctx.stroke(); // Líneas verticales que indican los números de referencia
@@ -573,13 +569,21 @@ class CanvasAPIApplication {
     this.ctx.beginPath();
     this.ctx.moveTo(BarChart.PADDING_LEFT, BarChart.PADDING_TOP);
     this.ctx.lineTo(BarChart.PADDING_LEFT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
-    this.ctx.lineTo(bar_chart.getWidth() - BarChart.PADDING_RIGHT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
+    this.ctx.lineTo(BarChart.MAX_BARCHART_WIDTH - BarChart.PADDING_RIGHT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
     this.ctx.stroke();
 
+    var iteration_number = 1;
 
-    for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
+    /* Si el ancho no es lo suficientemente grande, se divide entre 2 el número de barras que aparecen en el gráfico */
+    if((bar_chart.getBarWidth() + BarChart.SPACE_BETWEEN_BARS)*data_serie.getStructuredDataValues().length >= BarChart.MAX_BARCHART_WIDTH){
+      while((bar_chart.getBarWidth() + BarChart.SPACE_BETWEEN_BARS)*(data_serie.getStructuredDataValues().length/iteration_number)
+      >= BarChart.MAX_BARCHART_WIDTH)
+        iteration_number *= 2;
+    }
+
+    for(var j = 0; j < data_serie.getStructuredDataValues().length; j += iteration_number){
       var value = data_serie.getStructuredDataValues()[j];
-      var x0 = BarChart.PADDING_LEFT + BarChart.BARS_MARGIN + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j;
+      var x0 = BarChart.PADDING_LEFT + BarChart.BARS_MARGIN + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*(j/iteration_number);
       var y0 = Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getScaleFactorY()*value;
       var x1 = x0 + bar_chart.bar_width;
       var y1 = y0 + bar_chart.getScaleFactorY()*value;
@@ -645,17 +649,17 @@ class CanvasAPIApplication {
       
 
       this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
-        (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j, 
+        (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*(j/iteration_number), 
           Chart.HEIGHT - BarChart.PADDING_BOTTOM + BarChart.LETTERS_MARGIN_TOP); // Etiquetas
 
       // Valores
       if(bar_chart.getThreedEffect()){
         this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
-          (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j + BarChart.THREE_D_X_DISPLACEMENT, 
+          (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*(j/iteration_number) + BarChart.THREE_D_X_DISPLACEMENT, 
             Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getScaleFactorY()*data_serie.getStructuredDataValues()[j] - BarChart.LETTERS_MARGIN_BOTTOM - BarChart.THREE_D_Y_DISPLACEMENT);
       } else {
         this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
-          (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*j, 
+          (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.bar_width + BarChart.SPACE_BETWEEN_BARS)*(j/iteration_number), 
             Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getScaleFactorY()*data_serie.getStructuredDataValues()[j] - BarChart.LETTERS_MARGIN_BOTTOM);
       }
       
@@ -706,7 +710,7 @@ class CanvasAPIApplication {
       this.ctx.moveTo(LineChart.PADDING_LEFT, 
         LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
   
-      this.ctx.lineTo(line_chart.getWidth() - LineChart.PADDING_RIGHT,
+      this.ctx.lineTo(LineChart.MAX_LINECHART_WIDTH - LineChart.PADDING_RIGHT,
         LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
 
       this.ctx.stroke(); // Líneas verticales que indican los números de referencia
@@ -724,17 +728,26 @@ class CanvasAPIApplication {
     this.ctx.beginPath();
     this.ctx.moveTo(LineChart.PADDING_LEFT, LineChart.PADDING_TOP);
     this.ctx.lineTo(LineChart.PADDING_LEFT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
-    this.ctx.lineTo(line_chart.getWidth() - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
+    this.ctx.lineTo(LineChart.MAX_LINECHART_WIDTH - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
     this.ctx.stroke();
 
     line_chart.setStrokeStyle("rgb(192,192,192)");
     this.ctx.strokeStyle = line_chart.getStrokeStyle();
 
+    var iteration_number = 1;
+
+    /* Si el ancho no es lo suficientemente grande, se divide entre 2 el número de barras que aparecen en el gráfico */
+    if(LineChart.SPACE_BETWEEN_POINTS*data_serie.getStructuredDataValues().length >= LineChart.MAX_LINECHART_WIDTH){
+      while(LineChart.SPACE_BETWEEN_POINTS*(data_serie.getStructuredDataValues().length/iteration_number)
+      >= LineChart.MAX_LINECHART_WIDTH)
+        iteration_number *= 2;
+    }
+
     this.ctx.beginPath();
     this.ctx.moveTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN, 
       Chart.HEIGHT - LineChart.PADDING_BOTTOM - data_serie.getStructuredDataValues()[0]*line_chart.getScaleFactorY()); // Inicio del gráfico de líneas
 
-    for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
+    for(var j = 0; j < data_serie.getStructuredDataValues().length; j += iteration_number){
       var value = data_serie.getStructuredDataValues()[j];
 
       //Shadows
@@ -752,7 +765,7 @@ class CanvasAPIApplication {
       line_chart.setStrokeStyle("hsl(7, 0%, 30%)");
       this.ctx.strokeStyle = line_chart.getStrokeStyle();
 
-      this.ctx.lineTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + LineChart.SPACE_BETWEEN_POINTS*j, 
+      this.ctx.lineTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + LineChart.SPACE_BETWEEN_POINTS*(j/iteration_number), 
         Chart.HEIGHT - LineChart.PADDING_BOTTOM - value*line_chart.getScaleFactorY()); // Cada línea del gráfico de líneas
     }
 
@@ -766,13 +779,13 @@ class CanvasAPIApplication {
     line_chart.setStrokeStyle("black");
     this.ctx.strokeStyle = line_chart.getStrokeStyle();
 
-    for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
+    for(var j = 0; j < data_serie.getStructuredDataValues().length; j += iteration_number){
       this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
-        (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + LineChart.SPACE_BETWEEN_POINTS*j, 
+        (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + LineChart.SPACE_BETWEEN_POINTS*(j/iteration_number), 
           Chart.HEIGHT - LineChart.PADDING_BOTTOM + LineChart.LETTERS_MARGIN_TOP); // Tags
     
       this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
-        (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + LineChart.SPACE_BETWEEN_POINTS*j, 
+        (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + LineChart.SPACE_BETWEEN_POINTS*(j/iteration_number), 
           Chart.HEIGHT - LineChart.PADDING_BOTTOM - line_chart.getScaleFactorY()*data_serie.getStructuredDataValues()[j] - LineChart.LETTERS_MARGIN_BOTTOM); // Values
     }
   }
@@ -1193,6 +1206,9 @@ class DataSeries{
 
       this.setStructuredDataValues(i, aux_value);
     }
+
+    this.structured_data_tags = this.structured_data_tags.reverse();
+    this.structured_data_values = this.structured_data_values.reverse();
   }
 
   getMaxSerieValue() {
@@ -1559,6 +1575,8 @@ class Chart{
 
 class BarChart extends Chart{
   /* Atributos de clase */
+  static MAX_BARCHART_WIDTH = 805;
+
   static PADDING_LEFT = 50;
   static PADDING_RIGHT = 10;
   static PADDING_TOP = 10;
@@ -1593,10 +1611,6 @@ class BarChart extends Chart{
 
     this.bar_width = Math.max(letter_value_width, letter_tag_width);
 
-    this.width = BarChart.MAX_SCALE_FACTOR_X*
-      Math.max((Math.ceil(BarChart.PADDING_LEFT + BarChart.BARS_MARGIN + (this.bar_width + BarChart.SPACE_BETWEEN_BARS)*data_serie.getStructuredDataValues().length)),
-      Chart.MAX_NORMAL_WIDTH);
-
     var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
 
     if(logMaxValue >= 2.0)
@@ -1629,8 +1643,8 @@ class BarChart extends Chart{
     return 'bar';
   }
 
-  getWidth(){
-    return this.width;
+  getBarWidth(){
+    return this.bar_width;
   }
 
   getScaleFactorY(){
@@ -1648,6 +1662,8 @@ class BarChart extends Chart{
 
 class LineChart extends Chart{
   /* Atributos de clase */
+  static MAX_LINECHART_WIDTH = 805;
+
   static PADDING_LEFT = 50;
   static PADDING_RIGHT = 10;
   static PADDING_TOP = 10;
@@ -1673,10 +1689,6 @@ class LineChart extends Chart{
 
     this.scale_factor_y = ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM) * LineChart.MAX_SCALE_FACTOR_Y)/data_serie.getMaxSerieValue();
     this.max_value_graph = data_serie.getMaxSerieValue()/LineChart.MAX_SCALE_FACTOR_Y;
-
-    this.width = LineChart.MAX_SCALE_FACTOR_X*
-      Math.max((Math.ceil(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + LineChart.SPACE_BETWEEN_POINTS*data_serie.getStructuredDataValues().length)),
-      Chart.MAX_NORMAL_WIDTH);
 
     var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
 
@@ -1708,10 +1720,6 @@ class LineChart extends Chart{
   /* Métodos */
   getChartType(){
     return 'line';
-  }
-
-  getWidth(){
-    return this.width;
   }
 
   getScaleFactorY(){
@@ -1751,16 +1759,10 @@ class PieChart extends Chart{
   /* Atributos de instancia */
   constructor(id, data_serie, letter_font, strokeStyle, lineWidth) {
     super(id, data_serie, letter_font, strokeStyle, lineWidth);
-
-    this.width = Chart.MAX_NORMAL_WIDTH;
   }
 
   /* Métodos */
   getChartType(){
     return 'pie';
-  }
-
-  getWidth(){
-    return this.width;
   }
 }
