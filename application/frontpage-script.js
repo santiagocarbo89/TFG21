@@ -531,35 +531,35 @@ class CanvasAPIApplication {
     var number_tag;
 
     for(var j = 0; j < bar_chart.getNumberOfVerticalLines(); j++){
-
+      
       bar_chart.setStrokeStyle('black');
       this.ctx.strokeStyle = bar_chart.getStrokeStyle();
       
       this.ctx.beginPath();
       this.ctx.moveTo(BarChart.PADDING_LEFT - BarChart.VERTICAL_LINES_WIDTH,
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j));
 
       this.ctx.lineTo(BarChart.PADDING_LEFT, 
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j));
 
-      this.ctx.stroke(); // Líneas cortas verticales de referencia
+      this.ctx.stroke();
 
       bar_chart.setStrokeStyle('#e5e4e2');
       this.ctx.strokeStyle = bar_chart.getStrokeStyle();
 
       this.ctx.beginPath();
       this.ctx.moveTo(BarChart.PADDING_LEFT, 
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
-
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j));
+  
       this.ctx.lineTo(BarChart.MAX_BARCHART_WIDTH - BarChart.PADDING_RIGHT,
-          BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j);
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j));
 
       this.ctx.stroke(); // Líneas verticales que indican los números de referencia
 
-      number_tag = bar_chart.getMaxValueChart()*(bar_chart.getNumberOfVerticalLines() - j - 1)/(bar_chart.getNumberOfVerticalLines() - 1);
-      
-      this.ctx.fillText(Math.ceil(number_tag).toString(), BarChart.LETTERS_MARGIN_LEFT, 
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*j); // Números referencias
+      number_tag = bar_chart.getMaxValueChart()*(j/bar_chart.getNumberOfVerticalLines());
+
+      this.ctx.fillText(Math.trunc(number_tag).toString(), BarChart.LETTERS_MARGIN_LEFT, 
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j)); // Números referencias
     }
 
     bar_chart.setStrokeStyle('black');
@@ -690,16 +690,16 @@ class CanvasAPIApplication {
     var number_tag;
 
     for(var j = 0; j < line_chart.getNumberOfVerticalLines(); j++){
-
+      
       line_chart.setStrokeStyle('black');
       this.ctx.strokeStyle = line_chart.getStrokeStyle();
       
       this.ctx.beginPath();
       this.ctx.moveTo(LineChart.PADDING_LEFT - LineChart.VERTICAL_LINES_WIDTH,
-        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j));
 
       this.ctx.lineTo(LineChart.PADDING_LEFT, 
-        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j));
 
       this.ctx.stroke();
 
@@ -708,17 +708,17 @@ class CanvasAPIApplication {
 
       this.ctx.beginPath();
       this.ctx.moveTo(LineChart.PADDING_LEFT, 
-        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j));
   
       this.ctx.lineTo(LineChart.MAX_LINECHART_WIDTH - LineChart.PADDING_RIGHT,
-        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j);
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j));
 
       this.ctx.stroke(); // Líneas verticales que indican los números de referencia
 
-      number_tag = line_chart.getMaxValueChart()*(line_chart.getNumberOfVerticalLines() - j - 1)/(line_chart.getNumberOfVerticalLines() - 1);
-      
-      this.ctx.fillText(Math.ceil(number_tag).toString(), LineChart.LETTERS_MARGIN_LEFT, 
-        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*j); // Números referencias
+      number_tag = line_chart.getMaxValueChart()*(j/line_chart.getNumberOfVerticalLines());
+
+      this.ctx.fillText(Math.trunc(number_tag).toString(), LineChart.LETTERS_MARGIN_LEFT, 
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j)); // Números referencias
     }
 
     line_chart.setStrokeStyle('black');
@@ -1587,9 +1587,8 @@ class BarChart extends Chart{
   static MAX_SCALE_FACTOR_X = 1.25;
   static MAX_SCALE_FACTOR_Y = 0.75;
   static MAX_NUMBER_OF_VERTICAL_LINES = 10;
-  static MIN_NUMBER_OF_VERTICAL_LINES = 3;
+  static MIN_NUMBER_OF_VERTICAL_LINES = 1;
   static VERTICAL_LINES_WIDTH = 5;
-  static VERTICAL_LINES_RATIO = 1.0/(BarChart.MAX_NUMBER_OF_VERTICAL_LINES - BarChart.MIN_NUMBER_OF_VERTICAL_LINES)
 
   static LETTERS_MARGIN_LEFT = 10;
   static LETTERS_MARGIN_TOP = 15;
@@ -1614,28 +1613,11 @@ class BarChart extends Chart{
     var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
 
     if(logMaxValue >= 2.0)
-      this.number_of_vertical_lines = BarChart.MIN_NUMBER_OF_VERTICAL_LINES;
-    else if(logMaxValue <= 1.0)
       this.number_of_vertical_lines = BarChart.MAX_NUMBER_OF_VERTICAL_LINES;
-    else{
-      
-      while(logMaxValue >= 1.0)
-        logMaxValue -= 1.0;
-
-      if(logMaxValue >= 0.0 && logMaxValue <= BarChart.VERTICAL_LINES_RATIO){
-        this.number_of_vertical_lines = 4;
-      } else if(logMaxValue >= BarChart.VERTICAL_LINES_RATIO && logMaxValue <= BarChart.VERTICAL_LINES_RATIO*2) {
-        this.number_of_vertical_lines = 5;
-      } else if(logMaxValue >= BarChart.VERTICAL_LINES_RATIO*2 && logMaxValue <= BarChart.VERTICAL_LINES_RATIO*3) {
-        this.number_of_vertical_lines = 6;
-      } else if(logMaxValue >= BarChart.VERTICAL_LINES_RATIO*3 && logMaxValue <= BarChart.VERTICAL_LINES_RATIO*4) {
-        this.number_of_vertical_lines = 7;
-      } else if(logMaxValue >= BarChart.VERTICAL_LINES_RATIO*4 && logMaxValue <= BarChart.VERTICAL_LINES_RATIO*5) {
-        this.number_of_vertical_lines = 8;
-      } else if(logMaxValue >= BarChart.VERTICAL_LINES_RATIO*5 && logMaxValue <= BarChart.VERTICAL_LINES_RATIO*6) {
-        this.number_of_vertical_lines = 9;
-      }
-    }
+    else if(logMaxValue <= 1.0)
+      this.number_of_vertical_lines = BarChart.MIN_NUMBER_OF_VERTICAL_LINES;
+    else
+      this.number_of_vertical_lines = Math.trunc((BarChart.MAX_NUMBER_OF_VERTICAL_LINES-BarChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
   }
 
   /* Métodos */
@@ -1674,9 +1656,8 @@ class LineChart extends Chart{
   static MAX_SCALE_FACTOR_X = 1.25;
   static MAX_SCALE_FACTOR_Y = 0.75;
   static MAX_NUMBER_OF_VERTICAL_LINES = 10;
-  static MIN_NUMBER_OF_VERTICAL_LINES = 3;
+  static MIN_NUMBER_OF_VERTICAL_LINES = 1;
   static VERTICAL_LINES_WIDTH = 5;
-  static VERTICAL_LINES_RATIO = 1.0/(BarChart.MAX_NUMBER_OF_VERTICAL_LINES - BarChart.MIN_NUMBER_OF_VERTICAL_LINES)
 
   static LETTERS_MARGIN_LEFT = 10;
   static LETTERS_MARGIN_TOP = 15;
@@ -1693,28 +1674,11 @@ class LineChart extends Chart{
     var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
 
     if(logMaxValue >= 2.0)
-      this.number_of_vertical_lines = LineChart.MIN_NUMBER_OF_VERTICAL_LINES;
-    else if(logMaxValue <= 1.0)
       this.number_of_vertical_lines = LineChart.MAX_NUMBER_OF_VERTICAL_LINES;
-    else{
-      
-      while(logMaxValue >= 1.0)
-        logMaxValue -= 1.0;
-
-      if(logMaxValue >= 0.0 && logMaxValue <= LineChart.VERTICAL_LINES_RATIO){
-        this.number_of_vertical_lines = 4;
-      } else if(logMaxValue >= LineChart.VERTICAL_LINES_RATIO && logMaxValue <= LineChart.VERTICAL_LINES_RATIO*2) {
-        this.number_of_vertical_lines = 5;
-      } else if(logMaxValue >= LineChart.VERTICAL_LINES_RATIO*2 && logMaxValue <= LineChart.VERTICAL_LINES_RATIO*3) {
-        this.number_of_vertical_lines = 6;
-      } else if(logMaxValue >= LineChart.VERTICAL_LINES_RATIO*3 && logMaxValue <= LineChart.VERTICAL_LINES_RATIO*4) {
-        this.number_of_vertical_lines = 7;
-      } else if(logMaxValue >= LineChart.VERTICAL_LINES_RATIO*4 && logMaxValue <= LineChart.VERTICAL_LINES_RATIO*5) {
-        this.number_of_vertical_lines = 8;
-      } else if(logMaxValue >= LineChart.VERTICAL_LINES_RATIO*5 && logMaxValue <= LineChart.VERTICAL_LINES_RATIO*6) {
-        this.number_of_vertical_lines = 9;
-      }
-    }
+    else if(logMaxValue <= 1.0)
+      this.number_of_vertical_lines = LineChart.MIN_NUMBER_OF_VERTICAL_LINES;
+    else
+      this.number_of_vertical_lines = Math.trunc((LineChart.MAX_NUMBER_OF_VERTICAL_LINES-LineChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
   }
 
   /* Métodos */
