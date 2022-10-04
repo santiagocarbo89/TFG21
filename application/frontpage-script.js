@@ -139,7 +139,7 @@ class CanvasAPIApplication {
       if(data_series === null)
         document.getElementById("data").insertAdjacentHTML("beforeend", "<div id=\"data-series\"></div>");
 
-      var chart_data = new DataSeries(this.data_serie_next_id++);
+      var chart_data = new DataSerie(this.data_serie_next_id++);
       chart_data.setTitle(title);
       chart_data.setUnstructuredData(file);
       chart_data.structure_data();
@@ -421,6 +421,7 @@ class CanvasAPIApplication {
     var select_charts = document.getElementById("charts-" + real_id);
     var charts_vector;
     var charts_vector_to_draw;
+    var chart_vector_id = -1;
 
     if(chart_type == "bar"){
       charts_vector = this.bar_charts;
@@ -436,13 +437,17 @@ class CanvasAPIApplication {
     }
 
     for(var i = 0; i < charts_vector.length; i++){
-      if(charts_vector[i].getId() == real_id)
+      if(charts_vector[i].getDataSerie().getId() == real_id){
+        chart_vector_id = charts_vector[i].getId();
         charts_vector.splice(i, 1);
+      }
     }
 
-    for(var i = 0; i < charts_vector_to_draw.length; i++){
-      if(charts_vector_to_draw[i] == real_id)
-        charts_vector_to_draw.splice(i, 1);
+    if(chart_vector_id != -1){
+      for(var i = 0; i < charts_vector_to_draw.length; i++){
+        if(charts_vector_to_draw[i] == chart_vector_id)
+          charts_vector_to_draw.splice(i, 1);
+      }
     }
 
     if(select_charts.options.length > 1){
@@ -511,15 +516,18 @@ class CanvasAPIApplication {
 
   draw_bar_chart(id){
     var bar_chart = this.bar_charts[id];
-    var chart_id = "bar-chart-" + bar_chart.getDataSerie().getId();
-    this.canvas = document.getElementById(chart_id);
-  
-    if(this.canvas.getContext) {
-      this.ctx = this.canvas.getContext('2d');
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
-
     var data_serie = bar_chart.getDataSerie();
+    var data_serie_id = data_serie.getId();
+    var chart_id = "bar-chart-" + data_serie_id;
+    this.canvas = document.getElementById(chart_id);
+    var canvas_context = this.canvas.getContext;
+  
+    if(canvas_context) {
+      this.ctx = this.canvas.getContext('2d');
+      var canvas_width = this.canvas.width;
+      var canvas_height = this.canvas.height;
+      this.ctx.clearRect(0, 0, canvas_width, canvas_height);
+    }
 
     // Parámetros de estilo
     this.ctx.strokeStyle = bar_chart.getStrokeStyle();
@@ -1104,8 +1112,8 @@ class CanvasAPIApplication {
 
 var application = new CanvasAPIApplication();
 
-// Clase 'DataSeries' que encapsula los datos procesados del .csv
-class DataSeries{
+// Clase 'DataSerie' que encapsula los datos procesados del .csv
+class DataSerie{
   constructor(id) {
     this.id = id;
     this.unstructured_data = '';
