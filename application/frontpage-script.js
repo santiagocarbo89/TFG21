@@ -583,8 +583,8 @@ class CanvasAPIApplication {
     var iteration_number = 1;
 
     /* Si el ancho no es lo suficientemente grande, se divide entre 2 el número de barras que aparecen en el gráfico */
-    if((bar_chart.getBarWidth() + BarChart.SPACE_BETWEEN_BARS)*data_serie.getStructuredDataValues().length >= BarChart.MAX_BARCHART_WIDTH){
-      while((bar_chart.getBarWidth() + BarChart.SPACE_BETWEEN_BARS)*(data_serie.getStructuredDataValues().length/iteration_number)
+    if((BarChart.PADDING_LEFT + (bar_chart.getBarWidth() + BarChart.SPACE_BETWEEN_BARS)*data_serie.getStructuredDataValues().length) >= BarChart.MAX_BARCHART_WIDTH){
+      while((BarChart.PADDING_LEFT + (bar_chart.getBarWidth() + BarChart.SPACE_BETWEEN_BARS)*(data_serie.getStructuredDataValues().length/iteration_number))
       >= BarChart.MAX_BARCHART_WIDTH)
         iteration_number *= 2;
     }
@@ -745,8 +745,8 @@ class CanvasAPIApplication {
     var iteration_number = 1;
 
     /* Si el ancho no es lo suficientemente grande, se divide entre 2 el número de barras que aparecen en el gráfico */
-    if(LineChart.SPACE_BETWEEN_POINTS*data_serie.getStructuredDataValues().length >= LineChart.MAX_LINECHART_WIDTH){
-      while(LineChart.SPACE_BETWEEN_POINTS*(data_serie.getStructuredDataValues().length/iteration_number)
+    if((LineChart.PADDING_LEFT + LineChart.SPACE_BETWEEN_POINTS*data_serie.getStructuredDataValues().length) >= LineChart.MAX_LINECHART_WIDTH){
+      while((LineChart.PADDING_LEFT + LineChart.SPACE_BETWEEN_POINTS*(data_serie.getStructuredDataValues().length/iteration_number))
       >= LineChart.MAX_LINECHART_WIDTH)
         iteration_number *= 2;
     }
