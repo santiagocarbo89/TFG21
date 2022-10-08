@@ -899,7 +899,7 @@ class CanvasAPIApplication {
 
     // Parámetros de estilo
     this.ctx.lineWidth = pie_chart.getLineWidth();
-    this.ctx.font = pie_chart.getLetterFont(); // Fuente del texto
+    this.ctx.font = pie_chart.getLetterHeight() + "px " + pie_chart.getLetterFont(); // Fuente del texto
     this.ctx.strokeStyle = pie_chart.getStrokeStyle();
     this.ctx.globalAlpha = pie_chart.getTransparency();
 
@@ -1010,15 +1010,18 @@ class CanvasAPIApplication {
       var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
 
-      this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
-      PieChart.BIG_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
-        PieChart.BIG_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
+      if(currentAngle > PieChart.MIN_ANGLE_TEXT){
+
+        this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
+        PieChart.BIG_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
+          PieChart.BIG_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
       
-      this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
-      PieChart.SMALL_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
-        PieChart.SMALL_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
+        this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+        PieChart.SMALL_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.X_CENTER + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
+          PieChart.SMALL_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
       
-      lastAngle = currentAngle;
+        lastAngle = currentAngle;
+      }
     }
   }
 
@@ -1914,12 +1917,15 @@ class PieChart extends Chart{
   static PADDING_TOP = 10;
   static PADDING_BOTTOM = 30;
 
+
   static X_CENTER = 300;
   static Y_CENTER = 225;
   static BIG_RADIO = 175;
   static RADIO = 125;
   static SMALL_RADIO = 90;
   static SMALL_GRADIENT_RADIO = 50;
+
+  static MIN_ANGLE_TEXT = Math.PI/6;
 
   static THREED_RADIO = 300;
   static THREED_DEPTH = 60;
