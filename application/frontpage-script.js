@@ -597,34 +597,49 @@ class CanvasAPIApplication {
     this.ctx.lineTo(Chart.MAX_NORMAL_WIDTH - BarChart.PADDING_RIGHT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
     this.ctx.stroke();
 
-    var aux_modifications;
-    var keep_optimizing = true;
+    if(bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())){
 
+      var aux_modifications;
+      var keep_optimizing_bars = true;
 
-    while(keep_optimizing){
+      while(keep_optimizing_bars){
 
-      if(bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())){
-
-        if(bar_chart.getSpaceBetweenBars() >= BarChart.MIN_SPACE_BETWEEN_BARS){
-          aux_modifications = bar_chart.getSpaceBetweenBars() - 0.2;
+        if((bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars()) 
+          > (BarChart.MIN_BAR_WIDTH + BarChart.MIN_SPACE_BETWEEN_BARS)
+            && bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())){        
+          aux_modifications = bar_chart.getSpaceBetweenBars() - 0.1;
           bar_chart.setSpaceBetweenBars(aux_modifications);
-        } else if(bar_chart.getBarWidth() >= BarChart.MIN_BAR_WIDTH){
+
+          aux_modifications = bar_chart.getBarWidth() - 0.1;
+          bar_chart.setBarWidth(aux_modifications);
+        } else
+          keep_optimizing_bars = false;
+      }
+  
+      var keep_optimizing_letters = true;
+
+      while(keep_optimizing_letters){
+
+        if(bar_chart.getLetterHeight() > Chart.MIN_FONT
+          && bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())){
           aux_modifications = bar_chart.getLetterHeight() - 0.2;
           bar_chart.setLetterHeight(aux_modifications);
           this.ctx.font = bar_chart.getLetterHeight() + "px " + bar_chart.getLetterFont();
           bar_chart.setLetterValueWidth(this.ctx.measureText(data_serie.getMaxSerieValue().toString()).width);
           bar_chart.setLetterTagWidth(this.ctx.measureText(data_serie.getStructuredDataTags()[0]).width);
-          bar_chart.setBarWidth(CanvasAPIApplication.CORRECTOR_WIDTH*Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth()));
-        
-          if(bar_chart.getBarWidth() < Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth())/bar_chart.getTextAppearance()){
-            aux_modifications = bar_chart.getTextAppearance() + 1;
-            bar_chart.setTextAppearance(aux_modifications);
-          }
         } else
-          keep_optimizing = false;
+          keep_optimizing_letters = false;
+      }
 
-      } else
-        keep_optimizing = false;
+      var keep_optimizing_letter_appearance = true;
+
+      while(keep_optimizing_letter_appearance){
+        if((bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*bar_chart.getTextAppearance() < (Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth()) + BarChart.SPACE_BETWEEN_LETTERS)){
+          aux_modifications = bar_chart.getTextAppearance() + 1;
+          bar_chart.setTextAppearance(aux_modifications);
+        } else
+          keep_optimizing_letter_appearance = false;
+      }
     }
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
@@ -790,10 +805,6 @@ class CanvasAPIApplication {
         if(line_chart.getSpaceBetweenPoints() > LineChart.MIN_SPACE_BETWEEN_POINTS 
           && line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){        
           aux_modifications = line_chart.getSpaceBetweenPoints() - 0.1;
-
-          if(aux_modifications < 0.0)
-            aux_modifications = 0.0;
-
           line_chart.setSpaceBetweenPoints(aux_modifications);
         } else
           keep_optimizing_points = false;
@@ -1707,7 +1718,7 @@ class BarChart extends Chart{
   static PADDING_BOTTOM = 30;
 
   static BARS_MARGIN = 7.5;
-  static MIN_BAR_WIDTH = 30;
+  static MIN_BAR_WIDTH = 15;
   static MIN_SPACE_BETWEEN_BARS = 5;
   static MAX_SCALE_FACTOR_X = 1.25;
   static MAX_SCALE_FACTOR_Y = 0.75;
@@ -1718,6 +1729,7 @@ class BarChart extends Chart{
   static LETTERS_MARGIN_LEFT = 10;
   static LETTERS_MARGIN_TOP = 15;
   static LETTERS_MARGIN_BOTTOM = 5;
+  static SPACE_BETWEEN_LETTERS = 15;
 
   static THREE_D_X_DISPLACEMENT = 15;
   static THREE_D_Y_DISPLACEMENT = 10;
