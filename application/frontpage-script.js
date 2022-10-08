@@ -275,7 +275,7 @@ class CanvasAPIApplication {
           alert("La gráfica seleccionada ya existe.");
         
       } else if(select_chart_type.value == "line"){
-        var line_chart = new LineChart(this.line_chart_next_id++, chart_data, 'Times New Roman', 'black', 2.0);
+        var line_chart = new LineChart(this.line_chart_next_id++, chart_data, value_width, tag_width, CanvasAPIApplication.HEIGHT_PIXELS);
 
         if(!same_option){
           this.line_charts.push(line_chart);
@@ -599,26 +599,30 @@ class CanvasAPIApplication {
 
     var aux_modifications;
     var keep_optimizing = true;
-    var text_appearance = 1;
 
-    /* Si el ancho no es lo suficientemente grande, se divide entre 2 el número de barras que aparecen en el gráfico */
+
     while(keep_optimizing){
-      if(bar_chart.getSpaceBetweenBars() >= BarChart.MIN_SPACE_BETWEEN_BARS){
-        aux_modifications = bar_chart.getSpaceBetweenBars() - 0.2;
-        bar_chart.setSpaceBetweenBars(aux_modifications);
-      } else if(bar_chart.getBarWidth() >= BarChart.MIN_BAR_WIDTH){
-        aux_modifications = bar_chart.getLetterHeight() - 0.2;
-        bar_chart.setLetterHeight(aux_modifications);
-        this.ctx.font = bar_chart.getLetterHeight() + "px " + bar_chart.getLetterFont();
-        bar_chart.setLetterValueWidth(this.ctx.measureText(data_serie.getMaxSerieValue().toString()).width);
-        bar_chart.setLetterTagWidth(this.ctx.measureText(data_serie.getStructuredDataTags()[0]).width);
-        bar_chart.setBarWidth(CanvasAPIApplication.CORRECTOR_WIDTH*Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth()));
-      } else if(bar_chart.getBarWidth() >= (BarChart.MIN_BAR_WIDTH/3)){
-        aux_modifications = bar_chart.getBarWidth() - 0.2;
-        bar_chart.setBarWidth(aux_modifications);
 
-        if(bar_chart.getBarWidth() < Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth())/text_appearance)
-          text_appearance++;
+      if(bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())){
+
+        if(bar_chart.getSpaceBetweenBars() >= BarChart.MIN_SPACE_BETWEEN_BARS){
+          aux_modifications = bar_chart.getSpaceBetweenBars() - 0.2;
+          bar_chart.setSpaceBetweenBars(aux_modifications);
+        } else if(bar_chart.getBarWidth() >= BarChart.MIN_BAR_WIDTH){
+          aux_modifications = bar_chart.getLetterHeight() - 0.2;
+          bar_chart.setLetterHeight(aux_modifications);
+          this.ctx.font = bar_chart.getLetterHeight() + "px " + bar_chart.getLetterFont();
+          bar_chart.setLetterValueWidth(this.ctx.measureText(data_serie.getMaxSerieValue().toString()).width);
+          bar_chart.setLetterTagWidth(this.ctx.measureText(data_serie.getStructuredDataTags()[0]).width);
+          bar_chart.setBarWidth(CanvasAPIApplication.CORRECTOR_WIDTH*Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth()));
+        
+          if(bar_chart.getBarWidth() < Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth())/bar_chart.getTextAppearance()){
+            aux_modifications = bar_chart.getTextAppearance() + 1;
+            bar_chart.setTextAppearance(aux_modifications);
+          }
+        } else
+          keep_optimizing = false;
+
       } else
         keep_optimizing = false;
     }
@@ -690,7 +694,7 @@ class CanvasAPIApplication {
     this.ctx.fillStyle = "black";
     this.ctx.font = bar_chart.getLetterHeight() + "px " + bar_chart.getLetterFont();
 
-    for(var j = 0; j < data_serie.getStructuredDataValues().length; j += text_appearance){
+    for(var j = 0; j < data_serie.getStructuredDataValues().length; j += bar_chart.getTextAppearance()){
       // Etiquetas
       this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
         (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*j, 
@@ -726,7 +730,7 @@ class CanvasAPIApplication {
    this.ctx.strokeStyle = line_chart.getStrokeStyle();
    this.ctx.lineWidth = line_chart.getLineWidth();
    this.ctx.lineCap = line_chart.getLineCap();
-   this.ctx.font = line_chart.getLetterFont();
+   this.ctx.font = line_chart.getLetterHeight() + "px " + line_chart.getLetterFont();
    this.ctx.globalAlpha = line_chart.getTransparency();
 
     var number_tag;
@@ -776,20 +780,56 @@ class CanvasAPIApplication {
     line_chart.setStrokeStyle("rgb(192,192,192)");
     this.ctx.strokeStyle = line_chart.getStrokeStyle();
 
-    var iteration_number = 1;
+    if(line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){
 
-    /* Si el ancho no es lo suficientemente grande, se divide entre 2 el número de barras que aparecen en el gráfico */
-    if((LineChart.PADDING_LEFT + LineChart.SPACE_BETWEEN_POINTS*data_serie.getStructuredDataValues().length) >= LineChart.MAX_LINECHART_WIDTH){
-      while((LineChart.PADDING_LEFT + LineChart.SPACE_BETWEEN_POINTS*(data_serie.getStructuredDataValues().length/iteration_number))
-      >= LineChart.MAX_LINECHART_WIDTH)
-        iteration_number *= 2;
+      var aux_modifications;
+      var keep_optimizing_points = true;
+
+      while(keep_optimizing_points){
+
+        if(line_chart.getSpaceBetweenPoints() > LineChart.MIN_SPACE_BETWEEN_POINTS 
+          && line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){        
+          aux_modifications = line_chart.getSpaceBetweenPoints() - 0.1;
+
+          if(aux_modifications < 0.0)
+            aux_modifications = 0.0;
+
+          line_chart.setSpaceBetweenPoints(aux_modifications);
+        } else
+          keep_optimizing_points = false;
+      }
+  
+      var keep_optimizing_letters = true;
+
+      while(keep_optimizing_letters){
+
+        if(line_chart.getLetterHeight() > Chart.MIN_FONT
+          && line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){
+          aux_modifications = line_chart.getLetterHeight() - 0.2;
+          line_chart.setLetterHeight(aux_modifications);
+          this.ctx.font = line_chart.getLetterHeight() + "px " + line_chart.getLetterFont();
+          line_chart.setLetterValueWidth(this.ctx.measureText(data_serie.getMaxSerieValue().toString()).width);
+          line_chart.setLetterTagWidth(this.ctx.measureText(data_serie.getStructuredDataTags()[0]).width);
+        } else
+          keep_optimizing_letters = false;
+      }
+
+      var keep_optimizing_letter_appearance = true;
+
+      while(keep_optimizing_letter_appearance){
+        if(line_chart.getSpaceBetweenPoints()*line_chart.getTextAppearance() < (Math.max(line_chart.getLetterTagWidth(), line_chart.getLetterValueWidth()) + LineChart.SPACE_BETWEEN_LETTERS)){
+          aux_modifications = line_chart.getTextAppearance() + 1;
+          line_chart.setTextAppearance(aux_modifications);
+        } else
+          keep_optimizing_letter_appearance = false;
+      }
     }
 
     this.ctx.beginPath();
     this.ctx.moveTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN, 
       Chart.HEIGHT - LineChart.PADDING_BOTTOM - data_serie.getStructuredDataValues()[0]*line_chart.getScaleFactorY()); // Inicio del gráfico de líneas
 
-    for(var j = 0; j < data_serie.getStructuredDataValues().length; j += iteration_number){
+    for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var value = data_serie.getStructuredDataValues()[j];
 
       //Shadows
@@ -807,7 +847,7 @@ class CanvasAPIApplication {
       line_chart.setStrokeStyle("hsl(7, 0%, 30%)");
       this.ctx.strokeStyle = line_chart.getStrokeStyle();
 
-      this.ctx.lineTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + LineChart.SPACE_BETWEEN_POINTS*(j/iteration_number), 
+      this.ctx.lineTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + line_chart.getSpaceBetweenPoints()*j, 
         Chart.HEIGHT - LineChart.PADDING_BOTTOM - value*line_chart.getScaleFactorY()); // Cada línea del gráfico de líneas
     }
 
@@ -820,14 +860,15 @@ class CanvasAPIApplication {
 
     line_chart.setStrokeStyle("black");
     this.ctx.strokeStyle = line_chart.getStrokeStyle();
+    this.ctx.font = line_chart.getLetterHeight() + "px " + line_chart.getLetterFont();
 
-    for(var j = 0; j < data_serie.getStructuredDataValues().length; j += iteration_number){
+    for(var j = 0; j < data_serie.getStructuredDataValues().length; j += line_chart.getTextAppearance()){
       this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
-        (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + LineChart.SPACE_BETWEEN_POINTS*(j/iteration_number), 
+        (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + line_chart.getSpaceBetweenPoints()*j, 
           Chart.HEIGHT - LineChart.PADDING_BOTTOM + LineChart.LETTERS_MARGIN_TOP); // Tags
     
       this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
-        (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + LineChart.SPACE_BETWEEN_POINTS*(j/iteration_number), 
+        (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + line_chart.getSpaceBetweenPoints()*j, 
           Chart.HEIGHT - LineChart.PADDING_BOTTOM - line_chart.getScaleFactorY()*data_serie.getStructuredDataValues()[j] - LineChart.LETTERS_MARGIN_BOTTOM); // Values
     }
   }
@@ -1264,28 +1305,22 @@ class Chart{
   static MAX_NORMAL_WIDTH = 805;
   static HEIGHT = 400;
 
-  static MAX_FONT_WIDTH = 15;
-  static MIN_FONT_WIDTH = 12;
+  static MAX_FONT = 15;
+  static MIN_FONT = 12;
 
   /* Atributos de instancia */
   constructor(id, data_serie, letter_value_width, letter_tag_width, letter_height) {
     this.id = id;
     this.data_serie = data_serie;
     this.letter_value_width = letter_value_width;
-
-    if(this.letter_value_width > Chart.MAX_FONT_WIDTH)
-      this.letter_value_width =  Chart.MAX_FONT_WIDTH;
-    else if(this.letter_value_width < Chart.MIN_FONT_WIDTH)
-      this.letter_value_width = Chart.MIN_FONT_WIDTH;
-
     this.letter_tag_width = letter_tag_width;
 
-    if(this.letter_tag_width > Chart.MAX_FONT_WIDTH)
-      this.letter_tag_width =  Chart.MAX_FONT_WIDTH;
-    else if(this.letter_tag_width < Chart.MIN_FONT_WIDTH)
-      this.letter_tag_width = Chart.MIN_FONT_WIDTH;
-
     this.letter_height = letter_height;
+
+    if(this.letter_height > Chart.MAX_FONT)
+      this.letter_height =  Chart.MAX_FONT;
+    else if(this.letter_height < Chart.MIN_FONT)
+      this.letter_height = Chart.MIN_FONT;
 
     this.letter_font =  "Times New Roman";
 
@@ -1371,6 +1406,11 @@ class Chart{
 
   setLetterHeight(letter_height){
     this.letter_height = letter_height;
+
+    if(this.letter_height > Chart.MAX_FONT)
+      this.letter_height =  Chart.MAX_FONT;
+    else if(this.letter_height < Chart.MIN_FONT)
+      this.letter_height = Chart.MIN_FONT;
   }
 
   setLetterValueWidth(letter_value_width){
@@ -1690,7 +1730,12 @@ class BarChart extends Chart{
     this.max_value_graph = data_serie.getMaxSerieValue()/BarChart.MAX_SCALE_FACTOR_Y;
     
     this.bar_width = bar_width;
+
+    if(this.bar_width < BarChart.MIN_BAR_WIDTH)
+      this.bar_width = BarChart.MIN_BAR_WIDTH;
+
     this.space_between_bars = 20;
+    this.text_appearance = 1;
 
     var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
 
@@ -1705,10 +1750,16 @@ class BarChart extends Chart{
   /* Métodos */
   setSpaceBetweenBars(space_between_bars){
     this.space_between_bars = space_between_bars;
+
+    if(this.space_between_bars < BarChart.MIN_SPACE_BETWEEN_BARS)
+      this.space_between_bars = BarChart.MIN_SPACE_BETWEEN_BARS;
   }
 
   setBarWidth(bar_width){
     this.bar_width = bar_width;
+
+    if(this.bar_width < BarChart.MIN_BAR_WIDTH)
+      this.bar_width = BarChart.MIN_BAR_WIDTH;
   }
 
   setTextAppearance(text_appearance){
@@ -1723,8 +1774,97 @@ class BarChart extends Chart{
     return this.space_between_bars;
   }
 
+  getTextAppearance(){
+    return this.text_appearance;
+  }
+
   getBarWidth(){
     return this.bar_width;
+  }
+
+  getScaleFactorY(){
+    return this.scale_factor_y;
+  }
+
+  getNumberOfVerticalLines(){
+    return this.number_of_vertical_lines;
+  }
+
+  getMaxValueChart(){
+    return this.max_value_graph;
+  }
+
+  checkWidthLimit(variable_quantities){
+    var result = false;
+
+    if(BarChart.PADDING_LEFT + BarChart.BARS_MARGIN + variable_quantities*this.data_serie.getStructuredDataTags().length
+     + BarChart.PADDING_RIGHT >= Chart.MAX_NORMAL_WIDTH)
+      result = true;
+
+    return result;
+  }
+}
+
+class LineChart extends Chart{
+  /* Atributos de clase */
+  static MAX_LINECHART_WIDTH = 805;
+
+  static PADDING_LEFT = 50;
+  static PADDING_RIGHT = 10;
+  static PADDING_TOP = 10;
+  static PADDING_BOTTOM = 30;
+
+  static LINES_MARGIN = 30;
+  static MIN_SPACE_BETWEEN_POINTS = 20;
+  static MAX_SCALE_FACTOR_X = 1.25;
+  static MAX_SCALE_FACTOR_Y = 0.75;
+  static MAX_NUMBER_OF_VERTICAL_LINES = 10;
+  static MIN_NUMBER_OF_VERTICAL_LINES = 1;
+  static VERTICAL_LINES_WIDTH = 5;
+
+  static LETTERS_MARGIN_LEFT = 10;
+  static LETTERS_MARGIN_TOP = 15;
+  static LETTERS_MARGIN_BOTTOM = 5;
+  static SPACE_BETWEEN_LETTERS = 15;
+
+  /* Atributos de instancia */
+  constructor(id, data_serie, letter_value_width, letter_tag_width, letter_height) {
+    super(id, data_serie, letter_value_width, letter_tag_width, letter_height);
+
+    this.scale_factor_y = ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM) * LineChart.MAX_SCALE_FACTOR_Y)/data_serie.getMaxSerieValue();
+    this.max_value_graph = data_serie.getMaxSerieValue()/LineChart.MAX_SCALE_FACTOR_Y;
+
+    this.space_between_points = 50;
+    this.text_appearance = 1;
+
+    var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
+
+    if(logMaxValue >= 2.0)
+      this.number_of_vertical_lines = LineChart.MAX_NUMBER_OF_VERTICAL_LINES;
+    else if(logMaxValue <= 1.0)
+      this.number_of_vertical_lines = LineChart.MIN_NUMBER_OF_VERTICAL_LINES;
+    else
+      this.number_of_vertical_lines = Math.trunc((LineChart.MAX_NUMBER_OF_VERTICAL_LINES-LineChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
+  }
+
+  /* Métodos */
+  setSpaceBetweenPoints(space_between_points){
+    this.space_between_points = space_between_points;
+
+    if(this.space_between_points < LineChart.MIN_SPACE_BETWEEN_POINTS)
+      this.space_between_points = LineChart.MIN_SPACE_BETWEEN_POINTS;
+  }
+
+  setTextAppearance(text_appearance){
+    this.text_appearance = text_appearance;
+  }
+
+  getChartType(){
+    return 'line';
+  }
+
+  getSpaceBetweenPoints(){
+    return this.space_between_points;
   }
 
   getTextAppearance(){
@@ -1742,61 +1882,15 @@ class BarChart extends Chart{
   getMaxValueChart(){
     return this.max_value_graph;
   }
-}
 
-class LineChart extends Chart{
-  /* Atributos de clase */
-  static MAX_LINECHART_WIDTH = 805;
+  checkWidthLimit(variable_quantities){
+    var result = false;
 
-  static PADDING_LEFT = 50;
-  static PADDING_RIGHT = 10;
-  static PADDING_TOP = 10;
-  static PADDING_BOTTOM = 30;
+    if(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + variable_quantities*this.data_serie.getStructuredDataTags().length
+     + LineChart.PADDING_RIGHT >= Chart.MAX_NORMAL_WIDTH)
+      result = true;
 
-  static LINES_MARGIN = 30;
-  static SPACE_BETWEEN_POINTS = 50;
-  static MAX_SCALE_FACTOR_X = 1.25;
-  static MAX_SCALE_FACTOR_Y = 0.75;
-  static MAX_NUMBER_OF_VERTICAL_LINES = 10;
-  static MIN_NUMBER_OF_VERTICAL_LINES = 1;
-  static VERTICAL_LINES_WIDTH = 5;
-
-  static LETTERS_MARGIN_LEFT = 10;
-  static LETTERS_MARGIN_TOP = 15;
-  static LETTERS_MARGIN_BOTTOM = 5;
-
-  /* Atributos de instancia */
-  constructor(id, data_serie, letter_font, strokeStyle, lineWidth) {
-    super(id, data_serie, letter_font, strokeStyle, lineWidth);
-
-    this.scale_factor_y = ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM) * LineChart.MAX_SCALE_FACTOR_Y)/data_serie.getMaxSerieValue();
-    this.max_value_graph = data_serie.getMaxSerieValue()/LineChart.MAX_SCALE_FACTOR_Y;
-
-    var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
-
-    if(logMaxValue >= 2.0)
-      this.number_of_vertical_lines = LineChart.MAX_NUMBER_OF_VERTICAL_LINES;
-    else if(logMaxValue <= 1.0)
-      this.number_of_vertical_lines = LineChart.MIN_NUMBER_OF_VERTICAL_LINES;
-    else
-      this.number_of_vertical_lines = Math.trunc((LineChart.MAX_NUMBER_OF_VERTICAL_LINES-LineChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
-  }
-
-  /* Métodos */
-  getChartType(){
-    return 'line';
-  }
-
-  getScaleFactorY(){
-    return this.scale_factor_y;
-  }
-
-  getNumberOfVerticalLines(){
-    return this.number_of_vertical_lines;
-  }
-
-  getMaxValueChart(){
-    return this.max_value_graph;
+    return result;
   }
 }
 
