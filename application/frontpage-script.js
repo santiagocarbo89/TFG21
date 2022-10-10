@@ -661,8 +661,8 @@ class CanvasAPIApplication {
         this.ctx.moveTo(x0, y0);
         this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT, y0 - BarChart.THREE_D_Y_DISPLACEMENT);
         this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT + bar_chart.getBarWidth(), y0 - BarChart.THREE_D_Y_DISPLACEMENT);
-        this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT + bar_chart.getBarWidth(), y1);
-        this.ctx.lineTo(x0, y1);
+        this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT + bar_chart.getBarWidth(), y1 - BarChart.THREE_D_Y_DISPLACEMENT);
+        this.ctx.lineTo(x1, y1);
 
         // Sombras
         if(bar_chart.getShadows()){
