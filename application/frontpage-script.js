@@ -573,7 +573,7 @@ class CanvasAPIApplication {
 
       number_tag = bar_chart.getMaxValueChart()*(j/bar_chart.getNumberOfVerticalLines());
 
-      this.ctx.fillText(Math.trunc(number_tag).toString(), BarChart.LETTERS_MARGIN_LEFT, 
+      this.ctx.fillText(number_tag.toFixed(1).toString(), BarChart.LETTERS_MARGIN_LEFT, 
         BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j));
     }
 
@@ -760,7 +760,7 @@ class CanvasAPIApplication {
 
       number_tag = line_chart.getMaxValueChart()*(j/line_chart.getNumberOfVerticalLines());
 
-      this.ctx.fillText(Math.trunc(number_tag).toString(), LineChart.LETTERS_MARGIN_LEFT, 
+      this.ctx.fillText(number_tag.toFixed(1).toString(), LineChart.LETTERS_MARGIN_LEFT, 
         LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j));
     }
 
@@ -1275,8 +1275,26 @@ class DataSerie{
     this.structured_data_values = this.structured_data_values.reverse();
   }
 
-  getMaxSerieValue() {
-    return Math.max.apply(null, this.getStructuredDataValues());
+  getMinSerieValue(){
+    var min = Number.MAX_VALUE;
+
+    for(var i = 0; i < this.getStructuredDataValues().length; i++){
+      if(this.getStructuredDataValues()[i] < min)
+        min = this.getStructuredDataValues()[i];
+    }
+
+    return min;
+  }
+
+  getMaxSerieValue(){
+    var max = 0;
+
+    for(var i = 0; i < this.getStructuredDataValues().length; i++){
+      if(this.getStructuredDataValues()[i] > max)
+        max = this.getStructuredDataValues()[i];
+    }
+
+    return max;
   }
 }
 
@@ -1312,7 +1330,6 @@ class Chart{
     this.transparency = 1.0;
     this.gradient = 0.0;
     this.gradientColor = '#ffffff';
-    this.gradientActivated = false;
     this.threedEffect = false;
     this.text_appearance = 1;
   }
@@ -1658,11 +1675,11 @@ class BarChart extends Chart{
   static PADDING_TOP = 10;
   static PADDING_BOTTOM = 30;
 
+  static MAX_SCALE_FACTOR_Y = 0.75;
+
   static BARS_MARGIN = 7.5;
   static MIN_BAR_WIDTH = 15;
   static MIN_SPACE_BETWEEN_BARS = 5;
-  static MAX_SCALE_FACTOR_X = 1.25;
-  static MAX_SCALE_FACTOR_Y = 0.75;
   static MAX_NUMBER_OF_VERTICAL_LINES = 10;
   static MIN_NUMBER_OF_VERTICAL_LINES = 1;
   static VERTICAL_LINES_WIDTH = 5;
@@ -1677,9 +1694,6 @@ class BarChart extends Chart{
 
   constructor(id, data_serie, letter_value_width, letter_tag_width, letter_height, bar_width) {
     super(id, data_serie, letter_value_width, letter_tag_width, letter_height);
-
-    this.scale_factor_y = ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM) * BarChart.MAX_SCALE_FACTOR_Y)/data_serie.getMaxSerieValue();
-    this.max_value_graph = data_serie.getMaxSerieValue()/BarChart.MAX_SCALE_FACTOR_Y;
     
     this.bar_width = bar_width;
 
@@ -1697,6 +1711,10 @@ class BarChart extends Chart{
       this.number_of_vertical_lines = BarChart.MIN_NUMBER_OF_VERTICAL_LINES;
     else
       this.number_of_vertical_lines = Math.trunc((BarChart.MAX_NUMBER_OF_VERTICAL_LINES-BarChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
+
+      this.scale_factor_y = ((((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM) * BarChart.MAX_SCALE_FACTOR_Y)/data_serie.getMaxSerieValue()));
+      
+      this.max_value_graph = ((((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM))/this.scale_factor_y)/this.number_of_vertical_lines)*this.number_of_vertical_lines;
   }
 
   setSpaceBetweenBars(space_between_bars){
@@ -1764,10 +1782,10 @@ class LineChart extends Chart{
   static PADDING_TOP = 10;
   static PADDING_BOTTOM = 30;
 
+  static MAX_SCALE_FACTOR_Y = 0.75;
+
   static LINES_MARGIN = 30;
   static MIN_SPACE_BETWEEN_POINTS = 20;
-  static MAX_SCALE_FACTOR_X = 1.25;
-  static MAX_SCALE_FACTOR_Y = 0.75;
   static MAX_NUMBER_OF_VERTICAL_LINES = 10;
   static MIN_NUMBER_OF_VERTICAL_LINES = 1;
   static VERTICAL_LINES_WIDTH = 5;
@@ -1780,9 +1798,6 @@ class LineChart extends Chart{
   constructor(id, data_serie, letter_value_width, letter_tag_width, letter_height) {
     super(id, data_serie, letter_value_width, letter_tag_width, letter_height);
 
-    this.scale_factor_y = ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM) * LineChart.MAX_SCALE_FACTOR_Y)/data_serie.getMaxSerieValue();
-    this.max_value_graph = data_serie.getMaxSerieValue()/LineChart.MAX_SCALE_FACTOR_Y;
-
     this.space_between_points = 50;
     this.text_appearance = 1;
 
@@ -1794,6 +1809,10 @@ class LineChart extends Chart{
       this.number_of_vertical_lines = LineChart.MIN_NUMBER_OF_VERTICAL_LINES;
     else
       this.number_of_vertical_lines = Math.trunc((LineChart.MAX_NUMBER_OF_VERTICAL_LINES-LineChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
+  
+      this.scale_factor_y = ((((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM) * LineChart.MAX_SCALE_FACTOR_Y)/data_serie.getMaxSerieValue()));
+      
+      this.max_value_graph = ((((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM))/this.scale_factor_y)/this.number_of_vertical_lines)*this.number_of_vertical_lines;
   }
 
   setSpaceBetweenPoints(space_between_points){
@@ -1866,6 +1885,8 @@ class PieChart extends Chart{
 
   constructor(id, data_serie, letter_font, strokeStyle, lineWidth) {
     super(id, data_serie, letter_font, strokeStyle, lineWidth);
+  
+    this.gradientActivated = false;
   }
 
   getChartType(){
