@@ -55,7 +55,7 @@ nav li:hover {
 
 body{
     /* Colores */
-   background-color: rgb(212, 255, 216); 
+   background-color: #d4ffd8; 
 }
 
 .main{
@@ -81,7 +81,7 @@ aside{
     padding-right: 2%;
 
     /* Colores */
-    background-color: beige;
+    background-color: #f5f5dc;
 }
 
 /* SECCIÓN DE 'GRÁFICAS' */
@@ -142,7 +142,7 @@ aside{
     padding: 2%;
 
     /* Colores */
-    background-color: rgb(214, 237, 216);
+    background-color: #d6edd8;
 
     /* Otros */
     border-radius: 15px;
@@ -227,7 +227,7 @@ aside{
     padding: 1%;
 
     /* Colores */
-    background-color: rgb(234, 184, 184);
+    background-color: #eab8b8;
 
     /* Otros */
     border-radius: 15px;
