@@ -552,10 +552,10 @@ class CanvasAPIApplication {
       
       this.ctx.beginPath();
       this.ctx.moveTo(BarChart.PADDING_LEFT - BarChart.VERTICAL_LINES_WIDTH,
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j));
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
 
       this.ctx.lineTo(BarChart.PADDING_LEFT, 
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j));
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
 
       this.ctx.stroke();
 
@@ -564,17 +564,17 @@ class CanvasAPIApplication {
 
       this.ctx.beginPath();
       this.ctx.moveTo(BarChart.PADDING_LEFT, 
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j));
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
   
       this.ctx.lineTo(Chart.MAX_NORMAL_WIDTH - BarChart.PADDING_RIGHT,
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j));
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
 
       this.ctx.stroke();
 
-      number_tag = bar_chart.getMaxValueChart()*(j/bar_chart.getNumberOfVerticalLines());
+      number_tag = bar_chart.getMaxValueChart()*(j/(bar_chart.getNumberOfVerticalLines() - 1));
 
-      this.ctx.fillText(number_tag.toFixed(1).toString(), BarChart.LETTERS_MARGIN_LEFT, 
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/bar_chart.getNumberOfVerticalLines())*(bar_chart.getNumberOfVerticalLines()-j));
+      this.ctx.fillText(number_tag.toString(), BarChart.LETTERS_MARGIN_LEFT, 
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
     }
 
     bar_chart.setStrokeStyle('black');
@@ -1712,9 +1712,8 @@ class BarChart extends Chart{
     else
       this.number_of_vertical_lines = Math.trunc((BarChart.MAX_NUMBER_OF_VERTICAL_LINES-BarChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
 
-      this.scale_factor_y = ((((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM) * BarChart.MAX_SCALE_FACTOR_Y)/data_serie.getMaxSerieValue()));
-      
-      this.max_value_graph = ((((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM))/this.scale_factor_y)/this.number_of_vertical_lines)*this.number_of_vertical_lines;
+    this.max_value_graph = Math.ceil(data_serie.getMaxSerieValue()/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
+    this.scale_factor_y = (Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/this.max_value_graph;
   }
 
   setSpaceBetweenBars(space_between_bars){
