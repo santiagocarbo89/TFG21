@@ -642,7 +642,7 @@ class CanvasAPIApplication {
       var keep_optimizing_letter_appearance = true;
 
       while(keep_optimizing_letter_appearance){
-        if((bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*bar_chart.getTextAppearance() < (Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth()) + BarChart.SPACE_BETWEEN_LETTERS)){
+        if((bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*bar_chart.getTextAppearance() < 2*Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth())){
           aux_modifications = bar_chart.getTextAppearance() + 1;
           bar_chart.setTextAppearance(aux_modifications);
         } else
@@ -828,7 +828,7 @@ class CanvasAPIApplication {
       var keep_optimizing_letter_appearance = true;
 
       while(keep_optimizing_letter_appearance){
-        if(line_chart.getSpaceBetweenPoints()*line_chart.getTextAppearance() < (Math.max(line_chart.getLetterTagWidth(), line_chart.getLetterValueWidth()) + LineChart.SPACE_BETWEEN_LETTERS)){
+        if(line_chart.getSpaceBetweenPoints()*line_chart.getTextAppearance() < 2*Math.max(line_chart.getLetterTagWidth(), line_chart.getLetterValueWidth())){
           aux_modifications = line_chart.getTextAppearance() + 1;
           line_chart.setTextAppearance(aux_modifications);
         } else
@@ -1704,7 +1704,6 @@ class BarChart extends Chart{
   static LETTERS_MARGIN_LEFT = 10;
   static LETTERS_MARGIN_TOP = 15;
   static LETTERS_MARGIN_BOTTOM = 5;
-  static SPACE_BETWEEN_LETTERS = 15;
 
   static THREE_D_X_DISPLACEMENT = 15;
   static THREE_D_Y_DISPLACEMENT = 10;
@@ -1792,7 +1791,7 @@ class LineChart extends Chart{
   static STANDARDIZE_SCALE_FACTOR = 1.25;
 
   static LINES_MARGIN = 30;
-  static MIN_SPACE_BETWEEN_POINTS = 20;
+  static MIN_SPACE_BETWEEN_POINTS = 15;
   static MAX_NUMBER_OF_VERTICAL_LINES = 10;
   static MIN_NUMBER_OF_VERTICAL_LINES = 1;
   static VERTICAL_LINES_WIDTH = 5;
@@ -1800,7 +1799,6 @@ class LineChart extends Chart{
   static LETTERS_MARGIN_LEFT = 10;
   static LETTERS_MARGIN_TOP = 15;
   static LETTERS_MARGIN_BOTTOM = 5;
-  static SPACE_BETWEEN_LETTERS = 15;
 
   constructor(id, data_serie, letter_value_width, letter_tag_width, letter_height) {
     super(id, data_serie, letter_value_width, letter_tag_width, letter_height);
