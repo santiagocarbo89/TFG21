@@ -739,10 +739,10 @@ class CanvasAPIApplication {
       
       this.ctx.beginPath();
       this.ctx.moveTo(LineChart.PADDING_LEFT - LineChart.VERTICAL_LINES_WIDTH,
-        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j));
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*(line_chart.getNumberOfVerticalLines() - j - 1));
 
-      this.ctx.lineTo(LineChart.PADDING_LEFT, 
-        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j));
+      this.ctx.lineTo(BarChart.PADDING_LEFT, 
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*(line_chart.getNumberOfVerticalLines() - j - 1));
 
       this.ctx.stroke();
 
@@ -751,17 +751,17 @@ class CanvasAPIApplication {
 
       this.ctx.beginPath();
       this.ctx.moveTo(LineChart.PADDING_LEFT, 
-        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j));
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*(line_chart.getNumberOfVerticalLines() - j - 1));
   
-      this.ctx.lineTo(LineChart.MAX_LINECHART_WIDTH - LineChart.PADDING_RIGHT,
-        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j));
+      this.ctx.lineTo(Chart.MAX_NORMAL_WIDTH - LineChart.PADDING_RIGHT,
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*(line_chart.getNumberOfVerticalLines() - j - 1));
 
       this.ctx.stroke();
 
-      number_tag = line_chart.getMaxValueChart()*(j/line_chart.getNumberOfVerticalLines());
+      number_tag = line_chart.getMaxValueChart()*(j/(line_chart.getNumberOfVerticalLines() - 1));
 
-      this.ctx.fillText(number_tag.toFixed(1).toString(), LineChart.LETTERS_MARGIN_LEFT, 
-        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/line_chart.getNumberOfVerticalLines())*(line_chart.getNumberOfVerticalLines()-j));
+      this.ctx.fillText(number_tag.toString(), LineChart.LETTERS_MARGIN_LEFT, 
+        LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*(line_chart.getNumberOfVerticalLines() - j - 1));
     }
 
     line_chart.setStrokeStyle('black');
@@ -1675,8 +1675,6 @@ class BarChart extends Chart{
   static PADDING_TOP = 10;
   static PADDING_BOTTOM = 30;
 
-  static MAX_SCALE_FACTOR_Y = 0.75;
-
   static BARS_MARGIN = 7.5;
   static MIN_BAR_WIDTH = 15;
   static MIN_SPACE_BETWEEN_BARS = 5;
@@ -1781,8 +1779,6 @@ class LineChart extends Chart{
   static PADDING_TOP = 10;
   static PADDING_BOTTOM = 30;
 
-  static MAX_SCALE_FACTOR_Y = 0.75;
-
   static LINES_MARGIN = 30;
   static MIN_SPACE_BETWEEN_POINTS = 20;
   static MAX_NUMBER_OF_VERTICAL_LINES = 10;
@@ -1809,9 +1805,8 @@ class LineChart extends Chart{
     else
       this.number_of_vertical_lines = Math.trunc((LineChart.MAX_NUMBER_OF_VERTICAL_LINES-LineChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
   
-      this.scale_factor_y = ((((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM) * LineChart.MAX_SCALE_FACTOR_Y)/data_serie.getMaxSerieValue()));
-      
-      this.max_value_graph = ((((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM))/this.scale_factor_y)/this.number_of_vertical_lines)*this.number_of_vertical_lines;
+    this.max_value_graph = Math.ceil(data_serie.getMaxSerieValue()/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
+    this.scale_factor_y = (Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/this.max_value_graph;
   }
 
   setSpaceBetweenPoints(space_between_points){
