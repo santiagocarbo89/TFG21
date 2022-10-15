@@ -1,6 +1,5 @@
 class CanvasAPIApplication {
   static HEIGHT_PIXELS = 15;
-  static CORRECTOR_WIDTH = 1.5;
 
   constructor(){
     this.canvas;
@@ -131,6 +130,7 @@ class CanvasAPIApplication {
 
     if(submit_serie){
       var file = this.fileReader.result;
+      document.getElementById("insert-file").value = "";
       var data_series = document.getElementById("data-series");
 
       if(data_series === null)
@@ -215,6 +215,28 @@ class CanvasAPIApplication {
       document.getElementById("data-series").remove();
   }
 
+  longestValueText(chart_data){
+    var max = 0;
+
+    for(var i = 0; i < chart_data.getStructuredDataValues().length; i++){
+      if(this.ctx.measureText(chart_data.getStructuredDataValues()[i]).width > max)
+        max = this.ctx.measureText(chart_data.getStructuredDataValues()[i]).width;
+    }
+
+    return max;
+  }
+
+  longestTagText(chart_data){
+    var max = 0;
+
+    for(var i = 0; i < chart_data.getStructuredDataTags().length; i++){
+      if(this.ctx.measureText(chart_data.getStructuredDataTags()[i]).width > max)
+        max = this.ctx.measureText(chart_data.getStructuredDataTags()[i]).width;
+    }
+
+    return max;
+  }
+
   submitChart(){
     var select_data_serie = document.getElementById("select-data-serie");
     var select_chart_type = document.getElementById("select-chart-type");
@@ -244,11 +266,11 @@ class CanvasAPIApplication {
         }
       }
 
-      var value_width = this.ctx.measureText(chart_data.getMaxSerieValue().toString()).width;
-      var tag_width = this.ctx.measureText(chart_data.getStructuredDataTags()[0]).width;
+      var value_width = this.longestValueText(chart_data);
+      var tag_width = this.longestTagText(chart_data);
 
       if(select_chart_type.value == "bar"){
-        var bar_width = CanvasAPIApplication.CORRECTOR_WIDTH*Math.max(value_width, tag_width);
+        var bar_width = Math.max(value_width, tag_width);
 
         var bar_chart = new BarChart(this.bar_chart_next_id++, chart_data, value_width, tag_width, CanvasAPIApplication.HEIGHT_PIXELS, bar_width);
 
@@ -589,20 +611,16 @@ class CanvasAPIApplication {
     if(bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())){
 
       var aux_modifications;
-      var keep_optimizing_bars = true;
+      var keep_optimizing_space = true;
 
-      while(keep_optimizing_bars){
+      while(keep_optimizing_space){
 
-        if((bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars()) 
-          > (BarChart.MIN_BAR_WIDTH + BarChart.MIN_SPACE_BETWEEN_BARS)
+        if(bar_chart.getSpaceBetweenBars() > 0.0
             && bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())){        
           aux_modifications = bar_chart.getSpaceBetweenBars() - 0.1;
           bar_chart.setSpaceBetweenBars(aux_modifications);
-
-          aux_modifications = bar_chart.getBarWidth() - 0.1;
-          bar_chart.setBarWidth(aux_modifications);
         } else
-          keep_optimizing_bars = false;
+          keep_optimizing_space = false;
       }
   
       var keep_optimizing_letters = true;
@@ -616,6 +634,7 @@ class CanvasAPIApplication {
           this.ctx.font = bar_chart.getLetterHeight() + "px " + bar_chart.getLetterFont();
           bar_chart.setLetterValueWidth(this.ctx.measureText(data_serie.getMaxSerieValue().toString()).width);
           bar_chart.setLetterTagWidth(this.ctx.measureText(data_serie.getStructuredDataTags()[0]).width);
+          bar_chart.setBarWidth(Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth()));
         } else
           keep_optimizing_letters = false;
       }
@@ -998,36 +1017,36 @@ class CanvasAPIApplication {
   }
 
   barChartIdFromDataSerie(data_serie_id){
-    var bar_id = null;
-
+    var bar_i = null;
+    
     for(var i = 0; i < this.bar_charts.length; i++){
-      if(this.bar_charts[i].getDataSerie().getId() == data_serie_id)
-        bar_id = this.bar_charts[i].getId();
+      if(this.bar_charts[i].getDataSerie().getId().toString() == data_serie_id)
+        bar_i = i;
     }
 
-    return bar_id;
+    return bar_i;
   }
 
   lineChartIdFromDataSerie(data_serie_id){
-    var line_id = null;
+    var line_i = null;
 
     for(var i = 0; i < this.line_charts.length; i++){
       if(this.line_charts[i].getDataSerie().getId() == data_serie_id)
-        line_id = this.line_charts[i].getId();
+        line_i = i;
     }
 
-    return line_id;
+    return line_i;
   }
 
   pieChartIdFromDataSerie(data_serie_id){
-    var pie_id = null;
+    var pie_i = null;
 
     for(var i = 0; i < this.pie_charts.length; i++){
       if(this.pie_charts[i].getDataSerie().getId() == data_serie_id)
-        pie_id = this.pie_charts[i].getId();
+        pie_i = i;
     }
 
-    return pie_id;
+    return pie_i;
   }
   
   changeLineWidthBarChart(id, value){
@@ -1290,8 +1309,8 @@ class DataSerie{
     var max = 0;
 
     for(var i = 0; i < this.getStructuredDataValues().length; i++){
-      if(this.getStructuredDataValues()[i] > max)
-        max = this.getStructuredDataValues()[i];
+      if(parseInt(this.getStructuredDataValues()[i], 10) > max)
+        max = parseInt(this.getStructuredDataValues()[i], 10);
     }
 
     return max;
@@ -1672,14 +1691,14 @@ class Chart{
 class BarChart extends Chart{
   static PADDING_LEFT = 50;
   static PADDING_RIGHT = 10;
-  static PADDING_TOP = 10;
+  static PADDING_TOP = 30;
   static PADDING_BOTTOM = 30;
 
+  static STANDARDIZE_SCALE_FACTOR = 1.25;
+
   static BARS_MARGIN = 7.5;
-  static MIN_BAR_WIDTH = 15;
-  static MIN_SPACE_BETWEEN_BARS = 5;
   static MAX_NUMBER_OF_VERTICAL_LINES = 10;
-  static MIN_NUMBER_OF_VERTICAL_LINES = 1;
+  static MIN_NUMBER_OF_VERTICAL_LINES = 2;
   static VERTICAL_LINES_WIDTH = 5;
 
   static LETTERS_MARGIN_LEFT = 10;
@@ -1695,9 +1714,6 @@ class BarChart extends Chart{
     
     this.bar_width = bar_width;
 
-    if(this.bar_width < BarChart.MIN_BAR_WIDTH)
-      this.bar_width = BarChart.MIN_BAR_WIDTH;
-
     this.space_between_bars = 20;
     this.text_appearance = 1;
 
@@ -1710,22 +1726,16 @@ class BarChart extends Chart{
     else
       this.number_of_vertical_lines = Math.trunc((BarChart.MAX_NUMBER_OF_VERTICAL_LINES-BarChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
 
-    this.max_value_graph = Math.ceil(data_serie.getMaxSerieValue()/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
+    this.max_value_graph = Math.ceil((data_serie.getMaxSerieValue()*BarChart.STANDARDIZE_SCALE_FACTOR)/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
     this.scale_factor_y = (Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/this.max_value_graph;
   }
 
   setSpaceBetweenBars(space_between_bars){
     this.space_between_bars = space_between_bars;
-
-    if(this.space_between_bars < BarChart.MIN_SPACE_BETWEEN_BARS)
-      this.space_between_bars = BarChart.MIN_SPACE_BETWEEN_BARS;
   }
 
   setBarWidth(bar_width){
     this.bar_width = bar_width;
-
-    if(this.bar_width < BarChart.MIN_BAR_WIDTH)
-      this.bar_width = BarChart.MIN_BAR_WIDTH;
   }
 
   setTextAppearance(text_appearance){
@@ -1776,8 +1786,10 @@ class LineChart extends Chart{
 
   static PADDING_LEFT = 50;
   static PADDING_RIGHT = 10;
-  static PADDING_TOP = 10;
+  static PADDING_TOP = 30;
   static PADDING_BOTTOM = 30;
+
+  static STANDARDIZE_SCALE_FACTOR = 1.25;
 
   static LINES_MARGIN = 30;
   static MIN_SPACE_BETWEEN_POINTS = 20;
@@ -1805,7 +1817,7 @@ class LineChart extends Chart{
     else
       this.number_of_vertical_lines = Math.trunc((LineChart.MAX_NUMBER_OF_VERTICAL_LINES-LineChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
   
-    this.max_value_graph = Math.ceil(data_serie.getMaxSerieValue()/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
+    this.max_value_graph = Math.ceil((data_serie.getMaxSerieValue()*LineChart.STANDARDIZE_SCALE_FACTOR)/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
     this.scale_factor_y = (Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/this.max_value_graph;
   }
 
@@ -1859,7 +1871,7 @@ class LineChart extends Chart{
 class PieChart extends Chart{
   static PADDING_LEFT = 50;
   static PADDING_RIGHT = 10;
-  static PADDING_TOP = 10;
+  static PADDING_TOP = 30;
   static PADDING_BOTTOM = 30;
 
   static X_CENTER = 300;
