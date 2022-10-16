@@ -1,5 +1,7 @@
 class CanvasAPIApplication {
   static HEIGHT_PIXELS = 15;
+  static MAX_VALUE_WIDTH = 30;
+  static MAX_TAG_WIDTH = 30;
 
   constructor(){
     this.canvas;
@@ -215,28 +217,6 @@ class CanvasAPIApplication {
       document.getElementById("data-series").remove();
   }
 
-  longestValueText(chart_data){
-    var max = 0;
-
-    for(var i = 0; i < chart_data.getStructuredDataValues().length; i++){
-      if(this.ctx.measureText(chart_data.getStructuredDataValues()[i]).width > max)
-        max = this.ctx.measureText(chart_data.getStructuredDataValues()[i]).width;
-    }
-
-    return max;
-  }
-
-  longestTagText(chart_data){
-    var max = 0;
-
-    for(var i = 0; i < chart_data.getStructuredDataTags().length; i++){
-      if(this.ctx.measureText(chart_data.getStructuredDataTags()[i]).width > max)
-        max = this.ctx.measureText(chart_data.getStructuredDataTags()[i]).width;
-    }
-
-    return max;
-  }
-
   submitChart(){
     var select_data_serie = document.getElementById("select-data-serie");
     var select_chart_type = document.getElementById("select-chart-type");
@@ -266,13 +246,11 @@ class CanvasAPIApplication {
         }
       }
 
-      var value_width = this.longestValueText(chart_data);
-      var tag_width = this.longestTagText(chart_data);
-
       if(select_chart_type.value == "bar"){
-        var bar_width = Math.max(value_width, tag_width);
+        var bar_width = Math.max(CanvasAPIApplication.MAX_VALUE_WIDTH, CanvasAPIApplication.MAX_TAG_WIDTH);
 
-        var bar_chart = new BarChart(this.bar_chart_next_id++, chart_data, value_width, tag_width, CanvasAPIApplication.HEIGHT_PIXELS, bar_width);
+        var bar_chart = new BarChart(this.bar_chart_next_id++, chart_data, 
+          CanvasAPIApplication.MAX_VALUE_WIDTH, CanvasAPIApplication.MAX_TAG_WIDTH, CanvasAPIApplication.HEIGHT_PIXELS, bar_width);
 
         bar_chart.setColors();
 
@@ -289,7 +267,8 @@ class CanvasAPIApplication {
           alert("La gráfica seleccionada ya existe.");
         
       } else if(select_chart_type.value == "line"){
-        var line_chart = new LineChart(this.line_chart_next_id++, chart_data, value_width, tag_width, CanvasAPIApplication.HEIGHT_PIXELS);
+        var line_chart = new LineChart(this.line_chart_next_id++, chart_data, 
+          CanvasAPIApplication.MAX_VALUE_WIDTH, CanvasAPIApplication.MAX_TAG_WIDTH, CanvasAPIApplication.HEIGHT_PIXELS);
 
         if(!same_option){
           this.line_charts.push(line_chart);
@@ -622,6 +601,19 @@ class CanvasAPIApplication {
         } else
           keep_optimizing_space = false;
       }
+
+      var keep_optimizing_bar_width = true;
+      var min_bar_width = 3*bar_chart.getBarWidth()/4;
+
+      while(keep_optimizing_bar_width){
+
+        if(bar_chart.getBarWidth() > min_bar_width
+            && bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())){        
+              aux_modifications = bar_chart.getBarWidth() - 0.1;
+              bar_chart.setBarWidth(aux_modifications);
+        } else
+          keep_optimizing_bar_width = false;
+      }
   
       var keep_optimizing_letters = true;
 
@@ -642,7 +634,7 @@ class CanvasAPIApplication {
       var keep_optimizing_letter_appearance = true;
 
       while(keep_optimizing_letter_appearance){
-        if((bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*bar_chart.getTextAppearance() < 2*Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth())){
+        if((bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*bar_chart.getTextAppearance() < Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth())){
           aux_modifications = bar_chart.getTextAppearance() + 1;
           bar_chart.setTextAppearance(aux_modifications);
         } else
@@ -1793,7 +1785,7 @@ class LineChart extends Chart{
   static LINES_MARGIN = 30;
   static MIN_SPACE_BETWEEN_POINTS = 15;
   static MAX_NUMBER_OF_VERTICAL_LINES = 10;
-  static MIN_NUMBER_OF_VERTICAL_LINES = 1;
+  static MIN_NUMBER_OF_VERTICAL_LINES = 2;
   static VERTICAL_LINES_WIDTH = 5;
 
   static LETTERS_MARGIN_LEFT = 10;
