@@ -537,9 +537,9 @@ class APICanvasApplication {
     for(var j = 0; j < bar_chart.getNumberOfVerticalLines(); j++){
 
       if(bar_chart.getScale() == "linear")
-        number_tag = bar_chart.getMaxValueChart()*(j/(bar_chart.getNumberOfVerticalLines() - 1));
+        number_tag = bar_chart.getMaxValueLinearChart()*(j/(bar_chart.getNumberOfVerticalLines() - 1));
       else if(bar_chart.getScale() == "logarithmic"){
-        number_tag =  ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)*(j/(bar_chart.getNumberOfVerticalLines() - 1)))/(bar_chart.getLogarithmicScaleFactor(bar_chart.getMaxValueChart()*(j/(bar_chart.getNumberOfVerticalLines() - 1))));
+        number_tag = (bar_chart.getMaxValueLogarithmicChart()*Math.log(((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)*(j/(bar_chart.getNumberOfVerticalLines() - 1))) + Math.exp(BarChart.LOG_MARGIN)))/Math.log(Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM);
         number_tag = number_tag.toFixed(1);
       }
 
@@ -648,7 +648,7 @@ class APICanvasApplication {
       if(bar_chart.getScale() == "linear")
         var y0 = Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getLinearScaleFactor()*value;
       else if(bar_chart.getScale() == "logarithmic")
-        var y0 = Chart.HEIGHT - BarChart.PADDING_BOTTOM - value*bar_chart.getLogarithmicScaleFactor(value);
+        var y0 = Chart.HEIGHT - BarChart.PADDING_BOTTOM - Math.exp(BarChart.LOG_MARGIN + bar_chart.getLogarithmicScaleFactor()*value);
 
 
       var x1 = x0 + bar_chart.getBarWidth();
@@ -656,7 +656,7 @@ class APICanvasApplication {
       if(bar_chart.getScale() == "linear")
         var y1 = y0 + bar_chart.getLinearScaleFactor()*value;
       else if(bar_chart.getScale() == "logarithmic")
-        var y1 = y0 + value*bar_chart.getLogarithmicScaleFactor(value);
+        var y1 = y0 + Math.exp(BarChart.LOG_MARGIN + bar_chart.getLogarithmicScaleFactor()*value);
 
       var gradient = this.ctx.createLinearGradient(x0, y0, x1, y1)
       gradient.addColorStop(1 - bar_chart.getGradient(), bar_chart.getColors()[j]);
@@ -703,7 +703,7 @@ class APICanvasApplication {
       if(bar_chart.getScale() == "linear")
         this.ctx.fillRect(x0, y0, bar_chart.getBarWidth(), bar_chart.getLinearScaleFactor()*value);
       else if(bar_chart.getScale() == "logarithmic")
-        this.ctx.fillRect(x0, y0, bar_chart.getBarWidth(), value*bar_chart.getLogarithmicScaleFactor(value));
+        this.ctx.fillRect(x0, y0, bar_chart.getBarWidth(), Math.exp(BarChart.LOG_MARGIN + bar_chart.getLogarithmicScaleFactor()*value));
 
       if(bar_chart.getShadows() && !bar_chart.getThreedEffect()){
         this.ctx.shadowOffsetX = 0;
@@ -714,7 +714,7 @@ class APICanvasApplication {
       if(bar_chart.getScale() == "linear")
         this.ctx.strokeRect(x0, y0, bar_chart.getBarWidth(), bar_chart.getLinearScaleFactor()*value);
       else if(bar_chart.getScale() == "logarithmic")
-        this.ctx.strokeRect(x0, y0, bar_chart.getBarWidth(), value*bar_chart.getLogarithmicScaleFactor(value));
+        this.ctx.strokeRect(x0, y0, bar_chart.getBarWidth(), Math.exp(BarChart.LOG_MARGIN + bar_chart.getLogarithmicScaleFactor()*value));
     }
 
     this.ctx.fillStyle = "black";
@@ -736,7 +736,7 @@ class APICanvasApplication {
           } else if(bar_chart.getScale() == "logarithmic"){
             this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
               (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*j + BarChart.THREE_D_X_DISPLACEMENT, 
-                Chart.HEIGHT - BarChart.PADDING_BOTTOM - data_serie.getStructuredDataValues()[j]*bar_chart.getLogarithmicScaleFactor(data_serie.getStructuredDataValues()[j]) - BarChart.LETTERS_MARGIN_BOTTOM - BarChart.THREE_D_Y_DISPLACEMENT);
+                Chart.HEIGHT - BarChart.PADDING_BOTTOM - Math.exp(BarChart.LOG_MARGIN + bar_chart.getLogarithmicScaleFactor()*data_serie.getStructuredDataValues()[j]) - BarChart.LETTERS_MARGIN_BOTTOM - BarChart.THREE_D_Y_DISPLACEMENT);
           }
         } else {
           if(bar_chart.getScale() == "linear"){
@@ -746,7 +746,7 @@ class APICanvasApplication {
           } else if(bar_chart.getScale() == "logarithmic"){
             this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
               (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*j, 
-                Chart.HEIGHT - BarChart.PADDING_BOTTOM - data_serie.getStructuredDataValues()[j]*bar_chart.getLogarithmicScaleFactor(data_serie.getStructuredDataValues()[j]) - BarChart.LETTERS_MARGIN_BOTTOM);
+                Chart.HEIGHT - BarChart.PADDING_BOTTOM - Math.exp(BarChart.LOG_MARGIN + bar_chart.getLogarithmicScaleFactor()*data_serie.getStructuredDataValues()[j]) - BarChart.LETTERS_MARGIN_BOTTOM);
           }
         }
       }
@@ -1709,6 +1709,7 @@ class BarChart extends Chart{
   static PADDING_RIGHT = 10;
   static PADDING_TOP = 30;
   static PADDING_BOTTOM = 30;
+  static LOG_MARGIN = Math.log(1);
 
   static MAX_NUMBER_OF_DIGITS = 5;
 
@@ -1750,17 +1751,17 @@ class BarChart extends Chart{
     else
       this.number_of_vertical_lines = Math.trunc((BarChart.MAX_NUMBER_OF_VERTICAL_LINES-BarChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
 
-    //*BarChart.STANDARDIZE_SCALE_FACTOR
-    this.max_value_graph = Math.ceil((data_serie.getMaxSerieValue())/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
-    this.linear_scale_factor = ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/this.max_value_graph);
-  }
+    this.max_value_linear_graph = Math.ceil((data_serie.getMaxSerieValue()*BarChart.STANDARDIZE_SCALE_FACTOR)/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
+    this.max_value_logarithmic_graph = Math.ceil(this.data_serie.getMaxSerieValue()/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
 
-  getLogarithmicScaleFactor(value){
-    return ((Math.log(this.max_value_graph)/Math.log(value))*(Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM))/this.max_value_graph;
-  }
+    if(this.max_value_linear_graph == 0)
+      this.max_value_linear_graph = 1;
 
-  numberFromLogarithmicScale(logarithmic_scale){
-    return Math.exp(((Math.log(this.max_value_graph)/logarithmic_scale)*(Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM))/this.max_value_graph);
+    if(this.max_value_logarithmic_graph == 0)
+      this.max_value_logarithmic_graph = 1;
+    
+    this.linear_scale_factor = (Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/this.max_value_linear_graph;
+    this.logarithmic_scale_factor = (Math.log(Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM) - BarChart.LOG_MARGIN)/this.max_value_logarithmic_graph;
   }
 
   setScale(value){
@@ -1811,12 +1812,20 @@ class BarChart extends Chart{
     return this.linear_scale_factor;
   }
 
+  getLogarithmicScaleFactor(){
+    return this.logarithmic_scale_factor;
+  }
+
   getNumberOfVerticalLines(){
     return this.number_of_vertical_lines;
   }
 
-  getMaxValueChart(){
-    return this.max_value_graph;
+  getMaxValueLinearChart(){
+    return this.max_value_linear_graph;
+  }
+
+  getMaxValueLogarithmicChart(){
+    return this.max_value_logarithmic_graph;
   }
 
   checkWidthLimit(variable_quantities){
