@@ -775,7 +775,12 @@ class APICanvasApplication {
 
     for(var j = 0; j < line_chart.getNumberOfVerticalLines(); j++){
 
-      number_tag = line_chart.getMaxValueChart()*(j/(line_chart.getNumberOfVerticalLines() - 1));
+      if(line_chart.getScale() == "linear")
+        number_tag = line_chart.getMaxValueLinearChart()*(j/(line_chart.getNumberOfVerticalLines() - 1));
+      else if(line_chart.getScale() == "logarithmic"){
+        number_tag = (line_chart.getMaxValueLogarithmicChart()*Math.log(((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)*(j/(line_chart.getNumberOfVerticalLines() - 1))) + Math.exp(LineChart.LOG_MARGIN)))/Math.log(Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM);
+        number_tag = number_tag.toFixed(1);
+      }
       
       if(number_tag.toString().length <= LineChart.MAX_NUMBER_OF_DIGITS){
         line_chart.setStrokeStyle('black');
@@ -863,8 +868,14 @@ class APICanvasApplication {
     }
 
     this.ctx.beginPath();
-    this.ctx.moveTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN, 
-      Chart.HEIGHT - LineChart.PADDING_BOTTOM - data_serie.getStructuredDataValues()[0]*line_chart.getLinearScaleFactor());
+    
+    if(line_chart.getScale() == "linear"){
+      this.ctx.moveTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN, 
+        Chart.HEIGHT - LineChart.PADDING_BOTTOM - data_serie.getStructuredDataValues()[0]*line_chart.getLinearScaleFactor());
+    } else if(line_chart.getScale() == "logarithmic"){
+      this.ctx.moveTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN, 
+        Chart.HEIGHT - LineChart.PADDING_BOTTOM - Math.exp(LineChart.LOG_MARGIN + data_serie.getStructuredDataValues()[0]*line_chart.getLogarithmicScaleFactor()));
+    }
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var value = data_serie.getStructuredDataValues()[j];
@@ -883,8 +894,13 @@ class APICanvasApplication {
       line_chart.setStrokeStyle("hsl(7, 0%, 30%)");
       this.ctx.strokeStyle = line_chart.getStrokeStyle();
 
-      this.ctx.lineTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + line_chart.getSpaceBetweenPoints()*j, 
-        Chart.HEIGHT - LineChart.PADDING_BOTTOM - value*line_chart.getLinearScaleFactor());
+      if(line_chart.getScale() == "linear"){
+        this.ctx.lineTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + line_chart.getSpaceBetweenPoints()*j, 
+          Chart.HEIGHT - LineChart.PADDING_BOTTOM - value*line_chart.getLinearScaleFactor());
+      } else if(line_chart.getScale() == "logarithmic"){
+        this.ctx.lineTo(LineChart.PADDING_LEFT + LineChart.LINES_MARGIN + line_chart.getSpaceBetweenPoints()*j, 
+          Chart.HEIGHT - LineChart.PADDING_BOTTOM - Math.exp(LineChart.LOG_MARGIN + value*line_chart.getLogarithmicScaleFactor()));
+      }
     }
 
     this.ctx.stroke();
@@ -905,9 +921,15 @@ class APICanvasApplication {
       }
 
       if(data_serie.getStructuredDataValues()[j].length <= LineChart.MAX_NUMBER_OF_DIGITS){
-        this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
-          (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + line_chart.getSpaceBetweenPoints()*j, 
-            Chart.HEIGHT - LineChart.PADDING_BOTTOM - line_chart.getLinearScaleFactor()*data_serie.getStructuredDataValues()[j] - LineChart.LETTERS_MARGIN_BOTTOM);
+        if(line_chart.getScale() == "linear"){
+          this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+            (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + line_chart.getSpaceBetweenPoints()*j, 
+              Chart.HEIGHT - LineChart.PADDING_BOTTOM - line_chart.getLinearScaleFactor()*data_serie.getStructuredDataValues()[j] - LineChart.LETTERS_MARGIN_BOTTOM);
+        } else if(line_chart.getScale() == "logarithmic"){
+          this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+            (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + line_chart.getSpaceBetweenPoints()*j, 
+              Chart.HEIGHT - LineChart.PADDING_BOTTOM - Math.exp(LineChart.LOG_MARGIN + line_chart.getLogarithmicScaleFactor()*data_serie.getStructuredDataValues()[j]) - LineChart.LETTERS_MARGIN_BOTTOM);
+        }
       }
     }
   }
@@ -949,6 +971,8 @@ class APICanvasApplication {
       var center_x = PieChart.X_CENTER;
 
     this.ctx.beginPath();
+
+    this.ctx.fillStyle = "white";
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
@@ -1038,7 +1062,7 @@ class APICanvasApplication {
         }
 
         if(data_serie.getStructuredDataValues()[j].length <= PieChart.MAX_NUMBER_OF_DIGITS
-          && currentAngle > PieChart.MIN_ANGLE_TEXT){
+          && (currentAngle - lastAngle) > PieChart.MIN_ANGLE_TEXT){
           this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
           PieChart.SMALL_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + (PieChart.X_CENTER - pie_chart.getLetterValueWidth()/2) + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
             PieChart.SMALL_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
@@ -1846,6 +1870,7 @@ class LineChart extends Chart{
   static PADDING_RIGHT = 10;
   static PADDING_TOP = 30;
   static PADDING_BOTTOM = 30;
+  static LOG_MARGIN = Math.log(1);
 
   static STANDARDIZE_SCALE_FACTOR = 1.25;
 
@@ -1880,8 +1905,17 @@ class LineChart extends Chart{
     else
       this.number_of_vertical_lines = Math.trunc((LineChart.MAX_NUMBER_OF_VERTICAL_LINES-LineChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
   
-    this.max_value_graph = Math.ceil((data_serie.getMaxSerieValue()*LineChart.STANDARDIZE_SCALE_FACTOR)/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
-    this.linear_scale_factor = (Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/this.max_value_graph;
+      this.max_value_linear_graph = Math.ceil((data_serie.getMaxSerieValue()*LineChart.STANDARDIZE_SCALE_FACTOR)/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
+      this.max_value_logarithmic_graph = Math.ceil(this.data_serie.getMaxSerieValue()/(this.number_of_vertical_lines - 1))*(this.number_of_vertical_lines - 1);
+  
+      if(this.max_value_linear_graph == 0)
+        this.max_value_linear_graph = 1;
+  
+      if(this.max_value_logarithmic_graph == 0)
+        this.max_value_logarithmic_graph = 1;
+      
+      this.linear_scale_factor = (Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/this.max_value_linear_graph;
+      this.logarithmic_scale_factor = (Math.log(Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM) - LineChart.LOG_MARGIN)/this.max_value_logarithmic_graph;
   }
 
   setScale(value){
@@ -1919,12 +1953,20 @@ class LineChart extends Chart{
     return this.linear_scale_factor;
   }
 
+  getLogarithmicScaleFactor(){
+    return this.logarithmic_scale_factor;
+  }
+
   getNumberOfVerticalLines(){
     return this.number_of_vertical_lines;
   }
 
-  getMaxValueChart(){
-    return this.max_value_graph;
+  getMaxValueLinearChart(){
+    return this.max_value_linear_graph;
+  }
+
+  getMaxValueLogarithmicChart(){
+    return this.max_value_logarithmic_graph;
   }
 
   checkWidthLimit(variable_quantities){
