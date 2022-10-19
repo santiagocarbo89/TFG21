@@ -658,18 +658,14 @@ class APICanvasApplication {
       else if(bar_chart.getScale() == "logarithmic")
         var y1 = y0 + Math.exp(BarChart.LOG_MARGIN + bar_chart.getLogarithmicScaleFactor()*value);
 
-      var gradient = this.ctx.createLinearGradient(x0, y0, x1, y1)
-      gradient.addColorStop(1 - bar_chart.getGradient(), bar_chart.getColors()[j]);
-      gradient.addColorStop(1, bar_chart.getGradientColor());
-      this.ctx.fillStyle = gradient;
-
       if(bar_chart.getThreedEffect()){
+        
         this.ctx.beginPath();
 
         this.ctx.moveTo(x0, y0);
         this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT, y0 - BarChart.THREE_D_Y_DISPLACEMENT);
-        this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT + bar_chart.getBarWidth(), y0 - BarChart.THREE_D_Y_DISPLACEMENT);
-        this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT + bar_chart.getBarWidth(), y1 - BarChart.THREE_D_Y_DISPLACEMENT);
+        this.ctx.lineTo(x1 + BarChart.THREE_D_X_DISPLACEMENT, y0 - BarChart.THREE_D_Y_DISPLACEMENT);
+        this.ctx.lineTo(x1 + BarChart.THREE_D_X_DISPLACEMENT, y1 - BarChart.THREE_D_Y_DISPLACEMENT);
         this.ctx.lineTo(x1, y1);
 
         if(bar_chart.getShadows()){
@@ -679,6 +675,7 @@ class APICanvasApplication {
           this.ctx.shadowColor = 'black';
         }
 
+        this.ctx.fillStyle = bar_chart.getColors()[j];
         this.ctx.fill();
 
         if(bar_chart.getShadows()){
@@ -688,10 +685,15 @@ class APICanvasApplication {
         }
       
         this.ctx.moveTo(x1, y0);
-        this.ctx.lineTo(x0 + BarChart.THREE_D_X_DISPLACEMENT + bar_chart.bar_width, y0 - BarChart.THREE_D_Y_DISPLACEMENT);
+        this.ctx.lineTo(x1 + BarChart.THREE_D_X_DISPLACEMENT, y0 - BarChart.THREE_D_Y_DISPLACEMENT);
 
         this.ctx.stroke();
       }
+
+      var gradient = this.ctx.createLinearGradient(x0, y0, x1, y1)
+      gradient.addColorStop(1 - bar_chart.getGradient(), bar_chart.getColors()[j]);
+      gradient.addColorStop(1, bar_chart.getGradientColor());
+      this.ctx.fillStyle = gradient;
 
       if(bar_chart.getShadows() && !bar_chart.getThreedEffect()){
         this.ctx.shadowOffsetX = 5;
@@ -823,9 +825,6 @@ class APICanvasApplication {
     this.ctx.lineTo(LineChart.MAX_LINECHART_WIDTH - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
     this.ctx.stroke();
 
-    line_chart.setStrokeStyle("#c0c0c0");
-    this.ctx.strokeStyle = line_chart.getStrokeStyle();
-
     if(line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){
 
       var aux_modifications;
@@ -891,7 +890,7 @@ class APICanvasApplication {
         this.ctx.shadowBlur = 0;
       }
 
-      line_chart.setStrokeStyle("hsl(7, 0%, 30%)");
+      line_chart.setStrokeStyle("#4d4d4d");
       this.ctx.strokeStyle = line_chart.getStrokeStyle();
 
       if(line_chart.getScale() == "linear"){
