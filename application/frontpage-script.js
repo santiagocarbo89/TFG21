@@ -822,7 +822,7 @@ class APICanvasApplication {
     this.ctx.beginPath();
     this.ctx.moveTo(LineChart.PADDING_LEFT, LineChart.PADDING_TOP);
     this.ctx.lineTo(LineChart.PADDING_LEFT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
-    this.ctx.lineTo(LineChart.MAX_LINECHART_WIDTH - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
+    this.ctx.lineTo(Chart.HEIGHT - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
     this.ctx.stroke();
 
     if(line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){
@@ -1054,18 +1054,19 @@ class APICanvasApplication {
       var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
 
+      if((currentAngle - lastAngle) > PieChart.MIN_ANGLE_TEXT){
         if(data_serie.getStructuredDataTags()[j].length <= PieChart.MAX_NUMBER_OF_DIGITS){
           this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
           PieChart.BIG_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + (PieChart.X_CENTER - pie_chart.getLetterTagWidth()/2) + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
             PieChart.BIG_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
         }
 
-        if(data_serie.getStructuredDataValues()[j].length <= PieChart.MAX_NUMBER_OF_DIGITS
-          && (currentAngle - lastAngle) > PieChart.MIN_ANGLE_TEXT){
+        if(data_serie.getStructuredDataValues()[j].length <= PieChart.MAX_NUMBER_OF_DIGITS){
           this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
           PieChart.SMALL_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + (PieChart.X_CENTER - pie_chart.getLetterValueWidth()/2) + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
             PieChart.SMALL_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
         }
+      }
 
       lastAngle = currentAngle;
     }
@@ -1408,8 +1409,6 @@ class Chart{
     this.gradient = 0.0;
     this.gradientColor = '#ffffff';
     this.threedEffect = false;
-
-    this.text_appearance = 1;
   }
 
   getId(){
@@ -1863,8 +1862,6 @@ class BarChart extends Chart{
 }
 
 class LineChart extends Chart{
-  static MAX_LINECHART_WIDTH = 805;
-
   static PADDING_LEFT = 50;
   static PADDING_RIGHT = 10;
   static PADDING_TOP = 30;
@@ -2000,7 +1997,6 @@ class PieChart extends Chart{
   static LETTER_TAG_WIDTH = 30;
   static LETTER_HEIGHT = 12.5;
 
-  static THREED_RADIO = 300;
   static THREED_DEPTH = 60;
   static THREED_REFERENCE_X_POINT = 350;
   static THREED_REFERENCE_RADIO = 136;
