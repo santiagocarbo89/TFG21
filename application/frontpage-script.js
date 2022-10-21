@@ -729,24 +729,24 @@ class APICanvasApplication {
             Chart.HEIGHT - BarChart.PADDING_BOTTOM + BarChart.LETTERS_MARGIN_TOP);
       }
 
-      if(data_serie.getStructuredDataValues()[j].length <= BarChart.MAX_NUMBER_OF_DIGITS && bar_chart.getVisibleValues()){
+      if(data_serie.getStructuredDataValues()[j].toString().length <= BarChart.MAX_NUMBER_OF_DIGITS && bar_chart.getVisibleValues()){
         if(bar_chart.getThreedEffect()){
           if(bar_chart.getScale() == "linear"){
-            this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+            this.ctx.fillText(data_serie.getStructuredDataValues()[j].toString(), 
               (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*j + BarChart.THREE_D_X_DISPLACEMENT, 
                 Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getLinearScaleFactor()*data_serie.getStructuredDataValues()[j] - BarChart.LETTERS_MARGIN_BOTTOM - BarChart.THREE_D_Y_DISPLACEMENT);
           } else if(bar_chart.getScale() == "logarithmic"){
-            this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+            this.ctx.fillText(data_serie.getStructuredDataValues()[j].toString(), 
               (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*j + BarChart.THREE_D_X_DISPLACEMENT, 
                 Chart.HEIGHT - BarChart.PADDING_BOTTOM - Math.exp(BarChart.LOG_MARGIN + bar_chart.getLogarithmicScaleFactor()*data_serie.getStructuredDataValues()[j]) - BarChart.LETTERS_MARGIN_BOTTOM - BarChart.THREE_D_Y_DISPLACEMENT);
           }
         } else {
           if(bar_chart.getScale() == "linear"){
-            this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+            this.ctx.fillText(data_serie.getStructuredDataValues()[j].toString(), 
               (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*j, 
                 Chart.HEIGHT - BarChart.PADDING_BOTTOM - bar_chart.getLinearScaleFactor()*data_serie.getStructuredDataValues()[j] - BarChart.LETTERS_MARGIN_BOTTOM);
           } else if(bar_chart.getScale() == "logarithmic"){
-            this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+            this.ctx.fillText(data_serie.getStructuredDataValues()[j].toString(), 
               (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*j, 
                 Chart.HEIGHT - BarChart.PADDING_BOTTOM - Math.exp(BarChart.LOG_MARGIN + bar_chart.getLogarithmicScaleFactor()*data_serie.getStructuredDataValues()[j]) - BarChart.LETTERS_MARGIN_BOTTOM);
           }
@@ -757,15 +757,16 @@ class APICanvasApplication {
 
   drawLineChart(id) {
     var line_chart = this.line_charts[id];
-    var chart_id = "line-chart-" + line_chart.getDataSerie().getId();
+    var data_serie = line_chart.getDataSerie();
+    var data_serie_id = data_serie.getId();
+    var chart_id = "line-chart-" + data_serie_id;
     this.canvas = document.getElementById(chart_id);
-  
-    if(this.canvas.getContext) {
+    var canvas_context = this.canvas.getContext;
+
+    if(canvas_context) {
       this.ctx = this.canvas.getContext('2d');
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
-
-    var data_serie = line_chart.getDataSerie();
 
     this.ctx.fillStyle = "black";
     this.ctx.strokeStyle = line_chart.getStrokeStyle();
@@ -822,7 +823,7 @@ class APICanvasApplication {
     this.ctx.beginPath();
     this.ctx.moveTo(LineChart.PADDING_LEFT, LineChart.PADDING_TOP);
     this.ctx.lineTo(LineChart.PADDING_LEFT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
-    this.ctx.lineTo(Chart.HEIGHT - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
+    this.ctx.lineTo(Chart.WIDTH - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
     this.ctx.stroke();
 
     if(line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){
@@ -844,8 +845,7 @@ class APICanvasApplication {
 
       while(keep_optimizing_letters){
 
-        if(line_chart.getLetterHeight() > Chart.MIN_FONT
-          && line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){
+        if(line_chart.getLetterHeight() > Chart.MIN_FONT){
           aux_modifications = line_chart.getLetterHeight() - 0.2;
           line_chart.setLetterHeight(aux_modifications);
           this.ctx.font = line_chart.getLetterHeight() + "px " + line_chart.getLetterFont();
@@ -919,13 +919,13 @@ class APICanvasApplication {
             Chart.HEIGHT - LineChart.PADDING_BOTTOM + LineChart.LETTERS_MARGIN_TOP);
       }
 
-      if(data_serie.getStructuredDataValues()[j].length <= LineChart.MAX_NUMBER_OF_DIGITS){
+      if(data_serie.getStructuredDataValues()[j].toString().length <= LineChart.MAX_NUMBER_OF_DIGITS){
         if(line_chart.getScale() == "linear"){
-          this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+          this.ctx.fillText(data_serie.getStructuredDataValues()[j].toString(), 
             (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + line_chart.getSpaceBetweenPoints()*j, 
               Chart.HEIGHT - LineChart.PADDING_BOTTOM - line_chart.getLinearScaleFactor()*data_serie.getStructuredDataValues()[j] - LineChart.LETTERS_MARGIN_BOTTOM);
         } else if(line_chart.getScale() == "logarithmic"){
-          this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+          this.ctx.fillText(data_serie.getStructuredDataValues()[j].toString(), 
             (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + line_chart.getSpaceBetweenPoints()*j, 
               Chart.HEIGHT - LineChart.PADDING_BOTTOM - Math.exp(LineChart.LOG_MARGIN + line_chart.getLogarithmicScaleFactor()*data_serie.getStructuredDataValues()[j]) - LineChart.LETTERS_MARGIN_BOTTOM);
         }
@@ -935,15 +935,17 @@ class APICanvasApplication {
 
   drawPieChart(id) {
     var pie_chart = this.pie_charts[id];
-    var chart_id = "pie-chart-" + pie_chart.getDataSerie().getId();
+    var data_serie = pie_chart.getDataSerie();
+    var data_serie_id = data_serie.getId();
+    var chart_id = "pie-chart-" + data_serie_id;
     this.canvas = document.getElementById(chart_id);
+    var canvas_context = this.canvas.getContext;
   
-    if(this.canvas.getContext) {
+    if(canvas_context) {
       this.ctx = this.canvas.getContext('2d');
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    var data_serie = pie_chart.getDataSerie();
     var totalValues = 0;
 
     this.ctx.lineWidth = pie_chart.getLineWidth();
@@ -1061,8 +1063,8 @@ class APICanvasApplication {
             PieChart.BIG_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
         }
 
-        if(data_serie.getStructuredDataValues()[j].length <= PieChart.MAX_NUMBER_OF_DIGITS){
-          this.ctx.fillText(data_serie.getStructuredDataValues()[j], 
+        if(data_serie.getStructuredDataValues()[j].toString().length <= PieChart.MAX_NUMBER_OF_DIGITS){
+          this.ctx.fillText(data_serie.getStructuredDataValues()[j].toString(), 
           PieChart.SMALL_RADIO*Math.cos((currentAngle - (currentAngle - lastAngle)/2)) + (PieChart.X_CENTER - pie_chart.getLetterValueWidth()/2) + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, 
             PieChart.SMALL_RADIO*Math.sin((currentAngle - (currentAngle - lastAngle)/2)) + PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
         }
@@ -1317,7 +1319,6 @@ class DataSerie{
   }
 
   structureData(){
-    
     var unstructured_data_by_endline = this.getUnstructuredData().split("\n");
     unstructured_data_by_endline.shift();
     this.setNumberOfVariables(unstructured_data_by_endline[0].split(";").length/2 - 1);
@@ -1351,7 +1352,7 @@ class DataSerie{
 
   normalizeValues(){
     var int_normalization = false;
-    var int_expression = /^-?[0-9]+$/;
+    var int_expression = /^-?\d+$/;
 
     for(var i = 0; i < this.structured_data_values.length && !int_normalization; i++){
       if(int_expression.test(this.structured_data_values[i]))
@@ -1366,7 +1367,7 @@ class DataSerie{
       else
         element = parseFloat(parseFloat(this.structured_data_values[i]).toFixed(2));
 
-      this.setStructuredDataValues(i, element.toString());
+      this.setStructuredDataValues(i, element);
     }
   }
 
