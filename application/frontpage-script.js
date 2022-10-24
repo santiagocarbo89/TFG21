@@ -1464,10 +1464,6 @@ class Chart{
     return this.gradientColor;
   }
 
-  getGradientActivated(){
-    return this.gradientActivated;
-  }
-
   getThreedEffect(){
     return this.threedEffect;
   }
@@ -1869,9 +1865,11 @@ class LineChart extends Chart{
   static PADDING_BOTTOM = 30;
   static LOG_MARGIN = Math.log(1);
 
-  static STANDARDIZE_SCALE_FACTOR = 1.25;
-
   static MAX_NUMBER_OF_DIGITS = 5;
+
+  static STANDARDIZE_SCALE_FACTOR = 1.25;
+  static MAX_LOG_VALUE = 3.0;
+  static MIN_LOG_VALUE = 0.0;
 
   static LINES_MARGIN = 30;
   static MIN_SPACE_BETWEEN_POINTS = 15;
@@ -1895,9 +1893,9 @@ class LineChart extends Chart{
 
     var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
 
-    if(logMaxValue >= 2.0)
+    if(logMaxValue >= LineChart.MAX_LOG_VALUE)
       this.number_of_vertical_lines = LineChart.MAX_NUMBER_OF_VERTICAL_LINES;
-    else if(logMaxValue <= 1.0)
+    else if(logMaxValue <= LineChart.MIN_LOG_VALUE)
       this.number_of_vertical_lines = LineChart.MIN_NUMBER_OF_VERTICAL_LINES;
     else
       this.number_of_vertical_lines = Math.trunc((LineChart.MAX_NUMBER_OF_VERTICAL_LINES-LineChart.MIN_NUMBER_OF_VERTICAL_LINES)/logMaxValue);
@@ -1921,9 +1919,6 @@ class LineChart extends Chart{
 
   setSpaceBetweenPoints(space_between_points){
     this.space_between_points = space_between_points;
-
-    if(this.space_between_points < LineChart.MIN_SPACE_BETWEEN_POINTS)
-      this.space_between_points = LineChart.MIN_SPACE_BETWEEN_POINTS;
   }
 
   setTextAppearance(text_appearance){
