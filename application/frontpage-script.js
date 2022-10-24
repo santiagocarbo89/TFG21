@@ -618,14 +618,12 @@ class APICanvasApplication {
 
       while(keep_optimizing_letters){
 
-        if(bar_chart.getLetterHeight() > Chart.MIN_FONT
-          && bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())){
+        if(bar_chart.getLetterHeight() > Chart.MIN_FONT){
           aux_modifications = bar_chart.getLetterHeight() - 0.2;
           bar_chart.setLetterHeight(aux_modifications);
           this.ctx.font = bar_chart.getLetterHeight() + "px " + bar_chart.getLetterFont();
           bar_chart.setLetterValueWidth(this.ctx.measureText(data_serie.getMaxSerieValue().toString()).width);
           bar_chart.setLetterTagWidth(this.ctx.measureText(data_serie.getStructuredDataTags()[0]).width);
-          bar_chart.setBarWidth(Math.max(bar_chart.getLetterTagWidth(), bar_chart.getLetterValueWidth()));
         } else
           keep_optimizing_letters = false;
       }
