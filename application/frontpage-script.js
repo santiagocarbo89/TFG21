@@ -1375,8 +1375,8 @@ class DataSerie{
     var max = 0;
 
     for(var i = 0; i < this.getStructuredDataValues().length; i++){
-      if(parseInt(this.getStructuredDataValues()[i], 10) > max)
-        max = parseInt(this.getStructuredDataValues()[i], 10);
+      if(parseFloat(this.getStructuredDataValues()[i]) > max)
+        max = parseFloat(this.getStructuredDataValues()[i]);
     }
 
     return max;
