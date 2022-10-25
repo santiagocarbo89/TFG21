@@ -952,7 +952,7 @@ class APICanvasApplication {
     this.ctx.globalAlpha = pie_chart.getTransparency();
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
-      totalValues += parseFloat(data_serie.getStructuredDataValues()[j]);
+      totalValues += data_serie.getStructuredDataValues()[j];
     }
 
     var lastAngle = 0; 
@@ -974,7 +974,7 @@ class APICanvasApplication {
     this.ctx.fillStyle = "white";
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
-      var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
+      var dataPart = data_serie.getStructuredDataValues()[j]/totalValues;
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
       
       this.ctx.moveTo(center_x + PieChart.PADDING_LEFT - PieChart.PADDING_RIGHT, PieChart.Y_CENTER + PieChart.PADDING_TOP - PieChart.PADDING_BOTTOM);
@@ -1015,7 +1015,7 @@ class APICanvasApplication {
     }
       
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
-      var dataPart = parseFloat(data_serie.getStructuredDataValues()[j])/totalValues;
+      var dataPart = data_serie.getStructuredDataValues()[j]/totalValues;
       var currentAngle = lastAngle + 2*Math.PI*dataPart;
       
       this.ctx.beginPath();
