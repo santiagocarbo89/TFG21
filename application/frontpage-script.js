@@ -584,8 +584,10 @@ class APICanvasApplication {
     this.ctx.lineTo(Chart.WIDTH - BarChart.PADDING_RIGHT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
     this.ctx.stroke();
 
-    if(bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())){
+    if(bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())
+    && !bar_chart.getOptimized()){
 
+      bar_chart.setOptimized();
       bar_chart.setVisibleValues();
 
       var aux_modifications;
@@ -721,7 +723,8 @@ class APICanvasApplication {
     this.ctx.font = bar_chart.getLetterHeight() + "px " + bar_chart.getLetterFont();
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j += bar_chart.getTextAppearance()){
-      if(data_serie.getStructuredDataTags()[j].length <= BarChart.MAX_NUMBER_OF_DIGITS){
+      if(data_serie.getStructuredDataTags()[j].length <= BarChart.MAX_NUMBER_OF_DIGITS
+      && ((BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*j + bar_chart.getLetterTagWidth()) < Chart.WIDTH){
         this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
           (BarChart.PADDING_LEFT + BarChart.BARS_MARGIN) + (bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())*j, 
             Chart.HEIGHT - BarChart.PADDING_BOTTOM + BarChart.LETTERS_MARGIN_TOP);
@@ -824,7 +827,11 @@ class APICanvasApplication {
     this.ctx.lineTo(Chart.WIDTH - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
     this.ctx.stroke();
 
-    if(line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){
+    if(line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())
+    && !line_chart.getOptimized()){
+
+      line_chart.setOptimized();
+      line_chart.setVisibleValues();
 
       var aux_modifications;
       var keep_optimizing_points = true;
@@ -911,13 +918,14 @@ class APICanvasApplication {
     this.ctx.font = line_chart.getLetterHeight() + "px " + line_chart.getLetterFont();
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j += line_chart.getTextAppearance()){
-      if(data_serie.getStructuredDataTags()[j].length <= LineChart.MAX_NUMBER_OF_DIGITS){
+      if(data_serie.getStructuredDataTags()[j].length <= LineChart.MAX_NUMBER_OF_DIGITS
+      && ((LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + line_chart.getSpaceBetweenPoints()*j + line_chart.getLetterTagWidth()) < Chart.WIDTH){
         this.ctx.fillText(data_serie.getStructuredDataTags()[j], 
           (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + line_chart.getSpaceBetweenPoints()*j, 
             Chart.HEIGHT - LineChart.PADDING_BOTTOM + LineChart.LETTERS_MARGIN_TOP);
       }
 
-      if(data_serie.getStructuredDataValues()[j].toString().length <= LineChart.MAX_NUMBER_OF_DIGITS){
+      if(data_serie.getStructuredDataValues()[j].toString().length <= LineChart.MAX_NUMBER_OF_DIGITS && line_chart.getVisibleValues()){
         if(line_chart.getScale() == "linear"){
           this.ctx.fillText(data_serie.getStructuredDataValues()[j].toString(), 
             (LineChart.PADDING_LEFT + LineChart.LINES_MARGIN) + line_chart.getSpaceBetweenPoints()*j, 
@@ -1758,6 +1766,7 @@ class BarChart extends Chart{
     this.space_between_bars = 20;
     this.text_appearance = 1;
     this.visible_values = true;
+    this.optimized = false;
 
     var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
 
@@ -1801,6 +1810,10 @@ class BarChart extends Chart{
     this.visible_values = !this.visible_values;
   }
 
+  setOptimized(){
+    this.optimized = true;
+  }
+
   getScale(){
     return this.scale;
   }
@@ -1819,6 +1832,10 @@ class BarChart extends Chart{
 
   getVisibleValues(){
     return this.visible_values;
+  }
+
+  getOptimized(){
+    return this.optimized;
   }
 
   getBarWidth(){
@@ -1888,6 +1905,8 @@ class LineChart extends Chart{
     this.scale = "linear";
     this.space_between_points = 50;
     this.text_appearance = 1;
+    this.visible_values = true;
+    this.optimized = false;
 
     var logMaxValue = Math.log10(data_serie.getMaxSerieValue());
 
@@ -1923,6 +1942,14 @@ class LineChart extends Chart{
     this.text_appearance = text_appearance;
   }
 
+  setVisibleValues(){
+    this.visible_values = !this.visible_values;
+  }
+
+  setOptimized(){
+    this.optimized = true;
+  }
+
   getScale(){
     return this.scale;
   }
@@ -1937,6 +1964,14 @@ class LineChart extends Chart{
 
   getTextAppearance(){
     return this.text_appearance;
+  }
+
+  getVisibleValues(){
+    return this.visible_values;
+  }
+
+  getOptimized(){
+    return this.optimized;
   }
 
   getLinearScaleFactor(){
