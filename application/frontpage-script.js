@@ -91,20 +91,30 @@ class APICanvasApplication {
     if(file.length > 1)
       alert("Selecciones un solo archivo, por favor.");
 
-    this.fileReader.readAsText(file[0], "UTF-8");
-    document.getElementById("file-loaded").style.display = "block";
+    var filetype = file[0].name.substring(file[0].name.length - 3);
+
+    if(filetype == "csv"){
+      this.fileReader.readAsText(file[0], "UTF-8");
+      document.getElementById("file-loaded").style.display = "block";
+    } else
+      alert("El archivo seleccionado debe ser '.csv'");
   }
 
   dropManager(event){
     event.preventDefault();
 
-    if(event.dataTransfer.items && event.dataTransfer.files.length == 1){
+    var filetype = event.dataTransfer.files[0].name.substring(event.dataTransfer.files[0].name.length - 3);
+
+    if(event.dataTransfer.items && event.dataTransfer.files.length == 1
+      && filetype == "csv"){
       this.fileReader.readAsText(event.dataTransfer.files[0], "UTF-8");
       event.dataTransfer.items.clear();
       document.getElementById("file-loaded").style.display = "block";
     } else if(event.dataTransfer.items && event.dataTransfer.files.length > 1){
       alert("Suelte un solo archivo, por favor.");
-    }else
+    } else if(filetype != "csv"){
+      alert("El archivo seleccionado debe ser '.csv'");
+    } else
       event.dataTransfer.clearData()
   }
 
