@@ -46,7 +46,7 @@ function createCSV()
         csvData += (Math.floor(Math.random()*33) + 1990).toString() + ";";
 
         numberOfDecimals = Math.floor(Math.random()*11);
-        value = (Math.random()*5000).toFixed(numberOfDecimals).toString();
+        value = (Math.random()*20000).toFixed(numberOfDecimals).toString();
         indexOfDecimal = value.indexOf(".");
 
         if(indexOfDecimal == -1)
@@ -55,7 +55,6 @@ function createCSV()
         value = value.replace(".", ",");
 
         indexOfDecimal = indexOfDecimal - 3;
-
 
         while(indexOfDecimal > 0){
             value = value.slice(0, indexOfDecimal) + "." + value.slice(indexOfDecimal, value.length);

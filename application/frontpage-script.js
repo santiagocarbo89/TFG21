@@ -543,7 +543,7 @@ class APICanvasApplication {
         number_tag = number_tag.toFixed(1);
       }
 
-      if(number_tag.toString().length <= BarChart.MAX_NUMBER_OF_DIGITS){
+      if(data_serie.getMaxSerieValue().toString().length <= BarChart.MAX_NUMBER_OF_DIGITS){
         bar_chart.setStrokeStyle('black');
         this.ctx.strokeStyle = bar_chart.getStrokeStyle();
 
@@ -569,7 +569,7 @@ class APICanvasApplication {
 
       this.ctx.stroke();
 
-      if(number_tag.toString().length <= BarChart.MAX_NUMBER_OF_DIGITS){
+      if(data_serie.getMaxSerieValue().toString().length <= BarChart.MAX_NUMBER_OF_DIGITS){
         this.ctx.fillText(number_tag.toString(), BarChart.LETTERS_MARGIN_LEFT, 
           BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
       }
@@ -786,7 +786,7 @@ class APICanvasApplication {
         number_tag = number_tag.toFixed(1);
       }
       
-      if(number_tag.toString().length <= LineChart.MAX_NUMBER_OF_DIGITS){
+      if(data_serie.getMaxSerieValue().toString().length <= LineChart.MAX_NUMBER_OF_DIGITS){
         line_chart.setStrokeStyle('black');
         this.ctx.strokeStyle = line_chart.getStrokeStyle();
       
@@ -812,7 +812,7 @@ class APICanvasApplication {
 
       this.ctx.stroke();
 
-      if(number_tag.toString().length <= LineChart.MAX_NUMBER_OF_DIGITS){
+      if(data_serie.getMaxSerieValue().toString().length <= LineChart.MAX_NUMBER_OF_DIGITS){
         this.ctx.fillText(number_tag.toString(), LineChart.LETTERS_MARGIN_LEFT, 
           LineChart.PADDING_TOP + ((Chart.HEIGHT - LineChart.PADDING_TOP - LineChart.PADDING_BOTTOM)/(line_chart.getNumberOfVerticalLines()-1))*(line_chart.getNumberOfVerticalLines() - j - 1));
       }
@@ -1736,7 +1736,7 @@ class BarChart extends Chart{
   static PADDING_BOTTOM = 30;
   static LOG_MARGIN = Math.log(1);
 
-  static MAX_NUMBER_OF_DIGITS = 5;
+  static MAX_NUMBER_OF_DIGITS = 4;
 
   static STANDARDIZE_SCALE_FACTOR = 1.25;
   static MAX_LOG_VALUE = 3.0;
@@ -1880,7 +1880,7 @@ class LineChart extends Chart{
   static PADDING_BOTTOM = 30;
   static LOG_MARGIN = Math.log(1);
 
-  static MAX_NUMBER_OF_DIGITS = 5;
+  static MAX_NUMBER_OF_DIGITS = 4;
 
   static STANDARDIZE_SCALE_FACTOR = 1.25;
   static MAX_LOG_VALUE = 3.0;
@@ -2012,7 +2012,7 @@ class PieChart extends Chart{
   static PADDING_TOP = 30;
   static PADDING_BOTTOM = 30;
 
-  static MAX_NUMBER_OF_DIGITS = 5;
+  static MAX_NUMBER_OF_DIGITS = 4;
 
   static X_CENTER = 300;
   static Y_CENTER = 225;
