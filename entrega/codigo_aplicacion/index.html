@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Visualización de datos de los Objetivos de Desarrollo Sostenible</title>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="frontpage.css">
+        <script src="frontpage-script.js" defer></script>
+    </head>
+    <body onload="application.start();">
+        <header><canvas id="logo"></canvas> Visualización de datos de los Objetivos de Desarrollo Sostenible</header>
+        <nav>
+            <ul>
+                <li onclick="application.showHome();">Gráficas</li>
+                <li onclick="application.showData();">Datos</li>
+                <li onclick="application.showAbout();">Información</li>
+                <li onclick="application.showContact();">Contacto</li>
+            </ul>
+        </nav>
+        <div class="main">
+            <div id="home">
+                <button class="add-graph-button" onclick="application.showAddGraphMenu();">Añadir gráfica</button>
+                <div id="add-graph-menu">
+                    <h3>Elija la serie de datos: </h3>
+                    <select id="select-data-serie">
+                        <option value="none" selected>Elija una serie de datos</option>
+                    </select>
+                    <br></br>
+                    <h3>Elija el tipo de gráfica: </h3>
+                    <select id="select-chart-type">
+                        <option value="none" selected>Elija un tipo de gráfica</option>
+                        <option value="bar">Gráfico de barras</option>
+                        <option value="line">Gráfico de líneas</option>
+                        <option value="pie">Gráfico circular</option>
+                    </select>
+                    <br></br>
+                    <input type="button" value="Enviar" id="submit-chart" onclick="application.submitChart()">
+                </div>
+                <div id="charts-content"></div>
+            </div>
+            <div id="data">
+                <div class="data-selection" ondrop="application.dropManager(event)" ondragover="application.dragoverManager(event)">
+                    <h3>Suelte un archivo o selecciónelo</h3>
+                    <a href="javascript:application.selectFile()"><p class="select-file">Selecione un archivo .csv</p></a>
+                    <p id="file-loaded">¡Archivo cargado!</p>
+                    <form id="form-insert-file">
+                        <input type="file" id="insert-file" accept=".csv" onchange="application.insertManager(this.files)"><br></br>
+                    </form>
+                    <div id="title-textbox">
+                        <form id="form-textbox" onsubmit="application.submitDataSerie(event);">
+                            <label for="title"><b>Elija un título:</b></label>
+                            <input type="text" name="title" id="title" required><br><br>
+                            <input type="submit" id="submit-data" value="Enviar">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div id="about">
+                <div class="information-content">
+                    <p>Los ficheros han sido obtenidos del <b>Instituto Nacional de Estadística (INE)</b>.</p>
+                    <p>Toda la información correspondiente se encuentra en el siguiente enlace: <a href="https://www.ine.es/dyngs/ODS/es/index.htm">https://www.ine.es/dyngs/ODS/es/index.htm</a></p>
+                    <p>Los ficheros que conforman los datos deben tener formato .csv (<u>separado por punto y coma</u>).</p>
+                </div>
+            </div>
+            <div id="contact">
+                <div class="personal-file">
+                    <img src="./imgs/me.jpg">
+                    <div class="staff">
+                        <p><b>Autor</b>: Santiago Carbó García</p>
+                        <p><b>Tutor</b>: Carlos Ureña Almagro</p>
+                        <p><b>Correo institucional</b>: carbo@correo.ugr.es</p>
+                        <br>
+                        <p><b>Doble Grado en Ingeniería Informática y Administración y Dirección de Empresas</b></p>
+                    </div>
+                </div>
+            </div>
+            <aside>
+                <h3>Bibliografía relacionada</h3>
+                <p><a href="https://developer.mozilla.org/es/docs/Web/API/Canvas_API">API Canvas - MDN Web Docs - Mozilla</a></p>
+                <p><a href="https://joshondesign.com/p/books/canvasdeepdive/title.html">HTML Canvas Deep Dive</a></p>
+                <p><a href="https://bucephalus.org/text/CanvasHandbook/CanvasHandbook.html">The HTML5 Canvas Handbook</a></p>
+            </aside>
+        </div>
+    </body>
+</html>

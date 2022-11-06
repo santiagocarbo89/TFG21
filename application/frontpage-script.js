@@ -70,7 +70,12 @@ class APICanvasApplication {
   }
 
   showOptions(id){
-    var real_id = id.substring(0, id.indexOf("-")) + "-chart-options-" + id.substring(id.length - 1);
+    var aux_id = id.substring(id.indexOf("-") + 1);
+
+    while(aux_id.indexOf("-") != -1)
+    aux_id = aux_id.substring(aux_id.indexOf("-") + 1);
+
+    var real_id = id.substring(0, id.indexOf("-")) + "-chart-options-" + aux_id;
     var options_button = document.getElementById(real_id);
     var options_button_display = window.getComputedStyle(options_button).display;
 
@@ -197,20 +202,25 @@ class APICanvasApplication {
   }
 
   removeDataSerie(id){
-    var real_id = id.substring(id.length - 1);
+    var real_id = id.substring(id.indexOf("-") + 1);
 
+    while(real_id.indexOf("-") != -1)
+      real_id = real_id.substring(real_id.indexOf("-") + 1);
+    
     if(!this.dataSerieHasAssociatedCharts(real_id)){
 
       var select_data_serie = document.getElementById("select-data-serie");
       var loop = true;
 
-      for(var i = 0; i < select_data_serie.options.length && loop; i++){
-        for(var j = 0; j < this.data_series.length; j++){
-          if(select_data_serie.options[i].text == this.data_series[j].getTitle()){
-            select_data_serie.remove(i);
-            document.getElementById("data-serie-" + this.data_series[j].getId()).remove();
-            this.data_series.splice(j, 1);
-            loop = false;
+      for(var i = 0; i < this.data_series.length && loop; i++){
+        if(this.data_series[i].getId() == real_id && loop){
+          for(var j = 0; j < select_data_serie.options.length; j++){
+            if(select_data_serie.options[j].text == this.data_series[i].getTitle()){
+              select_data_serie.remove(j);
+              document.getElementById("data-serie-" + this.data_series[i].getId()).remove();
+              this.data_series.splice(i, 1);
+              loop = false;
+            }
           }
         }
       }
@@ -303,7 +313,10 @@ class APICanvasApplication {
   }
 
   changeChartVisualized(id, value){
-    var id_data_serie = id.substring(id.length - 1);
+    var id_data_serie = id.substring(id.indexOf("-") + 1);
+
+    while(id_data_serie.indexOf("-") != -1)
+      id_data_serie = id_data_serie.substring(id_data_serie.indexOf("-") + 1);
 
     var array_in;
     var array_in_to_draw;
@@ -424,7 +437,11 @@ class APICanvasApplication {
   }
 
   removeChart(id){
-    var real_id = id.substring(id.length - 1);
+    var real_id = id.substring(id.indexOf("-") + 1);
+
+    while(real_id.indexOf("-") != -1)
+      real_id = real_id.substring(real_id.indexOf("-") + 1);
+
     var aux_string = id.substring(id.indexOf("-") + 1);
     var chart_type = aux_string.substring(0, aux_string.indexOf("-"));
     var select_charts = document.getElementById("charts-" + real_id);
@@ -542,58 +559,6 @@ class APICanvasApplication {
     this.ctx.font = bar_chart.getLetterHeight() + "px " + bar_chart.getLetterFont();
     this.ctx.globalAlpha = bar_chart.getTransparency();
 
-    var number_tag;
-
-    for(var j = 0; j < bar_chart.getNumberOfVerticalLines(); j++){
-
-      if(bar_chart.getScale() == "linear")
-        number_tag = bar_chart.getMaxValueLinearChart()*(j/(bar_chart.getNumberOfVerticalLines() - 1));
-      else if(bar_chart.getScale() == "logarithmic"){
-        number_tag = (bar_chart.getMaxValueLogarithmicChart()*Math.log(((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)*(j/(bar_chart.getNumberOfVerticalLines() - 1))) + Math.exp(BarChart.LOG_MARGIN)))/Math.log(Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM);
-        number_tag = number_tag.toFixed(1);
-      }
-
-      if(data_serie.getMaxSerieValue().toString().length <= BarChart.MAX_NUMBER_OF_DIGITS){
-        bar_chart.setStrokeStyle('black');
-        this.ctx.strokeStyle = bar_chart.getStrokeStyle();
-
-        this.ctx.beginPath();
-        this.ctx.moveTo(BarChart.PADDING_LEFT - BarChart.VERTICAL_LINES_WIDTH,
-          BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
-
-        this.ctx.lineTo(BarChart.PADDING_LEFT, 
-          BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
-
-        this.ctx.stroke();
-      }
-
-      bar_chart.setStrokeStyle('#e5e4e2');
-      this.ctx.strokeStyle = bar_chart.getStrokeStyle();
-
-      this.ctx.beginPath();
-      this.ctx.moveTo(BarChart.PADDING_LEFT, 
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
-  
-      this.ctx.lineTo(Chart.WIDTH - BarChart.PADDING_RIGHT,
-        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
-
-      this.ctx.stroke();
-
-      if(data_serie.getMaxSerieValue().toString().length <= BarChart.MAX_NUMBER_OF_DIGITS){
-        this.ctx.fillText(number_tag.toString(), BarChart.LETTERS_MARGIN_LEFT, 
-          BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
-      }
-    }
-
-    bar_chart.setStrokeStyle('black');
-    this.ctx.strokeStyle = bar_chart.getStrokeStyle();
-
-    this.ctx.beginPath();
-    this.ctx.moveTo(BarChart.PADDING_LEFT, BarChart.PADDING_TOP);
-    this.ctx.lineTo(BarChart.PADDING_LEFT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
-    this.ctx.lineTo(Chart.WIDTH - BarChart.PADDING_RIGHT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
-    this.ctx.stroke();
-
     if(bar_chart.checkWidthLimit(bar_chart.getBarWidth() + bar_chart.getSpaceBetweenBars())
     && !bar_chart.getOptimized()){
 
@@ -650,6 +615,58 @@ class APICanvasApplication {
           keep_optimizing_letter_appearance = false;
       }
     }
+
+    var number_tag;
+
+    for(var j = 0; j < bar_chart.getNumberOfVerticalLines(); j++){
+
+      if(bar_chart.getScale() == "linear")
+        number_tag = bar_chart.getMaxValueLinearChart()*(j/(bar_chart.getNumberOfVerticalLines() - 1));
+      else if(bar_chart.getScale() == "logarithmic"){
+        number_tag = (bar_chart.getMaxValueLogarithmicChart()*Math.log(((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)*(j/(bar_chart.getNumberOfVerticalLines() - 1))) + Math.exp(BarChart.LOG_MARGIN)))/Math.log(Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM);
+        number_tag = number_tag.toFixed(1);
+      }
+
+      if(data_serie.getMaxSerieValue().toString().length <= BarChart.MAX_NUMBER_OF_DIGITS){
+        bar_chart.setStrokeStyle('black');
+        this.ctx.strokeStyle = bar_chart.getStrokeStyle();
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(BarChart.PADDING_LEFT - BarChart.VERTICAL_LINES_WIDTH,
+          BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
+
+        this.ctx.lineTo(BarChart.PADDING_LEFT, 
+          BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
+
+        this.ctx.stroke();
+      }
+
+      bar_chart.setStrokeStyle('#e5e4e2');
+      this.ctx.strokeStyle = bar_chart.getStrokeStyle();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(BarChart.PADDING_LEFT, 
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
+  
+      this.ctx.lineTo(Chart.WIDTH - BarChart.PADDING_RIGHT,
+        BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
+
+      this.ctx.stroke();
+
+      if(data_serie.getMaxSerieValue().toString().length <= BarChart.MAX_NUMBER_OF_DIGITS){
+        this.ctx.fillText(number_tag.toString(), BarChart.LETTERS_MARGIN_LEFT, 
+          BarChart.PADDING_TOP + ((Chart.HEIGHT - BarChart.PADDING_TOP - BarChart.PADDING_BOTTOM)/(bar_chart.getNumberOfVerticalLines()-1))*(bar_chart.getNumberOfVerticalLines() - j - 1));
+      }
+    }
+
+    bar_chart.setStrokeStyle('black');
+    this.ctx.strokeStyle = bar_chart.getStrokeStyle();
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(BarChart.PADDING_LEFT, BarChart.PADDING_TOP);
+    this.ctx.lineTo(BarChart.PADDING_LEFT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
+    this.ctx.lineTo(Chart.WIDTH - BarChart.PADDING_RIGHT, Chart.HEIGHT - BarChart.PADDING_BOTTOM);
+    this.ctx.stroke();
 
     for(var j = 0; j < data_serie.getStructuredDataValues().length; j++){
       var value = data_serie.getStructuredDataValues()[j];
@@ -785,6 +802,50 @@ class APICanvasApplication {
     this.ctx.font = line_chart.getLetterHeight() + "px " + line_chart.getLetterFont();
     this.ctx.globalAlpha = line_chart.getTransparency();
 
+    if(line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())
+    && !line_chart.getOptimized()){
+
+      line_chart.setOptimized();
+      line_chart.setVisibleValues();
+
+      var aux_modifications;
+      var keep_optimizing_points = true;
+
+      while(keep_optimizing_points){
+
+        if(line_chart.getSpaceBetweenPoints() > LineChart.MIN_SPACE_BETWEEN_POINTS 
+          && line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){        
+          aux_modifications = line_chart.getSpaceBetweenPoints() - 0.1;
+          line_chart.setSpaceBetweenPoints(aux_modifications);
+        } else
+          keep_optimizing_points = false;
+      }
+  
+      var keep_optimizing_letters = true;
+
+      while(keep_optimizing_letters){
+
+        if(line_chart.getLetterHeight() > Chart.MIN_FONT){
+          aux_modifications = line_chart.getLetterHeight() - 0.2;
+          line_chart.setLetterHeight(aux_modifications);
+          this.ctx.font = line_chart.getLetterHeight() + "px " + line_chart.getLetterFont();
+          line_chart.setLetterValueWidth(this.ctx.measureText(data_serie.getMaxSerieValue().toString()).width);
+          line_chart.setLetterTagWidth(this.ctx.measureText(data_serie.getStructuredDataTags()[0]).width);
+        } else
+          keep_optimizing_letters = false;
+      }
+
+      var keep_optimizing_letter_appearance = true;
+
+      while(keep_optimizing_letter_appearance){
+        if(line_chart.getSpaceBetweenPoints()*line_chart.getTextAppearance() < 2*Math.max(line_chart.getLetterTagWidth(), line_chart.getLetterValueWidth())){
+          aux_modifications = line_chart.getTextAppearance() + 1;
+          line_chart.setTextAppearance(aux_modifications);
+        } else
+          keep_optimizing_letter_appearance = false;
+      }
+    }
+
     var number_tag;
 
     for(var j = 0; j < line_chart.getNumberOfVerticalLines(); j++){
@@ -836,50 +897,6 @@ class APICanvasApplication {
     this.ctx.lineTo(LineChart.PADDING_LEFT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
     this.ctx.lineTo(Chart.WIDTH - LineChart.PADDING_RIGHT, Chart.HEIGHT - LineChart.PADDING_BOTTOM);
     this.ctx.stroke();
-
-    if(line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())
-    && !line_chart.getOptimized()){
-
-      line_chart.setOptimized();
-      line_chart.setVisibleValues();
-
-      var aux_modifications;
-      var keep_optimizing_points = true;
-
-      while(keep_optimizing_points){
-
-        if(line_chart.getSpaceBetweenPoints() > LineChart.MIN_SPACE_BETWEEN_POINTS 
-          && line_chart.checkWidthLimit(line_chart.getSpaceBetweenPoints())){        
-          aux_modifications = line_chart.getSpaceBetweenPoints() - 0.1;
-          line_chart.setSpaceBetweenPoints(aux_modifications);
-        } else
-          keep_optimizing_points = false;
-      }
-  
-      var keep_optimizing_letters = true;
-
-      while(keep_optimizing_letters){
-
-        if(line_chart.getLetterHeight() > Chart.MIN_FONT){
-          aux_modifications = line_chart.getLetterHeight() - 0.2;
-          line_chart.setLetterHeight(aux_modifications);
-          this.ctx.font = line_chart.getLetterHeight() + "px " + line_chart.getLetterFont();
-          line_chart.setLetterValueWidth(this.ctx.measureText(data_serie.getMaxSerieValue().toString()).width);
-          line_chart.setLetterTagWidth(this.ctx.measureText(data_serie.getStructuredDataTags()[0]).width);
-        } else
-          keep_optimizing_letters = false;
-      }
-
-      var keep_optimizing_letter_appearance = true;
-
-      while(keep_optimizing_letter_appearance){
-        if(line_chart.getSpaceBetweenPoints()*line_chart.getTextAppearance() < 2*Math.max(line_chart.getLetterTagWidth(), line_chart.getLetterValueWidth())){
-          aux_modifications = line_chart.getTextAppearance() + 1;
-          line_chart.setTextAppearance(aux_modifications);
-        } else
-          keep_optimizing_letter_appearance = false;
-      }
-    }
 
     this.ctx.beginPath();
     
@@ -1124,7 +1141,11 @@ class APICanvasApplication {
   }
 
   changeScaleBarChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+
     var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setScale(value);
@@ -1132,7 +1153,11 @@ class APICanvasApplication {
   }
   
   changeLineWidthBarChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setLineWidth(value);
@@ -1140,7 +1165,11 @@ class APICanvasApplication {
   }
 
   changeShadowsBarChart(id){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setShadows();
@@ -1148,7 +1177,11 @@ class APICanvasApplication {
   }
 
   changeTransparencyBarChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setTransparency(value);
@@ -1156,7 +1189,11 @@ class APICanvasApplication {
   }
 
   changeGradientBarChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setGradient(value);
@@ -1164,7 +1201,11 @@ class APICanvasApplication {
   }
 
   changeGradientColorBarChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setGradientColor(value);
@@ -1172,7 +1213,11 @@ class APICanvasApplication {
   }
 
   changeThreedEffectBarChart(id){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.barChartIdFromDataSerie(data_serie_id);
     var bar_chart = this.bar_charts[real_id];
     bar_chart.setThreedEffect();
@@ -1180,7 +1225,11 @@ class APICanvasApplication {
   }
 
   changeScaleLineChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.lineChartIdFromDataSerie(data_serie_id);
     var line_chart = this.line_charts[real_id];
     line_chart.setScale(value);
@@ -1188,7 +1237,11 @@ class APICanvasApplication {
   }
 
   changeLineWidthLineChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.lineChartIdFromDataSerie(data_serie_id);
     var line_chart = this.line_charts[real_id];
     line_chart.setLineWidth(value);
@@ -1196,7 +1249,11 @@ class APICanvasApplication {
   }
 
   changeShadowsLineChart(id){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.lineChartIdFromDataSerie(data_serie_id);
     var line_chart = this.line_charts[real_id];
     line_chart.setShadows();
@@ -1204,7 +1261,11 @@ class APICanvasApplication {
   }
 
   changeTransparencyLineChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.lineChartIdFromDataSerie(data_serie_id);
     var line_chart = this.line_charts[real_id];
     line_chart.setTransparency(value);
@@ -1212,7 +1273,11 @@ class APICanvasApplication {
   }
 
   changeLineWidthPieChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setLineWidth(value);
@@ -1220,7 +1285,11 @@ class APICanvasApplication {
   }
 
   changeShadowsPieChart(id){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setShadows();
@@ -1228,7 +1297,11 @@ class APICanvasApplication {
   }
 
   changeTransparencyPieChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setTransparency(value);
@@ -1236,7 +1309,11 @@ class APICanvasApplication {
   }
 
   changeGradientPieChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setGradient(value);
@@ -1244,7 +1321,11 @@ class APICanvasApplication {
   }
 
   changeGradientColorPieChart(id, value){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setGradientColor(value);
@@ -1252,7 +1333,11 @@ class APICanvasApplication {
   }
 
   changeThreedEffectPieChart(id){
-    var data_serie_id = id.substring(id.length - 1);
+    var data_serie_id = id.substring(id.indexOf("-") + 1);
+
+    while(data_serie_id.indexOf("-") != -1)
+      data_serie_id = data_serie_id.substring(data_serie_id.indexOf("-") + 1);
+    
     var real_id = this.pieChartIdFromDataSerie(data_serie_id);
     var pie_chart = this.pie_charts[real_id];
     pie_chart.setThreedEffect();
@@ -1746,7 +1831,7 @@ class BarChart extends Chart{
   static PADDING_BOTTOM = 30;
   static LOG_MARGIN = Math.log(1);
 
-  static MAX_NUMBER_OF_DIGITS = 4;
+  static MAX_NUMBER_OF_DIGITS = 5;
 
   static STANDARDIZE_SCALE_FACTOR = 1.25;
   static MAX_LOG_VALUE = 3.0;
@@ -1890,7 +1975,7 @@ class LineChart extends Chart{
   static PADDING_BOTTOM = 30;
   static LOG_MARGIN = Math.log(1);
 
-  static MAX_NUMBER_OF_DIGITS = 4;
+  static MAX_NUMBER_OF_DIGITS = 5;
 
   static STANDARDIZE_SCALE_FACTOR = 1.25;
   static MAX_LOG_VALUE = 3.0;
