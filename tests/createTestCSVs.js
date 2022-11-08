@@ -1,3 +1,5 @@
+var fileNumber = 1;
+
 function createCSV()
 {
     var csvRows = Math.floor(Math.random() * 101);
@@ -65,13 +67,8 @@ function createCSV()
         csvData += "\n";
     }
 
-    var csvFilenameLength = Math.floor(Math.random() * 30) + 1;
-    var csvFilename = "";
-
-    for(var i = 0; i < csvFilenameLength; i++)
-        csvFilename += csvPosibleCharacters.charAt(Math.floor(Math.random()*csvPosibleCharacters.length));
-
-    csvFilename += ".csv";
+    var csvFilename = "variable test número " + fileNumber + ".csv";
+    fileNumber++;
 
     var csvTarget = "_blank";
     var csvHref = "data:text/csv;charset=utf-8," + encodeURIComponent(csvData);
