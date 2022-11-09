@@ -184,17 +184,17 @@ class APICanvasApplication {
     var associated_charts = false;
 
     for(var i = 0; i < this.bar_charts.length && !associated_charts; i++){
-      if(this.bar_charts[i].getId() == real_id)
+      if(this.bar_charts[i].getDataSerie().getId() == real_id)
         associated_charts = true;
     }
 
     for(var i = 0; i < this.line_charts.length && !associated_charts; i++){
-      if(this.line_charts[i].getId() == real_id)
+      if(this.line_charts[i].getDataSerie().getId() == real_id)
         associated_charts = true;
     }
 
     for(var i = 0; i < this.pie_charts.length && !associated_charts; i++){
-      if(this.pie_charts[i].getId() == real_id)
+      if(this.pie_charts[i].getDataSerie().getId() == real_id)
         associated_charts = true;
     }
 
